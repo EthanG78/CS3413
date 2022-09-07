@@ -1,7 +1,8 @@
 all: a1
 
 a1:
-	@echo "This is assignment 1"
+	gcc myshell.c -o myshell -Wall
 
 clean:
-	rm *.o
+	rm -rvf *.exe
+	rm -rvf *.o

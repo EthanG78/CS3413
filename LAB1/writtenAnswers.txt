@@ -1,0 +1,5 @@
+CS3413 Lab 1
+Ethan Garnier
+
+Q1:
+Running the "make" command ran the gcc command I placed in the Makefile and generated the hellomake binary.

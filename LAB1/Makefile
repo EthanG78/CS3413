@@ -16,7 +16,9 @@ hellofunc.o: hellofunc.c $(DEPS)
 run:
 	./$(EXE)
 
-debug: $(OBJS)
+debug:
+	$(CC) -g -c hellomake.c $(CFLAGS)
+	$(CC) -g -c hellofunc.c $(CFLAGS)
 	$(CC) -g -o $(EXE) $(OBJS) $(CFLAGS)
 
 clean:

@@ -4,10 +4,9 @@ Ethan Garnier
 Q1:
 Running the "make" command ran the gcc command I placed in the Makefile and generated the hellomake binary.
 
-Q2: #TODO: ask why i did not get an error
-a) b) When I run make now, it also runs two additional gcc commands to generate the hellomake.o and hellofunc.o object files for use in the gcc command in the makefile. These two object files are now in my directory, on top of the hellomake binary.
+Q2:
+a) When I run make now, it also runs two additional gcc commands to generate the hellomake.o and hellofunc.o object files for use in the gcc command in the makefile.
+b) There was no error. The hellofunc.o and hellomake.o object files are now in my directory, on top of the hellomake binary.
 
 Q3:
 Upon changing the value of MYNUM in hellomake.h from 42 to 9 and running make again, neither of the object files were recompiled. Make only ran the gcc command in the makefile, which used the pre-existing hellofunc.o and hellomake.o files. Thus, after running the hellomake binary MYNUM was still printing as 42.
-
-Q4:

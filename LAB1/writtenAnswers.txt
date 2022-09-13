@@ -5,7 +5,7 @@ Q1:
 Running the "make" command ran the gcc command I placed in the Makefile and generated the hellomake binary.
 
 Q2:
-a) When I run make now, it also runs two additional gcc commands to generate the hellomake.o and hellofunc.o object files for use in the gcc command in the makefile.
+a) When I run make now, it also runs two additional gcc commands to generate the hellomake.o and hellofunc.o object files for use in the gcc command in the makefile. This is because the makefile has those object files listed as dependencies.
 b) There was no error. The hellofunc.o and hellomake.o object files are now in my directory, on top of the hellomake binary.
 
 Q3:

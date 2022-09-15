@@ -8,10 +8,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include <util.h>
 
 int main(int argc, char *argv[])
 {
+    char *cwd = getcwd(NULL, 0);
+    if (cwd == NULL)
+    {
+      // getcwd threw an error,
+      // print out the errno error
+      perror("getcwd");
+    }
+
     char *inputStr;
     int nInput;
 
@@ -20,6 +29,12 @@ int main(int argc, char *argv[])
     // program when the user enters 'exit' 
     do
     {
+      // todo:
+      // currently if the user enters nothing
+      // then cwd is not printed out again...
+      printf("%s%%", cwd);
+      fflush(stdout);
+
       // using the dynamic allocation conversion specifier
       // so we do not need to specify buffuer size
       nInput = scanf("%ms", &inputStr);
@@ -27,7 +42,8 @@ int main(int argc, char *argv[])
       if (nInput > 0)
       {
         // successfully read user input
-        printf("You typed: %s\n", inputStr);
+        // printf("You typed: %s\n", inputStr);
+        // handle commands
       }
       else if (errno != 0)
       {
@@ -41,6 +57,10 @@ int main(int argc, char *argv[])
     // since input is dynamically allocated
     // we must call free on it
     free(inputStr);
-    
+
+    // since cwd is dynamically allocated
+    // we must call free on it
+    free(cwd);    
+
     return 0;
 }

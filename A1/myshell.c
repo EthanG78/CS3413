@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
       // so we do not need to specify buffuer size
       nInput = scanf("%ms", &inputStr);
 
-      if (nInput == 1)
+      if (nInput > 0)
       {
         // successfully read user input
         printf("You typed: %s\n", inputStr);
@@ -36,13 +36,6 @@ int main(int argc, char *argv[])
         perror("scanf()");
         return 1;
       }
-      else
-      {
-        // scanf did not read anything...
-        // todo: handle this
-        return 1;
-      }
-      
     } while (strcmp(inputStr, "exit") != 0);
 
     // since input is dynamically allocated

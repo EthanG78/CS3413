@@ -5,4 +5,7 @@
   Ethan Garnier
 */
 
-#define TEST 9
+#define CMD_MAX 100
+
+int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim);
+

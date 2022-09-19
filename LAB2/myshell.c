@@ -1,48 +1,42 @@
 /*
-  myshell.c
-  COMP 3413 Operating Systems 1
-  
-  Ethan Garnier
+	myshell.c
+	COMP 3413 Operating Systems 1
+	
+	Modified from lab2 handout.
+	
+	To compile: gcc myshell.c
+	
 */
+
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
-#include <util.h>
 
-int main(int argc, char *argv[])
-{
-    char *inputStr;
-    int nInput;
+#define BUFSIZE 81
 
-    // this is the main shell loop which will accept
-    // user input, handle all errors, and end the 
-    // program when the user enters 'exit' 
-    do
-    {
-      // using the dynamic allocation conversion specifier
-      // so we do not need to specify buffuer size
-      nInput = scanf("%ms", &inputStr);
+int main(int argc, char *argv[]){
 
-      if (nInput > 0)
-      {
-        // successfully read user input
-        printf("You typed: %s\n", inputStr);
-        // handle commands
-      }
-      else if (errno != 0)
-      {
-        // scanf threw an error,
-        // print out the errno error
-        perror("scanf()");
-        return 1;
-      }
-    } while (strcmp(inputStr, "exit") != 0);
+  int ret_code;		// return code
+  int len;		// length of entered command
+  char buffer[BUFSIZE];	// room for 80 chars plus \0
+  char *cmd;		// pointer to entered command
 
-    // since input is dynamically allocated
-    // we must call free on it
-    free(inputStr);
-    
-    return 0;
-}
+  // Print a prompt and read a command from standard input
+  printf("Enter a command: > ");
+  cmd = fgets(buffer, BUFSIZE, stdin);
+
+  // did the user enter a command?
+  if(cmd != NULL){
+    // check for the newline character and overwrite with \0
+    len = strlen(buffer);
+    if(buffer[len-1] == '\n'){
+      buffer[len-1] = '\0';
+    }
+    // execute the command
+    ret_code = execlp(cmd, cmd, NULL);
+    if(ret_code != 0){
+      printf("Error executing %s.\n", cmd);
+    }
+  }
+  printf("All done.\n");
+} // main

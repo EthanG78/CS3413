@@ -26,6 +26,14 @@ int main (){
     fclose (fp);
     printf("     OS: %s", info);
    }
+  fp = fopen ("/proc/sys/kernel/hostname", "r");
+  if(fp == NULL)
+    printf("file open failed\n");
+  else{
+    fgets(info, BUFSIZE, fp);
+    fclose (fp);
+    printf("     Hostname: %s", info);
+  }
   fp = fopen ("/proc/sys/kernel/version", "r");
   if(fp == NULL)
     printf("file open failed\n");

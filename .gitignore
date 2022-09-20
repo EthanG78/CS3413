@@ -60,3 +60,5 @@ dkms.conf
 # Ignore pdf and zip files I will create for submissions
 *.zip
 *.pdf
+
+.vscode

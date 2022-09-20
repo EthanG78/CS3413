@@ -19,18 +19,15 @@
 
 int main(int argc, char *argv[])
 {
-
   int ret_code;         // return code
   int len;              // length of entered command
   int pid;              // process pid
   char buffer[BUFSIZE]; // room for 80 chars plus \0
+
   char *cmd;            // pointer to entered command
-
-  char **cmdArr;
-  int tokenIdx = 0;
+  char **cmdArr;        // array containing entered command with args
+  int tokenIdx = 0;     // index in cmdArr
   char *token, *strRemainder;
-
-  int i;
 
   // Print a prompt and read a command from standard input
   printf("Enter a command: > ");
@@ -46,27 +43,6 @@ int main(int argc, char *argv[])
       buffer[len - 1] = '\0';
     }
 
-    strRemainder = cmd;
-
-    // loop until we no longer have tokens to parse or we have parsed
-    // more tokens then we are capable of storing.
-    // todo: the man page says str must be set to null after first run...
-    while ((token = strtok_r(strRemainder, " ", &strRemainder)) && tokenIdx < BUFSIZE / 2)
-    {
-      char *nullToken = token + '\0';
-      printf("%s\n", nullToken);
-      cmdArr[tokenIdx++] = nullToken;
-    }
-
-    cmdArr[tokenIdx] = NULL;
-
-    for (i = 0; i < tokenIdx; i++)
-    {
-      printf("%s\n", cmdArr[tokenIdx]);
-    }
-
-    tokenIdx = 0;
-
     pid = fork();
     if (pid != 0)
     {
@@ -75,15 +51,27 @@ int main(int argc, char *argv[])
     }
     else
     {
+      strRemainder = cmd;
 
-      exit(0);
+      // divide the command up into arguments for the exec call
+      while ((token = strtok_r(strRemainder, " ", &strRemainder)) && tokenIdx < (BUFSIZE / 2) + 1)
+      {
+        char *nullToken = token + '\0';
+        cmdArr[tokenIdx++] = nullToken;
+      }
 
-      // execute the command
-      /*ret_code = execlp(cmdArr[0], cmdArr);
+      // the last argument must be NULL for execvp
+      cmdArr[tokenIdx] = (char *)NULL;
+
+      tokenIdx = 0;
+
+      // execute the command with argument
+      // array that was created
+      ret_code = execvp(cmdArr[0], cmdArr);
       if(ret_code != 0){
         printf("Error executing %s.\n", cmd);
         exit(0);
-      }*/
+      }
     }
     printf("Enter a command: > ");
     cmd = fgets(buffer, BUFSIZE, stdin);

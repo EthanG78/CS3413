@@ -30,6 +30,8 @@ int main(int argc, char *argv[]){
   int tokenIdx = 0;
   char *token, *strRemainder;
 
+  int i;
+
   // Print a prompt and read a command from standard input
   printf("Enter a command: > ");
   cmd = fgets(buffer, BUFSIZE, stdin);
@@ -62,9 +64,9 @@ int main(int argc, char *argv[]){
 
       cmdArr[tokenIdx] = NULL; 
 
-      for (int i = 0; i< tokenIdx; i++)
+      for(i = 0; i < tokenIdx; i++)
       {
-        printf("%s\n" cmdArr[tokenIdx]);
+        printf("%s\n", cmdArr[tokenIdx]);
       }
 
       tokenIdx = 0;

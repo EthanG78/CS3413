@@ -36,13 +36,18 @@ int main(int argc, char *argv[])
   // this is the main shell loop which will accept
   // user input, handle all errors, and end the
   // program when the user enters 'exit'
-  while (inputStr != NULL || strcmp(inputStr, "exit") != 0)
+  while (inputStr != NULL)
   {
     // check for the newline character and overwrite with \0
     len = strlen(buffer);
     if (buffer[len - 1] == '\n')
     {
       buffer[len - 1] = '\0';
+    }
+
+    if (strcmp(inputStr, "exit") == 0)
+    {
+      break;
     }
 
     int nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");

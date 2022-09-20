@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
   char *cwd;              // pointer to current working dir string
   char *inputStr;         // pointer to entered cmd
   char **cmdArr;          // array of entered cmd args
+  int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
   int len;                // length of entered command
 
@@ -50,7 +51,28 @@ int main(int argc, char *argv[])
       break;
     }
 
-    int nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");
+    nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");
+
+    // check for user input
+    if (nArgs > 0)
+    {
+      if (strcmp(cmdArr[0], "cd") == 0)
+      {
+        // manually implement cd with chdir
+        if (chdir(cmdArr[1]) == -1)
+        {
+          perror("chdir()");
+        }
+
+        // make sure to update cwd var
+        cwd = getcwd(NULL, 0);
+        if (cwd == NULL)
+        {
+          perror("getcwd");
+        }
+      }
+    }
+
     int i;
     for (i = 0; i < nArgs; i++)
     {

@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
   int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
   int len;                // length of entered command
+  pid_t pid;              // process id
 
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
@@ -84,10 +85,25 @@ int main(int argc, char *argv[])
       }
     }
 
-    int i;
-    for (i = 0; i < nArgs; i++)
+    // todo:
+    // executing commands
+    pid = fork();
+    if (pid != 0)
     {
-      printf("%s\n", cmdArr[i]);
+      // todo:
+      // make sure we use right wait
+      // wait for child process to finish
+      waitpid(pid, NULL, 0);
+    }
+    else
+    {
+      // execute the command with argument
+      // array that was created
+      if(execvp(cmdArr[0], cmdArr) != 0){
+        printf("Error executing %s.\n", cmdArr[0]);
+        perror("execvp()");
+        exit(0);
+      }
     }
 
     printf("%s%%", cwd);

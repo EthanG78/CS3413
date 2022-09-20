@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     if (nArgs > 0)
     {
       // todo:
-      // needs testing, i don't think 
+      // needs testing, i don't think
       // we should assume it is always
       // the first command entered
       if (strcmp(cmdArr[0], "cd") == 0)
@@ -85,26 +85,29 @@ int main(int argc, char *argv[])
           printf("A directory to cd into must be supplied with the cd command.\n");
         }
       }
-    }
-
-    // todo:
-    // executing commands
-    pid = fork();
-    if (pid != 0)
-    {
-      // todo:
-      // make sure we use right wait
-      // wait for child process to finish
-      waitpid(pid, NULL, 0);
-    }
-    else
-    {
-      // execute the command with argument
-      // array that was created
-      if(execvp(cmdArr[0], cmdArr) != 0){
-        printf("Error executing %s.\n", cmdArr[0]);
-        perror("execvp()");
-        exit(0);
+      else
+      {
+        // todo:
+        // executing commands
+        pid = fork();
+        if (pid != 0)
+        {
+          // todo:
+          // make sure we use right wait
+          // wait for child process to finish
+          waitpid(pid, NULL, 0);
+        }
+        else
+        {
+          // execute the command with argument
+          // array that was created
+          if (execvp(cmdArr[0], cmdArr) != 0)
+          {
+            printf("Error executing %s.\n", cmdArr[0]);
+            perror("execvp()");
+            exit(0);
+          }
+        }
       }
     }
 

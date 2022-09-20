@@ -28,7 +28,7 @@ int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
   while ((token = strtok_r(strRemainder, delim, &strRemainder)) && tokenIdx < arrSize)
   {
     arr[tokenIdx++] = token;
- 
+
   }
 
   return 0;

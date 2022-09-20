@@ -26,6 +26,10 @@ int main(int argc, char *argv[]){
   char buffer[BUFSIZE];	// room for 80 chars plus \0
   char *cmd;		// pointer to entered command
 
+  char **cmdArr;
+  int tokenIdx = 0;
+  char *token, *strRemainder;
+
   // Print a prompt and read a command from standard input
   printf("Enter a command: > ");
   cmd = fgets(buffer, BUFSIZE, stdin);
@@ -46,12 +50,33 @@ int main(int argc, char *argv[]){
     }
     else
     {
+      strRemainder = cmd;
+
+      // loop until we no longer have tokens to parse or we have parsed
+      // more tokens then we are capable of storing.
+      // todo: the man page says str must be set to null after first run...
+      while ((token = strtok_r(strRemainder, " ", &strRemainder)) && tokenIdx < BUFSIZE / 2)
+      {
+        cmdArr[tokenIdx++] = token + '\0';
+      }
+
+      cmdArr[tokenIdx] = NULL; 
+
+      for (int i = 0; i< tokenIdx; i++)
+      {
+        printf("%s\n" cmdArr[tokenIdx]);
+      }
+
+      tokenIdx = 0;
+
+      exit(0);
+
       // execute the command
-      ret_code = execlp(cmd, cmd, NULL);
+      /*ret_code = execlp(cmdArr[0], cmdArr);
       if(ret_code != 0){
         printf("Error executing %s.\n", cmd);
         exit(0);
-      }
+      }*/
     }
     printf("Enter a command: > ");
     cmd = fgets(buffer, BUFSIZE, stdin);

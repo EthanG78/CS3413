@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
   char buffer[INPUT_MAX]; // max input buffer
   int len;                // length of entered command
   pid_t pid;              // process id
+  int i;                  // pipe iter
 
   pipeArr = (char **)malloc(CMD_MAX * INPUT_MAX);
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
@@ -60,73 +61,67 @@ int main(int argc, char *argv[])
     // so we can fetch all of the pipes, and then iterate through
     // each one calling the command on that side of the pipe!!!!
     nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, " | ");
-    if (nPipes > 0)
+    for (i = 0; i < nPipes; i++)
     {
-      int i;
-      for (i = 0; i< nPipes; i++)
-      {
-        printf("%s\n", pipeArr[i]);
-      }
-    }
+      // pipeArr[i] becomes the command string we want to split
+      nArgs = tokenizeIntoArr(pipeArr[i], cmdArr, CMD_MAX, " ");
 
-    /*nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");
-
-    // check for user input
-    if (nArgs > 0)
-    {
-      // todo:
-      // i don't think
-      // we should assume it is always
-      // the first command entered,
-      // however that appears to be how
-      // the test program works.
-      // IS THERE A BETTER WAY OF IMPLM
-      // INTERNAL COMMANDS????
-      if (strcmp(cmdArr[0], "cd") == 0)
-      {
-        if (nArgs > 1)
-        {
-          // manually implement cd with chdir
-          if (chdir(cmdArr[1]) == -1)
-          {
-            perror("chdir()");
-          }
-
-          // make sure to update cwd var
-          cwd = getcwd(NULL, 0);
-          if (cwd == NULL)
-          {
-            perror("getcwd");
-          }
-        }
-        else
-        {
-          printf("A directory to cd into must be supplied with the cd command.\n");
-        }
-      }
-      else
+      if (nArgs > 0)
       {
         // todo:
-        // executing commands
-        pid = fork();
-        if (pid != 0)
+        // i don't think
+        // we should assume it is always
+        // the first command entered,
+        // however that appears to be how
+        // the test program works.
+        // IS THERE A BETTER WAY OF IMPLM
+        // INTERNAL COMMANDS????
+        if (strcmp(cmdArr[0], "cd") == 0)
         {
-          // wait for child process to finish
-          waitForProcess(pid);
+          if (nArgs > 1)
+          {
+            // manually implement cd with chdir
+            if (chdir(cmdArr[1]) == -1)
+            {
+              perror("chdir()");
+            }
+
+            // make sure to update cwd var
+            cwd = getcwd(NULL, 0);
+            if (cwd == NULL)
+            {
+              perror("getcwd");
+            }
+          }
+          else
+          {
+            printf("A directory to cd into must be supplied with the cd command.\n");
+          }
         }
         else
         {
-          // execute the command with argument
-          // array that was created
-          if (execvp(cmdArr[0], cmdArr) != 0)
+          // todo:
+          // executing commands
+          pid = fork();
+          if (pid != 0)
           {
-            printf("Error executing %s.\n", cmdArr[0]);
-            perror("execvp()");
-            exit(0);
+            // wait for child process to finish
+            waitForProcess(pid);
+          }
+          else
+          {
+            // execute the command with argument
+            // array that was created
+            if (execvp(cmdArr[0], cmdArr) != 0)
+            {
+              printf("Error executing %s.\n", cmdArr[0]);
+              perror("execvp()");
+              exit(0);
+            }
           }
         }
       }
-    }*/
+    }
 
     printf("%s%%", cwd);
     inputStr = fgets(buffer, INPUT_MAX, stdin);
@@ -137,7 +132,7 @@ int main(int argc, char *argv[])
   // free the allocated space for arrays
   free(pipeArr);
   free(cmdArr);
-  
+
   // since cwd is dynamically allocated
   // we must call free on it
   free(cwd);

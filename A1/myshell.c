@@ -13,11 +13,11 @@
 
 int main(int argc, char *argv[])
 {
-  char *cwd;              // pointer to current working dir string
-  char *inputStr;         // pointer to entered cmd
-  char *cmdArr[CMD_MAX];  // array of entered cmd args
-  char buffer[INPUT_MAX]; // max input buffer
-  int len;                // length of entered command
+  char *cwd;                        // pointer to current working dir string
+  char *inputStr;                   // pointer to entered cmd
+  char cmdArr[CMD_MAX][INPUT_MAX];  // array of entered cmd args
+  char buffer[INPUT_MAX];           // max input buffer
+  int len;                          // length of entered command
 
   // call getcwd() to get the shell's
   // current working directory

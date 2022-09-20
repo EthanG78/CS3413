@@ -15,12 +15,15 @@ int main(int argc, char *argv[])
 {
   char *cwd;              // pointer to current working dir string
   char *inputStr;         // pointer to entered cmd
+  char **pipeArr;         // arry of entered pipes
+  int nPipes;             // number of pipes in pipeArr;
   char **cmdArr;          // array of entered cmd args
   int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
   int len;                // length of entered command
   pid_t pid;              // process id
 
+  pipeArr = (char **)malloc(CMD_MAX * INPUT_MAX);
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
   // call getcwd() to get the shell's
@@ -52,15 +55,31 @@ int main(int argc, char *argv[])
       break;
     }
 
-    nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");
+    // todo:
+    // what if we call this with '|' as the delimeter first
+    // so we can fetch all of the pipes, and then iterate through
+    // each one calling the command on that side of the pipe!!!!
+    nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, " | ");
+    if (nPipes > 0)
+    {
+      int i;
+      for (i = 0; i< nPipes; i++)
+      {
+        printf("%s\n", pipeArr[i]);
+      }
+    }
+
+    /*nArgs = tokenizeIntoArr(inputStr, cmdArr, CMD_MAX, " ");
 
     // check for user input
     if (nArgs > 0)
     {
       // todo:
-      // needs testing, i don't think
+      // i don't think
       // we should assume it is always
-      // the first command entered
+      // the first command entered,
+      // however that appears to be how
+      // the test program works.
       // IS THERE A BETTER WAY OF IMPLM
       // INTERNAL COMMANDS????
       if (strcmp(cmdArr[0], "cd") == 0)
@@ -107,7 +126,7 @@ int main(int argc, char *argv[])
           }
         }
       }
-    }
+    }*/
 
     printf("%s%%", cwd);
     inputStr = fgets(buffer, INPUT_MAX, stdin);
@@ -115,10 +134,10 @@ int main(int argc, char *argv[])
 
   printf("Exiting shell\n");
 
-  // free the allocated space for array of
-  // entered command args
+  // free the allocated space for arrays
+  free(pipeArr);
   free(cmdArr);
-
+  
   // since cwd is dynamically allocated
   // we must call free on it
   free(cwd);

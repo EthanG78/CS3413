@@ -9,8 +9,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <util.h>
 
 int main(int argc, char *argv[])
@@ -94,11 +92,8 @@ int main(int argc, char *argv[])
         pid = fork();
         if (pid != 0)
         {
-          // todo:
-          // move to function (jobs) and actually
-          // check the status variable
           // wait for child process to finish
-          waitpid(pid, NULL, WUNTRACED);
+          waitForProcess(pid);
         }
         else
         {

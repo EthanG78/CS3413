@@ -6,6 +6,7 @@
 */
 
 #include <string.h>
+#include <sys/wait.h>
 #include <util.h>
 
 // tokenizeIntoArr takes a char* stored in str and splits it into tokens
@@ -38,4 +39,10 @@ int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
   arr[tokenIdx] = (char *)NULL;
 
   return tokenIdx;
+}
+
+// todo:
+void waitForProcess(pid_t pid)
+{
+  waitpid(pid, NULL, WUNTRACED);
 }

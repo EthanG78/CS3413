@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     // what if we call this with '|' as the delimeter first
     // so we can fetch all of the pipes, and then iterate through
     // each one calling the command on that side of the pipe!!!!
-    nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, " | ");
+    nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, "|");
     for (i = 0; i < nPipes; i++)
     {
       // pipeArr[i] becomes the command string we want to split

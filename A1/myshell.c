@@ -9,6 +9,8 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <util.h>
 
 int main(int argc, char *argv[])

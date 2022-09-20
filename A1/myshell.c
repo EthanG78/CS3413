@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
     for (i = 0; i < nPipes; i++)
     {
       // pipeArr[i] becomes the command string we want to split
-      printf("%s\n", pipeArr[i]);
       nArgs = tokenizeIntoArr(pipeArr[i], cmdArr, CMD_MAX, " ");
 
       if (nArgs > 0)

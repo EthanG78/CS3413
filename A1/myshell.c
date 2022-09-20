@@ -56,19 +56,30 @@ int main(int argc, char *argv[])
     // check for user input
     if (nArgs > 0)
     {
+      // todo:
+      // needs testing, i don't think 
+      // we should assume it is always
+      // the first command entered
       if (strcmp(cmdArr[0], "cd") == 0)
       {
-        // manually implement cd with chdir
-        if (chdir(cmdArr[1]) == -1)
+        if (nArgs > 1)
         {
-          perror("chdir()");
-        }
+          // manually implement cd with chdir
+          if (chdir(cmdArr[1]) == -1)
+          {
+            perror("chdir()");
+          }
 
-        // make sure to update cwd var
-        cwd = getcwd(NULL, 0);
-        if (cwd == NULL)
+          // make sure to update cwd var
+          cwd = getcwd(NULL, 0);
+          if (cwd == NULL)
+          {
+            perror("getcwd");
+          }
+        }
+        else
         {
-          perror("getcwd");
+          printf("A directory to cd into must be supplied with the cd command.\n");
         }
       }
     }

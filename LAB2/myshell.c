@@ -53,7 +53,9 @@ int main(int argc, char *argv[])
     // todo: the man page says str must be set to null after first run...
     while ((token = strtok_r(strRemainder, " ", &strRemainder)) && tokenIdx < BUFSIZE / 2)
     {
-      cmdArr[tokenIdx++] = token + '\0';
+      char *nullToken = token + '\0';
+      printf("%s\n", nullToken);
+      cmdArr[tokenIdx++] = nullToken;
     }
 
     cmdArr[tokenIdx] = NULL;

@@ -9,8 +9,8 @@
 
 // todo:
 // review these
-#define INPUT_MAX 201
-#define CMD_MAX 101
+#define INPUT_MAX 51
+#define CMD_MAX 100
 
 int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim); 
 

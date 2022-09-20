@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
   pid_t pid;              // process id
   int i;                  // pipe iter
 
+  // review the amount of data we malloc
   pipeArr = (char **)malloc(CMD_MAX * INPUT_MAX);
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
             cwd = getcwd(NULL, 0);
             if (cwd == NULL)
             {
-              perror("getcwd");
+              perror("getcwd()");
             }
           }
           else

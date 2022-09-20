@@ -27,17 +27,14 @@ int main(int argc, char *argv[])
     perror("getcwd");
   }
 
-  // todo:
-  // currently if the user enters nothing
-  // then cwd is not printed out again...
+  // present the user with the cwd and take input
   printf("%s%%", cwd);
-  // fflush(stdout);
   inputStr = fgets(buffer, INPUT_MAX, stdin);
 
   // this is the main shell loop which will accept
   // user input, handle all errors, and end the
   // program when the user enters 'exit'
-  while (inputStr != NULL && strcmp(inputStr, "exit") != 0)
+  while (inputStr != NULL || strcmp(inputStr, "exit") != 0)
   {
     // check for the newline character and overwrite with \0
     len = strlen(buffer);
@@ -54,7 +51,6 @@ int main(int argc, char *argv[])
     }
 
     printf("%s%%", cwd);
-    // fflush(stdout);
     inputStr = fgets(buffer, INPUT_MAX, stdin);
   }
 

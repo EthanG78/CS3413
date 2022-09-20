@@ -4,8 +4,9 @@
 
   Modified from lab2 handout.
 
-  To compile: gcc myshell.c
+  Rudimentary shell for executing programs.
 
+  To compile: gcc myshell.c
 */
 
 #include <stdio.h>

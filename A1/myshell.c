@@ -63,6 +63,8 @@ int main(int argc, char *argv[])
       // needs testing, i don't think
       // we should assume it is always
       // the first command entered
+      // IS THERE A BETTER WAY OF IMPLM
+      // INTERNAL COMMANDS????
       if (strcmp(cmdArr[0], "cd") == 0)
       {
         if (nArgs > 1)
@@ -93,9 +95,10 @@ int main(int argc, char *argv[])
         if (pid != 0)
         {
           // todo:
-          // make sure we use right wait
+          // move to function (jobs) and actually
+          // check the status variable
           // wait for child process to finish
-          waitpid(pid, NULL, 0);
+          waitpid(pid, NULL, WUNTRACED);
         }
         else
         {

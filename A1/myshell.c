@@ -13,11 +13,13 @@
 
 int main(int argc, char *argv[])
 {
-  char *cwd;                        // pointer to current working dir string
-  char *inputStr;                   // pointer to entered cmd
-  char cmdArr[CMD_MAX][INPUT_MAX];  // array of entered cmd args
-  char buffer[INPUT_MAX];           // max input buffer
-  int len;                          // length of entered command
+  char *cwd;                // pointer to current working dir string
+  char *inputStr;           // pointer to entered cmd
+  char *cmdArr[INPUT_MAX];  // array of entered cmd args
+  char buffer[INPUT_MAX];   // max input buffer
+  int len;                  // length of entered command
+
+  cmdArr = malloc(CMD_MAX);
 
   // call getcwd() to get the shell's
   // current working directory
@@ -53,6 +55,10 @@ int main(int argc, char *argv[])
     printf("%s%%", cwd);
     inputStr = fgets(buffer, INPUT_MAX, stdin);
   }
+
+  // free the allocated space for array of
+  // entered command args
+  free(cmdArr);
 
   // since cwd is dynamically allocated
   // we must call free on it

@@ -6,6 +6,7 @@
 */
 
 #include <string.h>
+#include <util.h>
 
 // tokenizeIntoArr takes a char* stored in str and splits it into tokens
 // based on a character delimeter specified by delim. Each of these tokens

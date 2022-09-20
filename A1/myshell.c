@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     inputStr = fgets(buffer, INPUT_MAX, stdin);
   }
 
+  printf("Exiting shell\n");
+
   // free the allocated space for array of
   // entered command args
   free(cmdArr);

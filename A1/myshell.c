@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
   char **cmdArr;          // array of entered cmd args
   int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
-  int len;                // length of entered command
   pid_t pid;              // process id
   int i;                  // pipe iter
 
@@ -38,20 +37,13 @@ int main(int argc, char *argv[])
 
   // present the user with the cwd and take input
   printf("%s%%", cwd);
-  inputStr = fgets(buffer, INPUT_MAX, stdin);
+  inputStr = getUserInput(buffer, INPUT_MAX);
 
   // this is the main shell loop which will accept
   // user input, handle all errors, and end the
   // program when the user enters 'exit'
   while (inputStr != NULL)
   {
-    // check for the newline character and overwrite with \0
-    len = strlen(buffer);
-    if (buffer[len - 1] == '\n')
-    {
-      buffer[len - 1] = '\0';
-    }
-
     if (strcmp(inputStr, "exit") == 0)
     {
       break;
@@ -125,7 +117,7 @@ int main(int argc, char *argv[])
     }
 
     printf("%s%%", cwd);
-    inputStr = fgets(buffer, INPUT_MAX, stdin);
+    inputStr = getUserInput(buffer, INPUT_MAX);
   }
 
   printf("Exiting shell\n");

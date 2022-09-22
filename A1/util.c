@@ -5,6 +5,7 @@
   Ethan Garnier
 */
 
+#include <stdio.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <util.h>
@@ -42,7 +43,40 @@ int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
 }
 
 // todo:
+// waitForProcess takes a pid_t stored in pid and waits on the process
+// with that process id. waitForProcess stops blocking when the process
+// exits or when it pauses via signal.
+//
 void waitForProcess(pid_t pid)
 {
-  waitpid(pid, NULL, WUNTRACED);
+  int status;
+  waitpid(pid, &status, WUNTRACED);
+
+  // todo:
+  // debugging stuff
+  if (WIFEXITED(status))
+  {
+    // pid terminated normally
+  }
+  else if (WIFSIGNALED)
+  {
+    // pid terminated by a signal
+  }
+}
+
+char *getUserInput(char *buffer, const int maxInput)
+{
+  char *inputStr;
+  int len;
+
+  inputStr = fgets(buffer, maxInput, stdin);
+
+  // check for the newline character and overwrite with \0
+  len = strlen(buffer);
+  if (buffer[len - 1] == '\n')
+  {
+    buffer[len - 1] = '\0';
+  }
+
+  return inputStr;
 }

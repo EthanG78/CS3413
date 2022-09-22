@@ -58,7 +58,7 @@ void waitForProcess(pid_t pid)
   {
     // pid terminated normally
   }
-  else if (WIFSIGNALED)
+  else if (WIFSIGNALED(status))
   {
     // pid terminated by a signal
   }

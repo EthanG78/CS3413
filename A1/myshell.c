@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
   char buffer[INPUT_MAX]; // max input buffer
   pid_t pid;              // process id
   int i;                  // pipe iter
+  int pfd[2];             // pipe file descriptors
 
   // review the amount of data we malloc
   pipeArr = (char **)malloc(CMD_MAX * INPUT_MAX);
@@ -41,7 +42,8 @@ int main(int argc, char *argv[])
 
   // this is the main shell loop which will accept
   // user input, handle all errors, and end the
-  // program when the user enters 'exit'
+  // program when the user enters 'exit' or 
+  // presses CTRL + D
   while (inputStr != NULL)
   {
     if (strcmp(inputStr, "exit") == 0)
@@ -49,10 +51,8 @@ int main(int argc, char *argv[])
       break;
     }
 
-    // todo:
-    // what if we call this with '|' as the delimeter first
-    // so we can fetch all of the pipes, and then iterate through
-    // each one calling the command on that side of the pipe!!!!
+    // tokenize user input based on the pipe '|' delimeter and
+    // iterate through each of the pipes the user has entered
     nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, "|");
     for (i = 0; i < nPipes; i++)
     {

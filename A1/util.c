@@ -64,6 +64,13 @@ void waitForProcess(pid_t pid)
   }
 }
 
+// getUserInput takes a char* stored in buffer and a max
+// size of the buffer and stores user input from stdin
+// in the buffer.
+//
+// getUserInput returns a null-terminated string of the
+// entered user input.
+//
 char *getUserInput(char *buffer, const int maxInput)
 {
   char *inputStr;

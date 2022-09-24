@@ -34,6 +34,14 @@ int main(int argc, char *argv[])
   if (cwd == NULL)
   {
     perror("getcwd");
+    return EXIT_FAILURE;
+  }
+
+  // open pipe file descriptors
+  if (pipe(pfd) == -1)
+  {
+    perror("pipe()");
+    return EXIT_FAILURE;
   }
 
   // present the user with the cwd and take input
@@ -42,7 +50,7 @@ int main(int argc, char *argv[])
 
   // this is the main shell loop which will accept
   // user input, handle all errors, and end the
-  // program when the user enters 'exit' or 
+  // program when the user enters 'exit' or
   // presses CTRL + D
   while (inputStr != NULL)
   {
@@ -56,6 +64,12 @@ int main(int argc, char *argv[])
     nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, "|");
     for (i = 0; i < nPipes; i++)
     {
+      // todo:
+      // when redirecting stdout, we can check if
+      // i = nPipes - 1, if not then redirect stdout
+      // when redirecting stdin, we can check if i > 0,
+      // if so then redirect stdin to pipe.
+
       // pipeArr[i] becomes the command string we want to split
       nArgs = tokenizeIntoArr(pipeArr[i], cmdArr, CMD_MAX, " ");
 
@@ -96,22 +110,49 @@ int main(int argc, char *argv[])
           // todo:
           // executing commands
           pid = fork();
-          if (pid != 0)
+
+          if (pid < 0)
           {
-            // wait for child process to finish
-            waitForProcess(pid);
+            perror("fork()");
+            return EXIT_FAILURE;
           }
-          else
+          else if (pid == 0)
           {
+            // redirect the stdout of the command that is about
+            // to be executed to the write end of the pipe if
+            // there is another command in the pipe array
+            if (i < nPipes - 1)
+            {
+              dup2(pfd[1], STDOUT_FILENO);
+            }
+
+            // redirect the stdin of the command that is about
+            // to be executed to the read end of the pipe if
+            // there was another command in the pipe array
+            // before this one
+            if (i > 0)
+            {
+              dup2(pfd[0], STDIN_FILENO);
+            }
+
+            // close both pipe file descriptors since
+            // they have either been duped to stdin/out
+            // or they are not being used
+            close(pfd[0]);
+            close(pfd[1]);
+
             // execute the command with argument
             // array that was created
             if (execvp(cmdArr[0], cmdArr) != 0)
             {
               printf("Error executing %s.\n", cmdArr[0]);
               perror("execvp()");
-              exit(0);
+              exit(EXIT_SUCCESS);
             }
           }
+
+          // wait for child process to finish
+          waitForProcess(pid);
         }
       }
     }
@@ -122,6 +163,10 @@ int main(int argc, char *argv[])
 
   printf("Exiting shell\n");
 
+  // close pipe file descriptors
+  close(pfd[0]);
+  close(pfd[1]);
+
   // free the allocated space for arrays
   free(pipeArr);
   free(cmdArr);
@@ -130,5 +175,5 @@ int main(int argc, char *argv[])
   // we must call free on it
   free(cwd);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

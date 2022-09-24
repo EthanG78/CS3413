@@ -64,12 +64,6 @@ int main(int argc, char *argv[])
     nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, "|");
     for (i = 0; i < nPipes; i++)
     {
-      // todo:
-      // when redirecting stdout, we can check if
-      // i = nPipes - 1, if not then redirect stdout
-      // when redirecting stdin, we can check if i > 0,
-      // if so then redirect stdin to pipe.
-
       // pipeArr[i] becomes the command string we want to split
       nArgs = tokenizeIntoArr(pipeArr[i], cmdArr, CMD_MAX, " ");
 
@@ -118,6 +112,13 @@ int main(int argc, char *argv[])
           }
           else if (pid == 0)
           {
+            // todo:
+            // PIPES WORK!!!!
+            // however there must be a pfd
+            // i am not closing because the program
+            // hangs after. probably waiting
+            // on input pipe....
+
             // redirect the stdout of the command that is about
             // to be executed to the write end of the pipe if
             // there is another command in the pipe array

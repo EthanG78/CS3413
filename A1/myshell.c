@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     // and create a pipe file descriptor
     for (i = 0; i < nPipes; i++)
     {
-      if (pipe(pfds[i * 2]) == -1)
+      if (pipe(pfds + i * 2) == -1)
       {
         perror("pipe()");
         return EXIT_FAILURE;

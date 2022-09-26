@@ -160,6 +160,8 @@ int main(int argc, char *argv[])
                 perror("dup2()");
                 return EXIT_FAILURE;
               }
+
+              close(pfds[pipeWIdx]);
             }
 
             // redirect the stdin of the command that is about
@@ -173,13 +175,9 @@ int main(int argc, char *argv[])
                 perror("dup2()");
                 return EXIT_FAILURE;
               }
-            }
 
-            // close both pipe file descriptors since
-            // they have either been duped to stdin/out
-            // or they are not being used
-            close(pfds[pipeRIdx]);
-            close(pfds[pipeWIdx]);
+              close(pfds[pipeRIdx]);
+            }
 
             // execute the command with argument
             // array that was created

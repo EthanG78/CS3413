@@ -62,6 +62,15 @@ int main(int argc, char *argv[])
     // tokenize user input based on the pipe '|' delimeter and
     // iterate through each of the pipes the user has entered
     nPipes = tokenizeIntoArr(inputStr, pipeArr, CMD_MAX, "|");
+
+    // Here is where we will handle builtin functions
+    // ..
+
+    // Here is where we will fork a new process that acts as a subshell
+    // to execute the pipes. This will be the process our main process
+    // has to wait on. We can close pfd after we create the subshell. 
+
+
     for (i = 0; i < nPipes; i++)
     {
       // pipeArr[i] becomes the command string we want to split
@@ -118,6 +127,9 @@ int main(int argc, char *argv[])
             // i am not closing because the program
             // hangs after. probably waiting
             // on input pipe....
+            // SOLUTION: we need to close pfd
+            // in the main process BEFORE we wait 
+            // but will this mess up the forks??
 
             // redirect the stdout of the command that is about
             // to be executed to the write end of the pipe if

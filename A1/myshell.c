@@ -140,16 +140,6 @@ int main(int argc, char *argv[])
           }
           else if (pid == 0)
           {
-            // todo:
-            // PIPES WORK!!!!
-            // however there must be a pfd
-            // i am not closing because the program
-            // hangs after. probably waiting
-            // on input pipe....
-            // SOLUTION: we need to close pfd
-            // in the main process BEFORE we wait
-            // but will this mess up the forks??
-
             // redirect the stdout of the command that is about
             // to be executed to the write end of the pipe if
             // there is another command in the pipe array

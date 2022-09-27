@@ -75,17 +75,17 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(cmdArr[0], "cd") == 0)
         {
-          if (cmdArr[1] == NULL)
-          {
-            printf("Please supply a directory with the CD command\n");
-          }
-          else
+          if (nArgs > 1)
           {
             // manually implement cd with chdir
             if (chdir(cmdArr[1]) == -1)
             {
               perror("chdir()");
             }
+          }
+          else
+          {
+            printf("Please supply a directory with the CD command\n");
           }
         }
         else

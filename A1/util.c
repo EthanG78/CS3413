@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <util.h>
 
@@ -16,12 +17,15 @@
 // tokens. A NULL pointer is placed at the end of the array for compatibility
 // with the exec family of functions.
 //
-// tokenizeIntoArr returns the integer number of tokens stored in arrSize.
+// tokenizeIntoArr returns the integer number of tokens stored in arrSize,
+// or -1 to indicate an error.
 //
 // Thank you to Dr. Rea for inspiring this helper function.
 //
 int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
 {
+  if (str == NULL) return -1;
+
   int tokenIdx = 0;
   char *token, *strRemainder;
   strRemainder = str;
@@ -86,4 +90,53 @@ char *getUserInput(char *buffer, const int maxInput)
   }
 
   return inputStr;
+}
+
+// getUserCwd returns a pointer to a string containing
+// the path of the shell's current working directory.
+// The calling function must free the returned pointer
+// when they are finished.
+//
+char *getShellCwd()
+{
+  // call getcwd() to get the shell's
+  // current working directory
+  char *cwd = getcwd(NULL, 0);
+  if (cwd == NULL)
+  {
+    perror("getcwd");
+  }
+
+  return cwd;
+}
+
+// createPipes takes an integer number nPipes and creates
+// 2 * nPipes pipe file descriptors (1 read and 1 write
+// for aech pipe).
+//
+// createPipes returns an integer pointer to the
+// first of the 2 * nPipes pipe file descriptors, or
+// NULL if the function fails to create the pipes
+// The calling function must free the returned pointer
+// when they are finished.
+//
+int *createPipes(int nPipes)
+{
+  // allocate space in the pipe file descriptors
+  // variable based on how many pipes there are
+  int *pfds = (int *)malloc(nPipes * sizeof(int) * 2);
+
+  // iterate through each of the entered pipes
+  // and create a pipe file descriptor
+  int i;
+  for (i = 0; i < nPipes; i++)
+  {
+    if (pipe(pfds + i * 2) == -1)
+    {
+      perror("pipe()");
+      return NULL;
+    }
+  }
+
+  return pfds;
 }

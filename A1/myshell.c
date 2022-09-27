@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
     printf("%s%%", cwd);
     inputStr = getUserInput(buffer, INPUT_MAX);
 
+    // todo:
+    // what if we moved all of this into its own function
+    // that returns in integer indicating exit or continue loop?
+
     // tokenize user input based on the pipe '|' delimeter and
     // iterate through each of the commands the user has entered
     nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, "|");

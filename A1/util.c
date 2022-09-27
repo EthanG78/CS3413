@@ -141,3 +141,25 @@ int *createPipes(int nPipes)
 
   return pfds;
 }
+
+
+// todo
+// parseUserInput takes ...
+//
+// parseUserInput returns either 0 to indicate
+// to the calling function to continue parsing 
+// user input or -1 to indicate to the calling
+// function to stop parsing user input.
+// 
+int parseUserInput(char *userInput)
+{
+  int returnCode = 0;
+
+  char *commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  char *cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+
+
+  free(commandArr);
+  free(cmdArr);
+  return returnCode;
+}

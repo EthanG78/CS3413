@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     // todo:
     // what if we moved all of this into its own function
     // that returns in integer indicating exit or continue loop?
+    // int cont = parseUserInput(inputStr);
 
     // tokenize user input based on the pipe '|' delimeter and
     // iterate through each of the commands the user has entered

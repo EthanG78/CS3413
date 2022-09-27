@@ -21,3 +21,5 @@ char *getUserInput(char *buffer, const int maxInput);
 char *getShellCwd();
 
 int *createPipes(int nPipes);
+
+int parseUserInput(char *userInput);

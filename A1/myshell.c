@@ -329,8 +329,6 @@ int main(int argc, char *argv[])
     inputStr = getUserInput(buffer, INPUT_MAX);
   }*/
 
-  printf("Exiting shell\n");
-
 cleanup:
 
   // free the allocated space for arrays

@@ -61,10 +61,11 @@ int main(int argc, char *argv[])
 
         // todo:
         // handle the builtins here
-        // this is temp code
+        // this is temp code I hate this
         if (strcmp(inputStr, "exit") == 0)
         {
           free(cwd);
+          free(pfds);
 
           // break out of all loops
           // to go to memory cleanup
@@ -161,24 +162,17 @@ int main(int argc, char *argv[])
       }
     }
 
-    // since we aquire the cwd on each
+    // since we aquire the cwd and pfds on each
     // loop we must then free it on each loop
     free(cwd);
+    free(pfds);
   } while (inputStr != NULL);
 
 cleanup:
 
-  // free the allocated space for arrays
+  // free all allocated memory
   free(commandArr);
   free(cmdArr);
-
-  // since cwd is dynamically allocated
-  // we must call free on it
-  // free(cwd);
-
-  // free the allocated space
-  // for pipe file descriptors
-  free(pfds);
 
   return EXIT_SUCCESS;
 }

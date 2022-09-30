@@ -5,7 +5,6 @@
   Ethan Garnier
 */
 #include <stdio.h>
-#include <signal.h>
 #include <sigHandlers.h>
 
 // parentHandler acts as the signal handler for the

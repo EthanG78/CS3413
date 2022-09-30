@@ -4,4 +4,6 @@
 
   Ethan Garnier
 */
+#include <signal.h>
+
 void parentHandler(int signum);

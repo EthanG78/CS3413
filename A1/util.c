@@ -5,11 +5,7 @@
   Ethan Garnier
 */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <util.h>
 
 // tokenizeIntoArr takes a char* stored in str and splits it into tokens

@@ -13,6 +13,8 @@
 #define INPUT_MAX 51
 #define CMD_MAX 100
 
+int waitForProcess(int pid);
+
 int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim);
 
 char *getUserInput(char *buffer, const int maxInput);

@@ -6,7 +6,31 @@
 */
 
 #include <string.h>
+#include <sys/wait.h>
 #include <util.h>
+
+// waitForProcess takes a pid_t stored in pid and waits on the process
+// with that process id. waitForProcess stops blocking when the process
+// exits or when it pauses via signal.
+//
+// waitForProcess returns 0 if the process terminated and 1
+// if it was stopped via signal.
+//
+int waitForProcess(int pid)
+{
+  int status;
+  waitpid(pid, &status, WUNTRACED);
+
+  if (WIFSTOPPED(status))
+  {
+    printf("Job suspended. Type 'fg' to resume\n");
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 // tokenizeIntoArr takes a char* stored in str and splits it into tokens
 // based on a character delimeter specified by delim. Each of these tokens

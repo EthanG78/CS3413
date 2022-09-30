@@ -43,7 +43,7 @@ int fg(int pid)
         // since we brought it back to foreground
         isStopped = waitForProcess(pid);
 
-        return (isStopped == 0) pid : 1;
+        return (isStopped == 0) ? pid : 1;
     }
     else
     {
@@ -52,48 +52,23 @@ int fg(int pid)
     }
 }
 
-/*
-else if (strcmp(cmdArr[0], "fg") == 0)
-        {
-          // if previous job was stopped, bring it back to
-          // life and pause the shell.
-          if (isStopped == 1)
-          {
-            // pid of previous job is preserved
-            kill(pid, SIGCONT);
+// BROKEN BROKEN
+int bg(int pid)
+{
+    // BROKEN BROKEN
 
-            // wait for child process to finish
-            // since we brought it back to foreground
-            isStopped = waitForProcess(pid);
-
-            // alert the user if child process was stopped
-            if (isStopped > 0)
-            {
-              printf("Job suspended. Type 'fg' to resume\n");
-            }
-          }
-          else
-          {
-            printf("No job to continue.\n");
-          }
-        }
-        else if (strcmp(cmdArr[0], "bg") == 0)
-        {
-          // BROKEN BROKEN
-
-          // if previous job was stopped, bring it back to
-          // life but do not pause the shell
-          if (isStopped == 1)
-          {
-            // pid of previous job is preserved
-            kill(pid, SIGCONT);
-          }
-          else
-          {
-            printf("No job to continue.\n");
-          }
-        }
-*/
+    // if previous job was stopped, bring it back to
+    // life but do not pause the shell
+    if (pid != -1)
+    {
+        // pid of previous job is preserved
+        kill(pid, SIGCONT);
+    }
+    else
+    {
+        printf("No job to continue.\n");
+    }
+}
 
 // todo:
 // returns 0 if no builtin was run
@@ -112,26 +87,15 @@ int executeBuiltin(char **argArr, int nArgs, int pid)
         // call cd
         retCode = cd(argArr, nArgs);
     }
-    else if (strcmp(cmdArr[0], "fg") == 0)
+    else if (strcmp(argArr[0], "fg") == 0)
     {
         // call fg
         retCode = fg(pid);
     }
-    else if (strcmp(cmdArr[0], "bg") == 0)
+    else if (strcmp(argArr[0], "bg") == 0)
     {
-        // BROKEN BROKEN
-
-        // if previous job was stopped, bring it back to
-        // life but do not pause the shell
-        if (pid != -1)
-        {
-            // pid of previous job is preserved
-            kill(pid, SIGCONT);
-        }
-        else
-        {
-            printf("No job to continue.\n");
-        }
+        // call bg
+        retCode = bg(pid);
     }
 
     return retCode;

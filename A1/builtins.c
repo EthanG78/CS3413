@@ -6,10 +6,11 @@
 */
 
 #include <string.h>
+#include <signal.h>
 #include <builtins.h>
 #include <util.h>
 
-void cd(char **argArr, int nArgs)
+int cd(char **argArr, int nArgs)
 {
     if (nArgs > 1)
     {
@@ -22,6 +23,32 @@ void cd(char **argArr, int nArgs)
     else
     {
         printf("Please supply a directory with the CD command\n");
+    }
+
+    return 1;
+}
+
+int fg(int pid)
+{
+    int isStopped = 0;
+
+    // if previous job was stopped, bring it back to
+    // life and pause the shell.
+    if (pid != -1)
+    {
+        // pid of previous job is preserved
+        kill(pid, SIGCONT);
+
+        // wait for child process to finish
+        // since we brought it back to foreground
+        isStopped = waitForProcess(pid);
+
+        return (isStopped == 0) pid : 1;
+    }
+    else
+    {
+        printf("No job to continue.\n");
+        return 1;
     }
 }
 
@@ -71,8 +98,8 @@ else if (strcmp(cmdArr[0], "fg") == 0)
 // todo:
 // returns 0 if no builtin was run
 // returns -1 if exit was run
-// returns 1 if any other builtin was run
-int executeBuiltin(char **argArr, int nArgs)
+// returns > 0 if any builtin was run
+int executeBuiltin(char **argArr, int nArgs, int pid)
 {
     int retCode = 0;
     if (strcmp(argArr[0], "exit") == 0)
@@ -83,8 +110,28 @@ int executeBuiltin(char **argArr, int nArgs)
     else if (strcmp(argArr[0], "cd") == 0)
     {
         // call cd
-        cd(argArr, nArgs);
-        retCode = 1;
+        retCode = cd(argArr, nArgs);
+    }
+    else if (strcmp(cmdArr[0], "fg") == 0)
+    {
+        // call fg
+        retCode = fg(pid);
+    }
+    else if (strcmp(cmdArr[0], "bg") == 0)
+    {
+        // BROKEN BROKEN
+
+        // if previous job was stopped, bring it back to
+        // life but do not pause the shell
+        if (pid != -1)
+        {
+            // pid of previous job is preserved
+            kill(pid, SIGCONT);
+        }
+        else
+        {
+            printf("No job to continue.\n");
+        }
     }
 
     return retCode;

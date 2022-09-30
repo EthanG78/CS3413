@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     // command to execute whatever combination of
     // commands were entered by the user.
     // execStatus = 0 if no command was run
-    // execStatus = 1 if a command was run
+    // execStatus > 0 if a command was run
     // execStatus = -1 if exit was run
     execStatus = executePipeline(inputStr);
 

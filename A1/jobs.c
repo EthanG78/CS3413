@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <jobs.h>
 #include <builtins.h>
 #include <util.h>
@@ -36,11 +35,16 @@ int waitForProcess(pid_t pid)
   }
 }
 
-/*int processPauseLoop()
+int processPauseLoop(int pid)
 {
   char *cwd;              // pointer to current working dir string
   char buffer[INPUT_MAX]; // max input buffer
   char *inputStr;         // pointer to entered cmd
+  char **commandArr;      // array of entered commands
+  int nCommands;          // number of commands in commandArr
+  int execStatus;
+
+  commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
   do
   {
@@ -50,15 +54,27 @@ int waitForProcess(pid_t pid)
     printf("%s%%", cwd);
     inputStr = getUserInput(buffer, INPUT_MAX);
 
+    nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, " ");
+
+    execStatus = executeBuiltin(commandArr, nCommands, pid);
+    if (execStatus == 0)
+    {
+      // We only reach this point if a user attempt to exec an external
+      // command while the previous command was already stopped by SIGTSTP
+      printf("Not allowed to start new command while you have a job active.");
+    }
+
     free(cwd);
-  } while ();
-}*/
+  } while (inputStr != NULL && execStatus != -1 && execStatus != pid);
+
+  return execStatus;
+}
 
 int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 {
-  // int isStopped = 0; // bool to keep track of status of prev process
+  int isStopped = 0; // bool to keep track of status of prev process
 
-  pid_t pid = fork();
+  int pid = fork();
 
   int pipeRIdx = (cmdIdx - 1) * 2;
   int pipeWIdx = cmdIdx * 2 + 1;
@@ -125,20 +141,14 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
   }
 
   // wait for child process to finish
-  return waitForProcess(pid);
+  isStopped = waitForProcess(pid);
 
-  // alert the user if child process was stopped
-  /*if (isStopped > 0)
+  if (isStopped > 0)
   {
-    printf("Job suspended. Type 'fg' to resume\n");
+    return processPauseLoop(pid);
   }
 
-  do
-  {
-    isStopped = processPauseLoop();
-  } while (isStopped > 0);
-
-  return 0;*/
+  return 1;
 }
 
 int executePipeline(char *inputStr)
@@ -179,33 +189,21 @@ int executePipeline(char *inputStr)
       if (nArgs > 0)
       {
         // execute builtins
-        execStatus = executeBuiltin(argArr, nArgs);
-        // if a builtin was run, break from loop
-        if (execStatus == 1 || execStatus == -1)
+        execStatus = executeBuiltin(argArr, nArgs, -1);
+
+        if (execStatus == 0)
         {
-          break;
-        }
-
-        if (isStopped == 0)
-        {
-          isStopped = spawnProcess(argArr, i, nCommands, pfds);
-
-          execStatus = 1;
-
-          // alert the user if child process was stopped
-          if (isStopped > 0)
+          // if no builtin was run, run external command
+          execStatus = spawnProcess(argArr, i, nCommands, pfds);
+          if (execStatus == -1)
           {
-            // listen, I know this breaks the pipeline and that
-            // the user will not be able to resume the full pipeline...
-            // i am leaving it like this for now.
             break;
           }
         }
         else
         {
-          // We only reach this point if a user attempt to exec an external
-          // command while the previous command was already stopped by SIGTSTP
-          printf("Not allowed to start new command while you have a job active.");
+          // if a builtin was run, break from loop
+          break;
         }
       }
     }

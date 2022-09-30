@@ -5,4 +5,4 @@
   Ethan Garnier
 */
 
-int executeBuiltin(char **argArr, int nArgs);
+int executeBuiltin(char **argArr, int nArgs, int pid);

@@ -6,6 +6,7 @@
 */
 #include <stdio.h>
 #include <signal.h>
+#include <sigHandlers.h>
 
 // parentHandler acts as the signal handler for the 
 // parent shell process. Its purpose is to tell the

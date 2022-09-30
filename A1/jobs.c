@@ -18,7 +18,7 @@ int processPauseLoop(int pid)
   char *inputStr;         // pointer to entered cmd
   char **commandArr;      // array of entered commands
   int nCommands;          // number of commands in commandArr
-  int execStatus;
+  int execStatus = 0;     // maintain status of commands being run
 
   commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
@@ -32,12 +32,15 @@ int processPauseLoop(int pid)
 
     nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, " ");
 
-    execStatus = executeBuiltin(commandArr, nCommands, pid);
-    if (execStatus == 0)
+    if (nCommands > 0)
     {
-      // We only reach this point if a user attempt to exec an external
-      // command while the previous command was already stopped by SIGTSTP
-      printf("Not allowed to start new command while you have a job active.");
+      execStatus = executeBuiltin(commandArr, nCommands, pid);
+      if (execStatus == 0)
+      {
+        // We only reach this point if a user attempt to exec an external
+        // command while the previous command was already stopped by SIGTSTP
+        printf("Not allowed to start new command while you have a job active.");
+      }
     }
 
     free(cwd);

@@ -28,12 +28,16 @@ int main(int argc, char *argv[])
   int *pfds;              // pipe file descriptors
   int pipeRIdx;           // current pipe read index
   int pipeWIdx;           // current pipe write index
+  int isStopped = 0;      // bool to keep track of status of prev process
 
   // review the amount of data we malloc
   commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
   // Subscribe to SIGTSTP
+  // BUG:
+  // currently the cwd will not print out directly
+  // after SIGTSTP is captured by main process...
   signal(SIGTSTP, &parentHandler);
 
   do
@@ -96,7 +100,7 @@ int main(int argc, char *argv[])
             printf("Please supply a directory with the CD command\n");
           }
         }
-        else
+        else if (isStopped == 0)
         {
           // here is where we will execute external commands
           // todo:
@@ -166,7 +170,13 @@ int main(int argc, char *argv[])
           }
 
           // wait for child process to finish
-          waitForProcess(pid);
+          isStopped = waitForProcess(pid);
+        }
+        else
+        {
+          // We only reach this point if a user attempt to exec an external
+          // command while the previous command was already stopped by SIGTSTP
+          printf("Not allowed to start new command while you have a job active.");
         }
       }
 

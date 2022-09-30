@@ -155,11 +155,9 @@ int parseUserInput(char *userInput)
 {
   int returnCode = 0;
 
-  char *commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
-  char *cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  char commandArr[CMD_MAX][INPUT_MAX];
+  char cmdArr[CMD_MAX][INPUT_MAX];
 
 
-  free(commandArr);
-  free(cmdArr);
   return returnCode;
 }

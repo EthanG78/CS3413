@@ -9,8 +9,9 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <math.h>
+#include <signal.h>
 #include <util.h>
+#include <sigHandlers.h>
 
 int main(int argc, char *argv[])
 {
@@ -144,6 +145,9 @@ int main(int argc, char *argv[])
               exit(EXIT_SUCCESS);
             }
           }
+
+          // Subscribe to SIGTSTP
+          signal(SIGTSTP, &parentHandler);
 
           // close any pipes associated with the
           // process we just ran

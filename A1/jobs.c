@@ -1,5 +1,5 @@
 /*
-  process.c
+  jobs.c
   CS3413 Operating Systems 1
 
   Ethan Garnier
@@ -144,15 +144,15 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 
 int executePipeline(char *inputStr)
 {
-  int i;             // pipe iter
-  int isStopped = 0; // bool to keep track of status of prev process
-  int *pfds;         // pipe file descriptors
-  int nPipes;        // number of pipes used by user input
-  char **commandArr; // array of entered commands
-  int nCommands;     // number of commands in commandArr
-  char **argArr;     // array of entered command args
-  int nArgs;         // number of args in argArr
-  int execStatus;    // bool that is returned
+  int i;              // pipe iter
+  int isStopped = 0;  // bool to keep track of status of prev process
+  int *pfds;          // pipe file descriptors
+  int nPipes;         // number of pipes used by user input
+  char **commandArr;  // array of entered commands
+  int nCommands;      // number of commands in commandArr
+  char **argArr;      // array of entered command args
+  int nArgs;          // number of args in argArr
+  int execStatus = 0; // bool that is returned
 
   commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
@@ -182,14 +182,17 @@ int executePipeline(char *inputStr)
         // execute builtins
         execStatus = executeBuiltin(argArr, nArgs);
         // if a builtin was run, break from loop
-        if (execStatus == 1 || execStatus == -1) break;
+        if (execStatus == 1 || execStatus == -1)
+        {
+          break;
+        }
 
         if (isStopped == 0)
         {
           isStopped = spawnProcess(argArr, i, nCommands, pfds);
 
           execStatus = 1;
-          
+
           // alert the user if child process was stopped
           if (isStopped > 0)
           {

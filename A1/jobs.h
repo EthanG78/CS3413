@@ -1,5 +1,5 @@
 /*
-  process.h
+  jobs.h
   CS3413 Operating Systems 1
 
   Ethan Garnier

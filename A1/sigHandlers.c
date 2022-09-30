@@ -18,6 +18,6 @@
 //
 void parentHandler(int signum)
 {
-    printf("No job to suspend\n");
+    printf("\nNo job to suspend\n");
     signal(SIGTSTP, &parentHandler);
 } 

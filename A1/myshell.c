@@ -4,7 +4,6 @@
 
   Ethan Garnier
 */
-
 #include <util.h>
 #include <sigHandlers.h>
 #include <jobs.h>
@@ -34,6 +33,14 @@ int main(int argc, char *argv[])
     // present the user with the cwd and take input
     printf("%s%%", cwd);
     inputStr = getUserInput(buffer, INPUT_MAX);
+
+    // supply the user input to the executePipeline
+    // command to execute whatever combination of
+    // commands were entered by the user.
+    // execStatus = 0 if no command was run
+    // execStatus = 1 if a command was run
+    // execStatus = -1 if exit was run
+    execStatus = executePipeline(inputStr);
 
     // since we aquire the cwd on each
     // loop we must then free it on each loop

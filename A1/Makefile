@@ -23,6 +23,7 @@ run:
 
 debug:
 	$(CC) -g -c util.c $(CFLAGS)
+	$(CC) -g -c sigHandlers.c $(CFLAGS)
 	$(CC) -g -c myshell.c $(CFLAGS)
 	$(CC) -g -o $(EXE) $(OBJS) $(CFLAGS)
 

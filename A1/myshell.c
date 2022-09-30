@@ -169,12 +169,15 @@ int main(int argc, char *argv[])
           waitForProcess(pid);
         }
       }
+
+      // since we aquire the pfds on each
+      // loop we must then free it on each loop
+      free(pfds);
     }
 
-    // since we aquire the cwd and pfds on each
+    // since we aquire the cwd on each
     // loop we must then free it on each loop
     free(cwd);
-    free(pfds);
   } while (inputStr != NULL);
 
 cleanup:

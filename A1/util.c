@@ -63,9 +63,12 @@ void waitForProcess(pid_t pid)
   {
     // pid terminated normally
   }
-  else if (WIFSIGNALED(status))
+  else if (WIFSTOPPED(status))
   {
-    // pid terminated by a signal
+    // pid stopped by a signal
+    // if true, return something that indicates
+    // the process was stopped that way
+    // we know not to allow any new processes to run!
   }
 }
 

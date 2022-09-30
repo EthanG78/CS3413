@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <sys/types.h>
 #include <jobs.h>
 #include <builtins.h>

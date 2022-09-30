@@ -130,7 +130,6 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 int executePipeline(char *inputStr)
 {
   int i;              // pipe iter
-  int isStopped = 0;  // bool to keep track of status of prev process
   int *pfds;          // pipe file descriptors
   int nPipes;         // number of pipes used by user input
   char **commandArr;  // array of entered commands

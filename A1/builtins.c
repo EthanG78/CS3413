@@ -68,6 +68,8 @@ int bg(int pid)
     {
         printf("No job to continue.\n");
     }
+
+    return 1;
 }
 
 // todo:

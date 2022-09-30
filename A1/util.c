@@ -47,21 +47,6 @@ int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
   return tokenIdx;
 }
 
-// waitForProcess takes a pid_t stored in pid and waits on the process
-// with that process id. waitForProcess stops blocking when the process
-// exits or when it pauses via signal.
-//
-// waitForProcess returns 0 if the process terminated and 1 
-// if it was stopped via signal.
-//
-int waitForProcess(pid_t pid)
-{
-  int status;
-  waitpid(pid, &status, WUNTRACED);
-
-  return (WIFSTOPPED(status)) ? 1 : 0;
-}
-
 // getUserInput takes a char* stored in buffer and a max
 // size of the buffer and stores user input from stdin
 // in the buffer.
@@ -133,24 +118,4 @@ int *createPipes(int nPipes)
   }
 
   return pfds;
-}
-
-
-// todo
-// parseUserInput takes ...
-//
-// parseUserInput returns either 0 to indicate
-// to the calling function to continue parsing 
-// user input or -1 to indicate to the calling
-// function to stop parsing user input.
-// 
-int parseUserInput(char *userInput)
-{
-  int returnCode = 0;
-
-  //char commandArr[CMD_MAX][INPUT_MAX];
-  //char cmdArr[CMD_MAX][INPUT_MAX];
-
-
-  return returnCode;
 }

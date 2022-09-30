@@ -12,27 +12,29 @@
 #include <signal.h>
 #include <util.h>
 #include <sigHandlers.h>
+#include <builtins.h>
+#include<jobs.h>
 
 int main(int argc, char *argv[])
 {
   char *cwd;              // pointer to current working dir string
   char *inputStr;         // pointer to entered cmd
-  char **commandArr;      // arry of entered commands
-  int nCommands;          // number of commands in pipeArr
-  int nPipes;             // number of pipes used by user input
-  char **cmdArr;          // array of entered cmd args
-  int nArgs;              // number of args in cmdArr
+  //char **commandArr;      // arry of entered commands
+  //int nCommands;          // number of commands in pipeArr
+  //int nPipes;             // number of pipes used by user input
+  //char **cmdArr;          // array of entered cmd args
+  //int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
-  pid_t pid;              // process id
-  int i;                  // pipe iter
-  int *pfds;              // pipe file descriptors
-  int pipeRIdx;           // current pipe read index
-  int pipeWIdx;           // current pipe write index
-  int isStopped = 0;      // bool to keep track of status of prev process
+  //pid_t pid;              // process id
+  //int i;                  // pipe iter
+  //int *pfds;              // pipe file descriptors
+  //int pipeRIdx;           // current pipe read index
+  //int pipeWIdx;           // current pipe write index
+  //int isStopped = 0;      // bool to keep track of status of prev process
 
   // review the amount of data we malloc
-  commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
-  cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  //commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  //cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
   // Subscribe to SIGTSTP
   // BUG:
@@ -44,6 +46,8 @@ int main(int argc, char *argv[])
   // - "No job to suspend" is printed when we suspend a child process
   // - Suspending a process with pipes is a nightmare and breaks
 
+  int isRunning = 1; // bool to keep track of the status of the shell.
+
   do
   {
     cwd = getShellCwd();
@@ -52,6 +56,8 @@ int main(int argc, char *argv[])
     printf("%s%%", cwd);
     inputStr = getUserInput(buffer, INPUT_MAX);
 
+    isRunning = executePipeline(inputStr);
+
     // todo:
     // what if we moved all of this into its own function
     // that returns in integer indicating exit or continue loop?
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
 
     // tokenize user input based on the pipe '|' delimeter and
     // iterate through each of the commands the user has entered
-    nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, "|");
+    /*nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, "|");
     if (nCommands > 0)
     {
       // based on how many commands were entered by the user,
@@ -79,7 +85,7 @@ int main(int argc, char *argv[])
         // todo:
         // handle the builtins here
         // this is temp code I hate this
-        if (strcmp(inputStr, "exit") == 0)
+        if (strcmp(cmdArr[0], "exit") == 0)
         {
           free(cwd);
           free(pfds);
@@ -130,6 +136,8 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(cmdArr[0], "bg") == 0)
         {
+          // BROKEN BROKEN
+
           // if previous job was stopped, bring it back to
           // life but do not pause the shell
           if (isStopped == 1)
@@ -230,18 +238,16 @@ int main(int argc, char *argv[])
       // since we aquire the pfds on each
       // loop we must then free it on each loop
       free(pfds);
-    }
+    }*/
 
     // since we aquire the cwd on each
     // loop we must then free it on each loop
     free(cwd);
-  } while (inputStr != NULL);
-
-cleanup:
+  } while (inputStr != NULL && isRunning > 0);
 
   // free all allocated memory
-  free(commandArr);
-  free(cmdArr);
+  //free(commandArr);
+  //free(cmdArr);
 
   return EXIT_SUCCESS;
 }

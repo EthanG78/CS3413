@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
   // after SIGTSTP is captured by main process...
   signal(SIGTSTP, &parentHandler);
 
+  // ISSUES:
+  // - "No job to suspend" is printed when we suspend a child process
+  // - Suspending a process with pipes is a nightmare and breaks
+
   do
   {
     cwd = getShellCwd();
@@ -118,6 +122,20 @@ int main(int argc, char *argv[])
             {
               printf("Job suspended. Type 'fg' to resume\n");
             }
+          }
+          else
+          {
+            printf("No job to continue.\n");
+          }
+        }
+        else if (strcmp(cmdArr[0], "bg") == 0)
+        {
+          // if previous job was stopped, bring it back to
+          // life but do not pause the shell
+          if (isStopped == 1)
+          {
+            // pid of previous job is preserved
+            kill(pid, SIGCONT);
           }
           else
           {

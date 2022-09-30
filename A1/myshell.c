@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
 {
   char *cwd;              // pointer to current working dir string
   char *inputStr;         // pointer to entered cmd
-  char commandArr[CMD_MAX][INPUT_MAX];      // arry of entered commands
+  char **commandArr;      // arry of entered commands
   int nCommands;          // number of commands in pipeArr
   int nPipes;             // number of pipes used by user input
-  char cmdArr[CMD_MAX][INPUT_MAX];          // array of entered cmd args
+  char **cmdArr;          // array of entered cmd args
   int nArgs;              // number of args in cmdArr
   char buffer[INPUT_MAX]; // max input buffer
   pid_t pid;              // process id
@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
   int pipeWIdx;           // current pipe write index
 
   // review the amount of data we malloc
-  //commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
-  //cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
   // Subscribe to SIGTSTP
   signal(SIGTSTP, &parentHandler);
@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
 cleanup:
 
   // free all allocated memory
-  //free(commandArr);
-  //free(cmdArr);
+  free(commandArr);
+  free(cmdArr);
 
   return EXIT_SUCCESS;
 }

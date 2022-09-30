@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
 
   // ISSUES:
   // - "No job to suspend" is printed when we suspend a child process
-  // - Suspending a process with pipes is a nightmare and breaks
 
   do
   {
@@ -37,9 +36,6 @@ int main(int argc, char *argv[])
     // supply the user input to the executePipeline
     // command to execute whatever combination of
     // commands were entered by the user.
-    // execStatus = 0 if no command was run
-    // execStatus > 0 if a command was run
-    // execStatus = -1 if exit was run
     execStatus = executePipeline(inputStr);
 
     // since we aquire the cwd on each

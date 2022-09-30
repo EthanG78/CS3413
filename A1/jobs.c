@@ -11,6 +11,18 @@
 #include <builtins.h>
 #include <util.h>
 
+// processPauseLoop represents a shell within a shell.
+// I do not like this, but this is my solution to preserving
+// pipeline integrety while we have stopped a process in the
+// pipeline. This internal shell will allow users to execute 
+// builtin functions, but not external functions. They must finish
+// the process that was stopped by using 'fg' or 'bg' before
+// the pipeline resumes.
+//
+// processPauseLoop returns an integer value greater than
+// 0 to indicate some process executed successfully, or
+// -1 to indicate we must exit the shell.
+//
 int processPauseLoop(int pid)
 {
   char *cwd;              // pointer to current working dir string
@@ -49,6 +61,19 @@ int processPauseLoop(int pid)
   return execStatus;
 }
 
+// spawnProcess takes an array of command arguments, the
+// current index of the command in the pipeline, the total
+// number of commands in the pipeline, and the pipe file 
+// descriptors for the pipeline and spawns a new process to
+// run the particular command in cmdArr. spawnProcess will
+// use the information about the pipeline to ensure the 
+// input and output of the command in cmdArr are piped to 
+// the correct location.
+//
+// spawnProcess returns an integer value greater than
+// 0 to indicate some process executed successfully, or
+// -1 to indicate we must exit the shell.
+//
 int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 {
   int isStopped = 0; // bool to keep track of status of prev process
@@ -130,6 +155,17 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
   return 1;
 }
 
+// executePipeline takes a pointer to the user input characters
+// and executes the pipeline of commands that were
+// entered by the user. This includes builtin commands
+// and external commands.
+//
+// executePipeline returns an integer value which
+// indicates the status of what was executed.
+// execStatus = 0 if no command was run
+// execStatus > 0 if a command was run
+// execStatus = -1 if exit was run
+//
 int executePipeline(char *inputStr)
 {
   int i;              // pipe iter

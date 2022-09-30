@@ -14,7 +14,7 @@
 
 int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim);
 
-void waitForProcess(pid_t pid);
+int waitForProcess(pid_t pid);
 
 char *getUserInput(char *buffer, const int maxInput);
 

@@ -100,6 +100,30 @@ int main(int argc, char *argv[])
             printf("Please supply a directory with the CD command\n");
           }
         }
+        else if (strcmp(cmdArr[0], "fg") == 0)
+        {
+          // if previous job was stopped, bring it back to
+          // life and pause the shell.
+          if (isStopped == 1)
+          {
+            // pid of previous job is preserved
+            kill(pid, SIGCONT);
+
+            // wait for child process to finish
+            // since we brought it back to foreground
+            isStopped = waitForProcess(pid);
+
+            // alert the user if child process was stopped
+            if (isStopped > 0)
+            {
+              printf("Job suspended. Type 'fg' to resume\n");
+            }
+          }
+          else
+          {
+            printf("No job to continue.\n");
+          }
+        }
         else if (isStopped == 0)
         {
           // here is where we will execute external commands
@@ -171,6 +195,11 @@ int main(int argc, char *argv[])
 
           // wait for child process to finish
           isStopped = waitForProcess(pid);
+          // alert the user if child process was stopped
+          if (isStopped > 0)
+          {
+            printf("Job suspended. Type 'fg' to resume\n");
+          }
         }
         else
         {

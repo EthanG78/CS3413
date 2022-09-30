@@ -8,16 +8,18 @@
 #include <signal.h>
 #include <sigHandlers.h>
 
-// parentHandler acts as the signal handler for the 
-// parent shell process. Its purpose is to tell the
-// user there is no job to suspend if they have
-// sent the SIGTSTP signal to the shell.
-//
-// getUserInput returns a null-terminated string of the
-// entered user input.
+// parentHandler acts as the signal handler for the
+// parent shell process. 
 //
 void parentHandler(int signum)
 {
+  switch (signum)
+  {
+  case SIGTSTP:
     printf("\nNo job to suspend\n");
     signal(SIGTSTP, &parentHandler);
-} 
+    break;
+  default:
+    break;
+  }
+}

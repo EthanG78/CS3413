@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
   commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
   cmdArr = (char **)malloc(CMD_MAX * INPUT_MAX);
 
+  // Subscribe to SIGTSTP
+  signal(SIGTSTP, &parentHandler);
+
   do
   {
     cwd = getShellCwd();
@@ -145,9 +148,6 @@ int main(int argc, char *argv[])
               exit(EXIT_SUCCESS);
             }
           }
-
-          // Subscribe to SIGTSTP
-          signal(SIGTSTP, &parentHandler);
 
           // close any pipes associated with the
           // process we just ran

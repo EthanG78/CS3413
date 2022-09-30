@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -I.
-DEPS=util.h
-OBJS=util.o myshell.o
+DEPS=util.h sigHandlers.h
+OBJS=util.o sigHandlers.o myshell.o
 EXE=myshell
 
 all: a1
@@ -11,6 +11,9 @@ a1: $(OBJS)
 
 myshell.o: myshell.c $(DEPS)
 	$(CC) -c myshell.c $(CFLAGS)
+
+sigHandlers.o: sigHandlers.c $(DEPS)
+	$(CC) -c sigHandlers.c $(CFLAGS)
 
 util.o: util.c $(DEPS)
 	$(CC) -c util.c $(CFLAGS)

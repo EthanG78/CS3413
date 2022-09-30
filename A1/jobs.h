@@ -5,4 +5,4 @@
   Ethan Garnier
 */
 
-int executePipeline(char *inputStr)
+int executePipeline(char *inputStr);

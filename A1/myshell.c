@@ -56,6 +56,9 @@ int main(int argc, char *argv[])
     printf("%s%%", cwd);
     inputStr = getUserInput(buffer, INPUT_MAX);
 
+    // isRunning = 0 if no command was run
+    // isRunning = 1 if a command was run
+    // isRunning = -1 if exit was run
     isRunning = executePipeline(inputStr);
 
     // todo:
@@ -243,7 +246,7 @@ int main(int argc, char *argv[])
     // since we aquire the cwd on each
     // loop we must then free it on each loop
     free(cwd);
-  } while (inputStr != NULL && isRunning > 0);
+  } while (inputStr != NULL && isRunning != -1);
 
   // free all allocated memory
   //free(commandArr);

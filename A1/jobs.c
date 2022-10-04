@@ -25,22 +25,21 @@
 //
 int processPauseLoop(int pid)
 {
-  char *cwd;              // pointer to current working dir string
-  char buffer[INPUT_MAX]; // max input buffer
-  char *inputStr;         // pointer to entered cmd
-  char **commandArr;      // array of entered commands
-  int nCommands;          // number of commands in commandArr
-  int execStatus = 0;     // maintain status of commands being run
+  char *cwd;                                 // pointer to current working dir string
+  char buffer[CMD_MAX * ARG_MAX * CHAR_MAX]; // max input buffer
+  char *inputStr;                            // pointer to entered cmd
+  char **commandArr;                         // array of entered commands
+  int nCommands;                             // number of commands in commandArr
+  int execStatus = 0;                        // maintain status of commands being run
 
-  commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  commandArr = (char **)malloc(CMD_MAX * ARG_MAX * CHAR_MAX * sizeof(char));
 
   do
   {
     cwd = getShellCwd();
 
-    // present the user with the cwd and take input
     printf("%s%%", cwd);
-    inputStr = getUserInput(buffer, INPUT_MAX);
+    inputStr = getUserInput(buffer, CMD_MAX * ARG_MAX * CHAR_MAX);
 
     nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, " ");
 
@@ -168,19 +167,20 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 //
 int executePipeline(char *inputStr)
 {
-  int i;                     // pipe iter
-  int *pfds;                 // pipe file descriptors
-  int nPipes;                // number of pipes used by user input
-  char *commandArr[CMD_MAX]; // array of entered commands
-  int nCommands;             // number of commands in commandArr
-  char *argArr[ARG_MAX];     // array of entered command args
-  int nArgs;                 // number of args in argArr
-  int execStatus = 0;        // bool that is returned
+  int i;              // pipe iter
+  int *pfds;          // pipe file descriptors
+  int nPipes;         // number of pipes used by user input
+  char **commandArr;  // array of entered commands
+  int nCommands;      // number of commands in commandArr
+  char **argArr;      // array of entered command args
+  int nArgs;          // number of args in argArr
+  int execStatus = 0; // bool that is returned
 
   // allocate space for each command, this is equivalent
   // to the number of commands we allow times the number
+  // of arguments we allow per command times the number
   // of character per argument we support.
-  commandArr = (char **)malloc(ARG_MAX * CHAR_MAX * sizeof(char));
+  commandArr = (char **)malloc(CMD_MAX * ARG_MAX * CHAR_MAX * sizeof(char));
 
   // tokenize user input based on the pipe '|' delimeter and
   // iterate through each of the commands the user has entered
@@ -188,8 +188,9 @@ int executePipeline(char *inputStr)
   if (nCommands > 0)
   {
     // allocate space for each argument, this is equivalent
-    // to the number of characters we allow per argument
-    argArr = (char **)malloc(CHAR_MAX * sizeof(char));
+    // to the numberof arguments we allow per command
+    // times the number of character per argument we support.
+    argArr = (char **)malloc(ARG_MAX * CHAR_MAX * sizeof(char));
 
     // based on how many commands were entered by the user,
     // we can determine how many pipes were used and how

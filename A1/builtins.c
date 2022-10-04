@@ -48,8 +48,6 @@ int fg(int pid)
 
 int bg(int pid)
 {
-    // BROKEN BROKEN
-
     // if previous job was stopped, bring it back to
     // life but do not pause the shell
     if (pid != -1)

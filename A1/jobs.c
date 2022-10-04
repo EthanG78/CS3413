@@ -201,7 +201,7 @@ int executePipeline(char *inputStr)
     // iterate through each command and execute it
     // making sure to modify the stdin and stdout of each
     // process based on what pipe we are on
-    for (i = 0; i < nCommands; i++)
+    for (i = 0; i < nCommands && pfds != NULL; i++)
     {
       // commandArr[i] becomes the command string we want to split
       nArgs = tokenizeIntoArr(commandArr[i], argArr, ARG_MAX, " ");

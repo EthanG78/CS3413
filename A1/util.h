@@ -10,7 +10,7 @@
 
 // The maximum amount of commands
 // accepted to be piped together
-#define CMD_MAX 100
+#define CMD_MAX 101
 // The maximum amount of arguments 
 // accepted per command
 #define ARG_MAX 101

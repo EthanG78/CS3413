@@ -60,6 +60,22 @@ int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
     arr[tokenIdx++] = nullToken;
   }
 
+  // in the event the user entered more
+  // input then we support
+  if (tokenIdx == arrSize - 1 && token != NULL)
+  {
+    // todo:
+    // decide if we should just return what has already
+    // been tokenized, or return -1
+    //
+    // my initial thought process is that if the user
+    // cannot execute their entire pipeline then they
+    // probably don't want to execute a portion of it
+    // so just return -1 for now...
+    printf("Unsupported size of input...\nShell only supports %d commands with %d arguments each.\n", CMD_MAX, ARG_MAX);
+    return -1;
+  }
+
   // add a NULL pointer to the end of the array so it
   // is compatible with the exec() family of functions
   arr[tokenIdx] = (char *)NULL;

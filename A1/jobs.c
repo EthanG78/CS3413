@@ -198,37 +198,41 @@ int executePipeline(char *inputStr)
     nPipes = nCommands - 1;
     pfds = createPipes(nPipes);
 
-    // iterate through each command and execute it
-    // making sure to modify the stdin and stdout of each
-    // process based on what pipe we are on
-    for (i = 0; i < nCommands && pfds != NULL; i++)
+    if (pfds != NULL)
     {
-      // commandArr[i] becomes the command string we want to split
-      nArgs = tokenizeIntoArr(commandArr[i], argArr, ARG_MAX, " ");
-
-      if (nArgs > 0)
+      // iterate through each command and execute it
+      // making sure to modify the stdin and stdout of each
+      // process based on what pipe we are on
+      for (i = 0; i < nCommands; i++)
       {
-        // execute builtins
-        execStatus = executeBuiltin(argArr, nArgs, -1);
+        // commandArr[i] becomes the command string we want to split
+        nArgs = tokenizeIntoArr(commandArr[i], argArr, ARG_MAX, " ");
 
-        if (execStatus == 0)
+        if (nArgs > 0)
         {
-          // if no builtin was run, run external command
-          execStatus = spawnProcess(argArr, i, nCommands, pfds);
-          if (execStatus == -1)
+          // execute builtins
+          execStatus = executeBuiltin(argArr, nArgs, -1);
+
+          if (execStatus == 0)
           {
+            // if no builtin was run, run external command
+            execStatus = spawnProcess(argArr, i, nCommands, pfds);
+            if (execStatus == -1)
+            {
+              break;
+            }
+          }
+          else
+          {
+            // if a builtin was run, break from loop
             break;
           }
         }
-        else
-        {
-          // if a builtin was run, break from loop
-          break;
-        }
       }
+
+      free(pfds);
     }
 
-    free(pfds);
     free(argArr);
   }
 

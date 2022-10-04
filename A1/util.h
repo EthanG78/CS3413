@@ -8,10 +8,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// todo:
-// review these
-#define INPUT_MAX 51
-#define CMD_MAX 100
+// The maximum amount of commands
+// accepted to be piped together
+#define CMD_MAX 100;
+// The maximum amount of arguments 
+// accepted per command
+#define ARG_MAX 101;
+// The maximum amount of characters
+// allowed per argument
+#define CHAR_MAX 50;
 
 int waitForProcess(int pid);
 

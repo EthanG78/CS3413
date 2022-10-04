@@ -14,7 +14,7 @@
 // processPauseLoop represents a shell within a shell.
 // I do not like this, but this is my solution to preserving
 // pipeline integrety while we have stopped a process in the
-// pipeline. This internal shell will allow users to execute 
+// pipeline. This internal shell will allow users to execute
 // builtin functions, but not external functions. They must finish
 // the process that was stopped by using 'fg' or 'bg' before
 // the pipeline resumes.
@@ -63,11 +63,11 @@ int processPauseLoop(int pid)
 
 // spawnProcess takes an array of command arguments, the
 // current index of the command in the pipeline, the total
-// number of commands in the pipeline, and the pipe file 
+// number of commands in the pipeline, and the pipe file
 // descriptors for the pipeline and spawns a new process to
 // run the particular command in cmdArr. spawnProcess will
-// use the information about the pipeline to ensure the 
-// input and output of the command in cmdArr are piped to 
+// use the information about the pipeline to ensure the
+// input and output of the command in cmdArr are piped to
 // the correct location.
 //
 // spawnProcess returns an integer value greater than
@@ -168,23 +168,28 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 //
 int executePipeline(char *inputStr)
 {
-  int i;              // pipe iter
-  int *pfds;          // pipe file descriptors
-  int nPipes;         // number of pipes used by user input
-  char **commandArr;  // array of entered commands
-  int nCommands;      // number of commands in commandArr
-  char **argArr;      // array of entered command args
-  int nArgs;          // number of args in argArr
-  int execStatus = 0; // bool that is returned
+  int i;                     // pipe iter
+  int *pfds;                 // pipe file descriptors
+  int nPipes;                // number of pipes used by user input
+  char *commandArr[CMD_MAX]; // array of entered commands
+  int nCommands;             // number of commands in commandArr
+  char *argArr[ARG_MAX];     // array of entered command args
+  int nArgs;                 // number of args in argArr
+  int execStatus = 0;        // bool that is returned
 
-  commandArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+  // allocate space for each command, this is equivalent
+  // to the number of commands we allow times the number
+  // of character per argument we support.
+  commandArr = (char **)malloc(ARG_MAX * CHAR_MAX * sizeof(char));
 
   // tokenize user input based on the pipe '|' delimeter and
   // iterate through each of the commands the user has entered
   nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, "|");
   if (nCommands > 0)
   {
-    argArr = (char **)malloc(CMD_MAX * INPUT_MAX);
+    // allocate space for each argument, this is equivalent
+    // to the number of characters we allow per argument
+    argArr = (char **)malloc(CHAR_MAX * sizeof(char));
 
     // based on how many commands were entered by the user,
     // we can determine how many pipes were used and how
@@ -198,7 +203,7 @@ int executePipeline(char *inputStr)
     for (i = 0; i < nCommands; i++)
     {
       // commandArr[i] becomes the command string we want to split
-      nArgs = tokenizeIntoArr(commandArr[i], argArr, CMD_MAX, " ");
+      nArgs = tokenizeIntoArr(commandArr[i], argArr, ARG_MAX, " ");
 
       if (nArgs > 0)
       {

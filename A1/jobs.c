@@ -198,8 +198,6 @@ int executePipeline(char *inputStr)
 
         if (nArgs > 0)
         {
-          // execStatus = 0;
-
           if (i == 0)
           {
             // if we are in the first cmd, then
@@ -219,21 +217,6 @@ int executePipeline(char *inputStr)
           {
             break;
           }
-
-          /*if (execStatus == 0)
-          {
-            // if no builtin was run, run external command
-            execStatus = spawnProcess(argArr, i, nCommands, pfds);
-            if (execStatus == -1)
-            {
-              break;
-            }
-          }
-          else
-          {
-            // if a builtin was run, break from loop
-            break;
-          }*/
         }
       }
 

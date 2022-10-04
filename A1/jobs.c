@@ -198,10 +198,29 @@ int executePipeline(char *inputStr)
 
         if (nArgs > 0)
         {
-          // execute builtins
-          execStatus = executeBuiltin(argArr, nArgs, -1);
+          // execStatus = 0;
 
-          if (execStatus == 0)
+          if (i == 0)
+          {
+            // if we are in the first cmd, then
+            // attempt to execute builtins
+            execStatus = executeBuiltin(argArr, nArgs, -1);
+            if (execStatus != 0)
+            {
+              // if a builtin was run, break from loop
+              break;
+            }
+          }
+
+          // execute external command and properly
+          // pipe stdin/stdout of command
+          execStatus = spawnProcess(argArr, i, nCommands, pfds);
+          if (execStatus == -1)
+          {
+            break;
+          }
+
+          /*if (execStatus == 0)
           {
             // if no builtin was run, run external command
             execStatus = spawnProcess(argArr, i, nCommands, pfds);
@@ -214,7 +233,7 @@ int executePipeline(char *inputStr)
           {
             // if a builtin was run, break from loop
             break;
-          }
+          }*/
         }
       }
 

@@ -4,7 +4,6 @@
 
   Ethan Garnier
 */
-
 #include <string.h>
 #include <signal.h>
 #include <builtins.h>
@@ -14,7 +13,6 @@ int cd(char **argArr, int nArgs)
 {
     if (nArgs > 1)
     {
-        // manually implement cd with chdir
         if (chdir(argArr[1]) == -1)
         {
             perror("chdir()");
@@ -36,11 +34,7 @@ int fg(int pid)
     // life and pause the shell.
     if (pid != -1)
     {
-        // pid of previous job is preserved
         kill(pid, SIGCONT);
-
-        // wait for child process to finish
-        // since we brought it back to foreground
         isStopped = waitForProcess(pid);
 
         return (isStopped == 0) ? pid : 1;
@@ -52,7 +46,6 @@ int fg(int pid)
     }
 }
 
-// BROKEN BROKEN
 int bg(int pid)
 {
     // BROKEN BROKEN
@@ -61,7 +54,6 @@ int bg(int pid)
     // life but do not pause the shell
     if (pid != -1)
     {
-        // pid of previous job is preserved
         kill(pid, SIGCONT);
     }
     else
@@ -72,10 +64,6 @@ int bg(int pid)
     return 1;
 }
 
-// todo:
-// returns 0 if no builtin was run
-// returns -1 if exit was run
-// returns > 0 if any builtin was run
 int executeBuiltin(char **argArr, int nArgs, int pid)
 {
     int retCode = 0;

@@ -7,9 +7,6 @@
 #include <stdio.h>
 #include <sigHandlers.h>
 
-// parentHandler acts as the signal handler for the
-// parent shell process. 
-//
 void parentHandler(int signum)
 {
   switch (signum)

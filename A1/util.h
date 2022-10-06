@@ -72,7 +72,10 @@ char *getShellCwd();
 //
 int *createPipes(int nPipes);
 
-// sigHandler acts as the signal handler for the
-// shell process and its children.
+// subscribeToSignals subscribes a process
+// to all desired signals with handlers.
 //
-void sigHandler(int signum);
+// subscribeToSignals return -1 if an error occured,
+// and 0 otherwise.
+//
+int subscribeToSignals();

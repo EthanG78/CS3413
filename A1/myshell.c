@@ -10,7 +10,6 @@
 
   Ethan Garnier
 */
-#include <signal.h>
 #include <util.h>
 #include <jobs.h>
 
@@ -21,17 +20,14 @@ int main(int argc, char *argv[])
   char buffer[CMD_MAX * ARG_MAX * CHAR_MAX]; // max input buffer
   int execStatus = 1;                        // bool to keep track of the status of the shell.
 
-  // Subscribe to SIGTSTP
-  if (signal(SIGTSTP, &sigHandler) == SIG_ERR)
-  {
-    perror("signal()");
-    return EXIT_FAILURE;
-  }
-
   // ISSUES:
-  // - "No job to suspend" is printed when we suspend a child process
   // - the cwd will not print out directly after SIGTSTP is captured
   //   if it is captured while user input is being taken...
+
+  if (subscribeToSignals() == -1)
+  {
+    return EXIT_FAILURE;
+  }
 
   do
   {

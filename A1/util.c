@@ -138,3 +138,14 @@ void sigHandler(int signum)
     break;
   }
 }
+
+int subscribeToSignals()
+{
+  if (signal(SIGTSTP, &sigHandler) == SIG_ERR)
+  {
+    perror("signal()");
+    return -1;
+  }
+
+  return 0;
+}

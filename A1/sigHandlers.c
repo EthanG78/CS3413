@@ -17,7 +17,7 @@ void parentHandler(int signum)
     // I know using printf here is bad because 
     // it is not an 'async-signal-safe' function.
     printf("\nNo job to suspend\n");
-    fputs("\n");
+    fputs("\n", stdin);
     break;
   default:
     break;

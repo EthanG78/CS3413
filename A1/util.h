@@ -18,6 +18,10 @@
 // allowed per argument
 #define CHAR_MAX 50
 
+// global child process id to keep track
+// of which process is our immediate child
+int childPid = 1;
+
 // waitForProcess takes an integer process id stored in pid and
 // waits on the process with that process id. waitForProcess stops
 // blocking when the process exits or when it pauses via signal.
@@ -67,3 +71,8 @@ char *getShellCwd();
 // when they are finished.
 //
 int *createPipes(int nPipes);
+
+// sigHandler acts as the signal handler for the
+// shell process and its children.
+//
+void sigHandler(int signum);

@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <util.h>
 
 int waitForProcess(int pid)
@@ -27,7 +28,8 @@ int waitForProcess(int pid)
 
 int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
 {
-  if (str == NULL) return -1;
+  if (str == NULL)
+    return -1;
 
   int tokenIdx = 0;
   char *token, *strRemainder;
@@ -114,4 +116,25 @@ int *createPipes(int nPipes)
   }
 
   return pfds;
+}
+
+void sigHandler(int signum)
+{
+  // Resubscribe to signal handler
+  signal(signum, &sigHandler);
+
+  // Add signals to handle here
+  switch (signum)
+  {
+  case SIGTSTP:
+    // I know using printf here is bad because
+    // it is not an 'async-signal-safe' function.
+    if (childPid != 0)
+    {
+      printf("\nNo job to suspend\n");
+    }
+    break;
+  default:
+    break;
+  }
 }

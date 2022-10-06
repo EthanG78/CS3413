@@ -11,7 +11,6 @@
   Ethan Garnier
 */
 #include <util.h>
-#include <sigHandlers.h>
 #include <jobs.h>
 
 int main(int argc, char *argv[])
@@ -22,7 +21,7 @@ int main(int argc, char *argv[])
   int execStatus = 1;                        // bool to keep track of the status of the shell.
 
   // Subscribe to SIGTSTP
-  if (signal(SIGTSTP, &parentHandler) == SIG_ERR)
+  if (signal(SIGTSTP, &sigHandler) == SIG_ERR)
   {
     perror("signal()");
     return EXIT_FAILURE;

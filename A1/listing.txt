@@ -1,0 +1,658 @@
+/*
+  builtins.h
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+
+int executeBuiltin(char **argArr, int nArgs, int pid);
+/*
+  jobs.h
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+
+int executePipeline(char *inputStr);
+/*
+  util.h
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+// The maximum amount of commands
+// accepted to be piped together
+#define CMD_MAX 101
+// The maximum amount of arguments
+// accepted per command
+#define ARG_MAX 101
+// The maximum amount of characters
+// allowed per argument
+#define CHAR_MAX 50
+
+// global child process id to keep track
+// of if a child process is running
+int jobPid;
+
+int waitForProcess(int pid);
+
+int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim);
+
+char *getUserInput(char *buffer, const int maxInput);
+
+char *getShellCwd();
+
+int *createPipes(int nPipes);
+
+int subscribeToSignals();
+/*
+  builtins.c
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+#include <string.h>
+#include <signal.h>
+#include <builtins.h>
+#include <util.h>
+
+// change directory
+int cd(char **argArr, int nArgs)
+{
+    if (nArgs > 1)
+    {
+        if (chdir(argArr[1]) == -1)
+        {
+            perror("chdir()");
+        }
+    }
+    else
+    {
+        printf("Please supply a directory with the CD command\n");
+    }
+
+    return 1;
+}
+
+// resume child process in foreground
+int fg(int pid)
+{
+    int isStopped = 0;
+
+    // if previous job was stopped, bring it back to
+    // life and pause the shell.
+    if (pid != -1)
+    {
+        kill(pid, SIGCONT);
+        isStopped = waitForProcess(pid);
+
+        return (isStopped == 0) ? pid : 1;
+    }
+    else
+    {
+        printf("No job to continue.\n");
+        return 1;
+    }
+}
+
+// resume child process in background
+int bg(int pid)
+{
+    // if previous job was stopped, bring it back to
+    // life but do not pause the shell
+    if (pid != -1)
+    {
+        kill(pid, SIGCONT);
+    }
+    else
+    {
+        printf("No job to continue.\n");
+    }
+
+    return 1;
+}
+
+// executeBuiltin takes a pointer to the array of command
+// arguments supplied by the user, an integer with the number
+// of arguments in the array, and an optional integer process id.
+// executeBuiltin will execute any supported
+// builtin command if found in the arguments array.
+//
+// The builtin commands for resuming paused processes in the
+// foreground (fg) and background (bg) will only work if the
+// paused process id is supplied in pid.
+//
+// executeBuiltin returns an integer value which
+// indicates the status of what was executed.
+// returns 0 if no builtin was run
+// returns -1 if exit was run
+// returns > 0 if any builtin was run
+//
+int executeBuiltin(char **argArr, int nArgs, int pid)
+{
+    int retCode = 0;
+    if (strcmp(argArr[0], "exit") == 0)
+    {
+        // call exit
+        retCode = -1;
+    }
+    else if (strcmp(argArr[0], "cd") == 0)
+    {
+        // call cd
+        retCode = cd(argArr, nArgs);
+    }
+    else if (strcmp(argArr[0], "fg") == 0)
+    {
+        // call fg
+        retCode = fg(pid);
+    }
+    else if (strcmp(argArr[0], "bg") == 0)
+    {
+        // call bg
+        retCode = bg(pid);
+    }
+
+    return retCode;
+}
+/*
+  jobs.c
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+#include <errno.h>
+#include <signal.h>
+#include <jobs.h>
+#include <builtins.h>
+#include <util.h>
+
+// processPauseLoop represents a shell within a shell.
+// I do not like this, but this is my solution to preserving
+// pipeline integrety while we have stopped a process in the
+// pipeline. This internal shell will allow users to execute
+// builtin functions, but not external functions. They must finish
+// the process that was stopped by using 'fg' or 'bg' before
+// the pipeline resumes.
+//
+// processPauseLoop returns an integer value greater than
+// 0 to indicate some process executed successfully, or
+// -1 to indicate we must exit the shell.
+//
+int processPauseLoop(int pid)
+{
+  char *cwd;                                 // pointer to current working dir string
+  char buffer[CMD_MAX * ARG_MAX * CHAR_MAX]; // max input buffer
+  char *inputStr;                            // pointer to entered cmd
+  char **commandArr;                         // array of entered commands
+  int nCommands;                             // number of commands in commandArr
+  int execStatus = 0;                        // maintain status of commands being run
+
+  commandArr = (char **)malloc(CMD_MAX * ARG_MAX * CHAR_MAX * sizeof(char));
+
+  do
+  {
+    cwd = getShellCwd();
+
+    printf("%s%%", cwd);
+    inputStr = getUserInput(buffer, CMD_MAX * ARG_MAX * CHAR_MAX);
+
+    nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, " ");
+
+    if (nCommands > 0)
+    {
+      execStatus = executeBuiltin(commandArr, nCommands, pid);
+      if (execStatus == 0)
+      {
+        // We only reach this point if a user attempt to exec an external
+        // command while the previous command was already stopped by SIGTSTP
+        printf("Not allowed to start new command while you have a job active.\n");
+      }
+    }
+
+    free(cwd);
+  } while (inputStr != NULL && execStatus != -1 && execStatus != pid);
+
+  return execStatus;
+}
+
+// spawnProcess takes an array of command arguments, the
+// current index of the command in the pipeline, the total
+// number of commands in the pipeline, and the pipe file
+// descriptors for the pipeline and spawns a new process to
+// run the particular command in cmdArr. spawnProcess will
+// use the information about the pipeline to ensure the
+// input and output of the command in cmdArr are piped to
+// the correct location.
+//
+// spawnProcess returns an integer value greater than
+// 0 to indicate some process executed successfully, or
+// -1 to indicate we must exit the shell.
+//
+int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
+{
+  int isStopped = 0; // bool to keep track of status of prev process
+
+  jobPid = fork();
+
+  int pipeRIdx = (cmdIdx - 1) * 2;
+  int pipeWIdx = cmdIdx * 2 + 1;
+
+  if (jobPid < 0)
+  {
+    perror("fork()");
+  }
+  else if (jobPid == 0)
+  {
+    // child process
+
+    // redirect the stdout of the command that is about
+    // to be executed to the write end of the pipe if
+    // there is another command in the pipe array
+    if (cmdIdx < nCommands - 1)
+    {
+      if (dup2(pfds[pipeWIdx], STDOUT_FILENO) == -1)
+      {
+        perror("dup2()");
+      }
+
+      close(pfds[pipeWIdx]);
+    }
+
+    // redirect the stdin of the command that is about
+    // to be executed to the read end of the pipe if
+    // there was another command in the pipe array
+    // before this one
+    if (cmdIdx > 0)
+    {
+      if (dup2(pfds[pipeRIdx], STDIN_FILENO) == -1)
+      {
+        perror("dup2()");
+      }
+
+      close(pfds[pipeRIdx]);
+    }
+
+    // execute the command with argument
+    // array that was created
+    if (execvp(cmdArr[0], cmdArr) != 0)
+    {
+      printf("Error executing %s.\n", cmdArr[0]);
+      perror("execvp()");
+      exit(EXIT_SUCCESS);
+    }
+  }
+
+  // close any pipes associated with the
+  // process we just ran
+  if (cmdIdx > 0)
+  {
+    // close the associated read end of the
+    // pipe that was used as input for this process
+    close(pfds[pipeRIdx]);
+  }
+
+  if (cmdIdx < nCommands - 1)
+  {
+    // close the associated write end of the
+    // pipe that was used as output for this process
+    close(pfds[pipeWIdx]);
+  }
+
+  // wait for child process to finish
+  isStopped = waitForProcess(jobPid);
+
+  if (isStopped > 0)
+  {
+    return processPauseLoop(jobPid);
+  }
+
+  return 1;
+}
+
+// executePipeline takes a pointer to the user input characters
+// and executes the pipeline of commands that were
+// entered by the user. This includes builtin commands
+// and external commands.
+//
+// executePipeline returns an integer value which
+// indicates the status of what was executed.
+// execStatus = 0 if no command was run
+// execStatus > 0 if a command was run
+// execStatus = -1 if exit was run
+//
+int executePipeline(char *inputStr)
+{
+  int i;              // pipe iter
+  int *pfds;          // pipe file descriptors
+  int nPipes;         // number of pipes used by user input
+  char **commandArr;  // array of entered commands
+  int nCommands;      // number of commands in commandArr
+  char **argArr;      // array of entered command args
+  int nArgs;          // number of args in argArr
+  int execStatus = 0; // bool that is returned
+
+  // allocate space for each command, this is equivalent
+  // to the number of commands we allow times the number
+  // of arguments we allow per command times the number
+  // of character per argument we support.
+  commandArr = (char **)malloc(CMD_MAX * ARG_MAX * CHAR_MAX * sizeof(char));
+
+  // tokenize user input based on the pipe '|' delimeter and
+  // iterate through each of the commands the user has entered
+  nCommands = tokenizeIntoArr(inputStr, commandArr, CMD_MAX, "|");
+  if (nCommands > 0)
+  {
+    // allocate space for each argument, this is equivalent
+    // to the numberof arguments we allow per command
+    // times the number of character per argument we support.
+    argArr = (char **)malloc(ARG_MAX * CHAR_MAX * sizeof(char));
+
+    // based on how many commands were entered by the user,
+    // we can determine how many pipes were used and how
+    // many we must create.
+    nPipes = nCommands - 1;
+    pfds = createPipes(nPipes);
+
+    if (pfds != NULL)
+    {
+      // iterate through each command and execute it
+      // making sure to modify the stdin and stdout of each
+      // process based on what pipe we are on
+      for (i = 0; i < nCommands; i++)
+      {
+        // commandArr[i] becomes the command string we want to split
+        nArgs = tokenizeIntoArr(commandArr[i], argArr, ARG_MAX, " ");
+
+        if (nArgs > 0)
+        {
+          if (i == 0)
+          {
+            // if we are in the first cmd, then
+            // attempt to execute builtins
+            execStatus = executeBuiltin(argArr, nArgs, -1);
+            if (execStatus != 0)
+            {
+              // if a builtin was run, break from loop
+              break;
+            }
+          }
+
+          // execute external command and properly
+          // pipe stdin/stdout of command
+          execStatus = spawnProcess(argArr, i, nCommands, pfds);
+          if (execStatus == -1)
+          {
+            break;
+          }
+        }
+      }
+
+      free(pfds);
+    }
+
+    free(argArr);
+  }
+
+  free(commandArr);
+
+  return execStatus;
+}
+/*
+  myshell.c
+  CS3413 Operating Systems 1
+
+  To compile with Makefile run
+  > make
+
+  To run the compiled binary call
+  > ./myshell
+
+  Ethan Garnier
+*/
+#include <util.h>
+#include <jobs.h>
+
+int main(int argc, char *argv[])
+{
+  char *cwd;                                 // pointer to current working dir string
+  char *inputStr;                            // pointer to entered cmd
+  char buffer[CMD_MAX * ARG_MAX * CHAR_MAX]; // max input buffer
+  int execStatus = 1;                        // bool to keep track of the status of the shell.
+
+  // ISSUES:
+  // - the cwd will not print out directly after SIGTSTP is captured
+  //   if it is captured while user input is being taken...
+
+  if (subscribeToSignals() == -1)
+  {
+    return EXIT_FAILURE;
+  }
+
+  do
+  {
+    jobPid = 0;
+
+    // fetch the shell's current working directory
+    cwd = getShellCwd();
+
+    // fetch user input
+    printf("%s%%", cwd);
+    inputStr = getUserInput(buffer, CMD_MAX * ARG_MAX * CHAR_MAX);
+
+    // supply the user input to the executePipeline
+    // command to execute whatever combination of
+    // commands were entered by the user.
+    execStatus = executePipeline(inputStr);
+
+    // since we aquire the cwd on each
+    // loop we must then free it on each loop
+    free(cwd);
+  } while (inputStr != NULL && execStatus != -1);
+
+  return EXIT_SUCCESS;
+}
+/*
+  util.c
+  CS3413 Operating Systems 1
+
+  Ethan Garnier
+*/
+
+#include <string.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <util.h>
+
+// waitForProcess takes an integer process id stored in pid and
+// waits on the process with that process id. waitForProcess stops
+// blocking when the process exits or when it pauses via signal.
+//
+// waitForProcess returns 0 if the process terminated and 1
+// if it was stopped via signal.
+//
+int waitForProcess(int pid)
+{
+  int status;
+  waitpid(pid, &status, WUNTRACED);
+
+  if (WIFSTOPPED(status))
+  {
+    printf("Job suspended. Type 'fg' to resume\n");
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+// tokenizeIntoArr takes a char* stored in str and splits it into tokens
+// based on a character delimeter specified by delim. Each of these tokens
+// are stored, in order, in the arr char* array. This array may hold arrSize - 1
+// tokens. A NULL pointer is placed at the end of the array for compatibility
+// with the exec family of functions.
+//
+// tokenizeIntoArr returns the integer number of tokens stored in arrSize,
+// or -1 to indicate an error or no input.
+//
+// Thank you to Dr. Rea for inspiring this helper function.
+//
+int tokenizeIntoArr(char *str, char **arr, const int arrSize, const char *delim)
+{
+  if (str == NULL)
+    return -1;
+
+  int tokenIdx = 0;
+  char *token, *strRemainder;
+  strRemainder = str;
+
+  // loop until we no longer have tokens to parse or we have parsed
+  // more tokens then we are capable of storing.
+  // todo: the man page says str must be set to null after first run...
+  while ((token = strtok_r(strRemainder, delim, &strRemainder)) && tokenIdx < arrSize - 1)
+  {
+    char *nullToken = token + '\0';
+    arr[tokenIdx++] = nullToken;
+  }
+
+  // in the event the user entered more
+  // input then we support
+  if (tokenIdx == arrSize - 1 && token != NULL)
+  {
+    // todo:
+    // decide if we should just return what has already
+    // been tokenized, or return -1
+    //
+    // my initial thought process is that if the user
+    // cannot execute their entire pipeline then they
+    // probably don't want to execute a portion of it
+    // so just return -1 for now...
+    printf("Unsupported size of input...\nShell only supports %d commands with %d arguments each.\n", CMD_MAX, ARG_MAX);
+    return -1;
+  }
+
+  // add a NULL pointer to the end of the array so it
+  // is compatible with the exec() family of functions
+  arr[tokenIdx] = (char *)NULL;
+
+  return tokenIdx;
+}
+
+// getUserInput takes a char* stored in buffer and a max
+// size of the buffer and stores user input from stdin
+// in the buffer.
+//
+// getUserInput returns a null-terminated string of the
+// entered user input.
+//
+char *getUserInput(char *buffer, const int maxInput)
+{
+  char *inputStr;
+  int len;
+
+  inputStr = fgets(buffer, maxInput, stdin);
+
+  // check for the newline character and overwrite with \0
+  len = strlen(buffer);
+  if (buffer[len - 1] == '\n')
+  {
+    buffer[len - 1] = '\0';
+  }
+
+  return inputStr;
+}
+
+// getUserCwd returns a pointer to a string containing
+// the path of the shell's current working directory.
+// The calling function must free the returned pointer
+// when they are finished.
+//
+char *getShellCwd()
+{
+  // call getcwd() to get the shell's
+  // current working directory
+  char *cwd = getcwd(NULL, 0);
+  if (cwd == NULL)
+  {
+    perror("getcwd");
+  }
+
+  return cwd;
+}
+
+// createPipes takes an integer number nPipes and creates
+// 2 * nPipes pipe file descriptors (1 read and 1 write
+// for each pipe).
+//
+// createPipes returns an integer pointer to the
+// first of the 2 * nPipes pipe file descriptors, or
+// NULL if the function fails to create the pipes
+// The calling function must free the returned pointer
+// when they are finished.
+//
+int *createPipes(int nPipes)
+{
+  // allocate space in the pipe file descriptors
+  // variable based on how many pipes there are
+  int *pfds = (int *)malloc(nPipes * sizeof(int) * 2);
+
+  // iterate through each of the entered pipes
+  // and create a pipe file descriptor
+  int i;
+  for (i = 0; i < nPipes; i++)
+  {
+    if (pipe(pfds + i * 2) == -1)
+    {
+      perror("pipe()");
+      return NULL;
+    }
+  }
+
+  return pfds;
+}
+
+// sigHandler represents the signal handler
+// called when process is subscribed to a 
+// a particular signal.
+//
+void sigHandler(int signum)
+{
+  // Resubscribe to signal handler
+  signal(signum, &sigHandler);
+
+  // Add signals to handle here
+  switch (signum)
+  {
+  case SIGTSTP:
+    // I know using printf here is bad because
+    // it is not an 'async-signal-safe' function.
+    if (jobPid == 0)
+    {
+      printf("\nNo job to suspend\n");
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+// subscribeToSignals subscribes a process
+// to all desired signals with handlers.
+//
+// subscribeToSignals return -1 if an error occured,
+// and 0 otherwise.
+//
+int subscribeToSignals()
+{
+  if (signal(SIGTSTP, &sigHandler) == SIG_ERR)
+  {
+    perror("signal()");
+    return -1;
+  }
+
+  return 0;
+}

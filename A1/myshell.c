@@ -10,6 +10,7 @@
 
   Ethan Garnier
 */
+#include <signal.h>
 #include <util.h>
 #include <jobs.h>
 

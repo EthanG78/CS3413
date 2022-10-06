@@ -16,13 +16,15 @@ int main(int argc, char *argv[])
   int execStatus = 1;                        // bool to keep track of the status of the shell.
 
   // Subscribe to SIGTSTP
-  // BUG:
-  // currently the cwd will not print out directly
-  // after SIGTSTP is captured by main process...
-  signal(SIGTSTP, &parentHandler);
+  if (signal(SIGTSTP, &parentHandler) == SIG_ERR)
+  {
+    perror("signal()");
+    return EXIT_FAILURE;
+  }
 
   // ISSUES:
   // - "No job to suspend" is printed when we suspend a child process
+  // - the cwd will not print out directly after SIGTSTP is captured
 
   do
   {

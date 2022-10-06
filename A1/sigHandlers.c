@@ -9,11 +9,12 @@
 
 void parentHandler(int signum)
 {
+  signal(signum, &parentHandler);
+
   switch (signum)
   {
   case SIGTSTP:
     printf("\nNo job to suspend\n");
-    signal(SIGTSTP, &parentHandler);
     break;
   default:
     break;

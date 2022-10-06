@@ -131,7 +131,7 @@ void sigHandler(int signum)
     // it is not an 'async-signal-safe' function.
     if (jobPid == 0)
     {
-      printf("\nNo job to suspend %d\n", childPid);
+      printf("\nNo job to suspend\n");
     }
     break;
   default:

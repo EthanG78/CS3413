@@ -14,8 +14,10 @@ void parentHandler(int signum)
   switch (signum)
   {
   case SIGTSTP:
+    // I know using printf here is bad because 
+    // it is not an 'async-signal-safe' function.
     printf("\nNo job to suspend\n");
-    fflush(stdout);
+    fputs("\n");
     break;
   default:
     break;

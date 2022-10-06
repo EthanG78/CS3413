@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   // ISSUES:
   // - "No job to suspend" is printed when we suspend a child process
   // - the cwd will not print out directly after SIGTSTP is captured
+  //   if it is captured while user input is being taken...
 
   do
   {

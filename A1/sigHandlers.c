@@ -15,6 +15,7 @@ void parentHandler(int signum)
   {
   case SIGTSTP:
     printf("\nNo job to suspend\n");
+    fflush(stdout);
     break;
   default:
     break;

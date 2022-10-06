@@ -2,6 +2,12 @@
   myshell.c
   CS3413 Operating Systems 1
 
+  To compile with Makefile run 
+  > make
+
+  To run the compiled binary call
+  > ./myshell
+
   Ethan Garnier
 */
 #include <util.h>

@@ -2,7 +2,7 @@
   myshell.c
   CS3413 Operating Systems 1
 
-  To compile with Makefile run 
+  To compile with Makefile run
   > make
 
   To run the compiled binary call
@@ -33,10 +33,10 @@ int main(int argc, char *argv[])
   // - the cwd will not print out directly after SIGTSTP is captured
   //   if it is captured while user input is being taken...
 
-  childPid = -1;
-
   do
   {
+    jobPid = 0;
+
     // fetch the shell's current working directory
     cwd = getShellCwd();
 

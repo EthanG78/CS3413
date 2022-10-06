@@ -129,7 +129,7 @@ void sigHandler(int signum)
   case SIGTSTP:
     // I know using printf here is bad because
     // it is not an 'async-signal-safe' function.
-    if (childPid != 0)
+    if (childPid == 0)
     {
       printf("\nNo job to suspend %d\n", childPid);
     }

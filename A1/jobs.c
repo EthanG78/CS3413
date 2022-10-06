@@ -76,16 +76,16 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
 {
   int isStopped = 0; // bool to keep track of status of prev process
 
-  childPid = fork();
+  jobPid = fork();
 
   int pipeRIdx = (cmdIdx - 1) * 2;
   int pipeWIdx = cmdIdx * 2 + 1;
 
-  if (childPid < 0)
+  if (jobPid < 0)
   {
     perror("fork()");
   }
-  else if (childPid == 0)
+  else if (jobPid == 0)
   {
     // child process
 
@@ -143,11 +143,11 @@ int spawnProcess(char **cmdArr, int cmdIdx, int nCommands, int *pfds)
   }
 
   // wait for child process to finish
-  isStopped = waitForProcess(childPid);
+  isStopped = waitForProcess(jobPid);
 
   if (isStopped > 0)
   {
-    return processPauseLoop(childPid);
+    return processPauseLoop(jobPid);
   }
 
   return 1;

@@ -19,8 +19,8 @@
 #define CHAR_MAX 50
 
 // global child process id to keep track
-// of which process is our immediate child
-int childPid;
+// of if a child process is running
+int jobPid;
 
 // waitForProcess takes an integer process id stored in pid and
 // waits on the process with that process id. waitForProcess stops

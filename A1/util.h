@@ -20,7 +20,7 @@
 
 // global child process id to keep track
 // of which process is our immediate child
-int childPid = 1;
+int childPid;
 
 // waitForProcess takes an integer process id stored in pid and
 // waits on the process with that process id. waitForProcess stops

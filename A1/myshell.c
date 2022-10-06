@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
   // - the cwd will not print out directly after SIGTSTP is captured
   //   if it is captured while user input is being taken...
 
+  childPid = -1;
+
   do
   {
     // fetch the shell's current working directory

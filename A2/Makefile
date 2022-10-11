@@ -6,7 +6,7 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
-OBJS = main.o console.o
+OBJS = main.o console.o	
 
 EXE = caterpillar
 

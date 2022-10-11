@@ -13,7 +13,7 @@ debug: EXE = caterpillar_d
 debug: $(EXE)
 
 release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS)
-debug: EXE = caterpillar
+release: EXE = caterpillar
 release: $(EXE)
 
 $(EXE): $(OBJS)

@@ -9,14 +9,12 @@ LDLIBS = -lcurses -pthread
 OBJS = main.o console.o	
 
 debug: CFLAGS = $(BASEFLAGS) $(DEBUG_FLAGS)
-debug: 
-	EXE = caterpillar_d 
-	$(EXE)
+debug: EXE = caterpillar_d
+debug: $(EXE)
 
-release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS) 
-release:
-	EXE = caterpillar
-	$(EXE)
+release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS)
+debug: EXE = caterpillar
+release: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)

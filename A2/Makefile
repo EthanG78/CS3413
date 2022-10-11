@@ -1,19 +1,19 @@
 CC = gcc
 
 BASEFLAGS = -Wall -pthread -std=c99
-NODEBUG_FLAGS = -dNDEBUG 
+NODEBUG_FLAGS = -dN DEBUG 
 DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
 OBJS = main.o console.o	
 
+EXE = caterpillar
+
 debug: CFLAGS = $(BASEFLAGS) $(DEBUG_FLAGS)
-debug: EXE = caterpillar_d
 debug: $(EXE)
 
-release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS)
-release: EXE = caterpillar
+release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS) 
 release: $(EXE)
 
 $(EXE): $(OBJS)

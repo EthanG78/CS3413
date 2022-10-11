@@ -1,7 +1,7 @@
 CC = gcc
 
 BASEFLAGS = -Wall -pthread -std=c99
-NODEBUG_FLAGS = -dNDEBUG 
+NODEBUG_FLAGS = -dN DEBUG 
 DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread

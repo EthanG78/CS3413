@@ -4,7 +4,7 @@ BASEFLAGS = -Wall -pthread -std=c99
 NODEBUG_FLAGS = -dNDEBUG 
 DEBUG_FLAGS = -g
 
-LDFLAGS = -lcurses -pthread
+LDLIBS = -lcurses -pthread
 
 OBJS = main.o console.o example.o
 

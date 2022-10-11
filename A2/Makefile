@@ -4,11 +4,11 @@ BASEFLAGS = -Wall -pthread -std=c99
 NODEBUG_FLAGS = -dNDEBUG 
 DEBUG_FLAGS = -g
 
-LDFLAGS = -lcurses -pthread
+LDLIBS = -lcurses -pthread
 
-OBJS = main.o console.o example.o
+OBJS = main.o # console.o example.o
 
-EXE = centipede
+EXE = caterpillar
 
 debug: CFLAGS = $(BASEFLAGS) $(DEBUG_FLAGS)
 debug: $(EXE)
@@ -22,11 +22,11 @@ $(EXE): $(OBJS)
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
-console.o: console.c console.h
-	$(CC) $(CFLAGS) -c console.c
+#console.o: console.c console.h
+#	$(CC) $(CFLAGS) -c console.c
 
-example.o: example.c
-	$(CC) $(CFLAGS) -c example.c
+#example.o: example.c
+#	$(CC) $(CFLAGS) -c example.c
 
 clean:
 	rm -f $(OBJS)

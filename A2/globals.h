@@ -71,26 +71,14 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
 //   A   M
 //  <x> <X>
 //   V   V
-char* PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_WIDTH][PLAYER_HEIGHT] = 
+char* PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] = 
 {
-  {{" ",
-    "<",
-    " "},
-    {"A",
-    "x",
-    "V"},
-    {" ",
-    ">",
-    " "}},
-  {{" ",
-    "<",
-    " "},
-    {"M",
-    "X",
-    "W"},
-    {" ",
-    ">",
-    " "}},
+  {" A ",
+   "<x>",
+   " V "},
+  {" M ",
+   "<X>",
+   " V "}
 };
 
 #endif // GLOBALS_H

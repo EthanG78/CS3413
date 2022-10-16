@@ -1,6 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "gameloop.h"
 #include "console.h"
 #include "globals.h"
+
+void animatePlayerTest();
 
 void executeGameLoop()
 {
@@ -23,14 +29,11 @@ void animatePlayerTest()
     {
         for (int j = 0; i < PLAYER_BODY_ANIM_TILES; j++)
         {
-            char ***frame = PLAYER_BODY[j];
+            char **frame = PLAYER_BODY[j];
 
-            for (int k = 0; k < PLAYER_WIDTH; k++)
-            {
-                consoleClearImage(row, col + k, PLAYER_HEIGHT, strlen(frame[k])); // clear the last drawing (why is this necessary?)
-                consoleDrawImage(row, col + k, frame[k], PLAYER_HEIGHT);          // draw the player
-                consoleRefresh();                                                 // reset the state of the console drawing tool
-            }
+            consoleClearImage(row, col, PLAYER_HEIGHT, strlen(frame[0])); // clear the last drawing (why is this necessary?)
+            consoleDrawImage(row, col, frame, PLAYER_HEIGHT);             // draw the player
+            consoleRefresh();                                             // reset the state of the console drawing tool
 
             sleep(1); // give up our turn on the CPU
         }

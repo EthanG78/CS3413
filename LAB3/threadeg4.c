@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
   pthread_mutex_init(&mutex, NULL);
 
-      for (t = 0; t < NUM_THREADS; t++)
+  for (t = 0; t < NUM_THREADS; t++)
   {
     printf("Creating thread number %d\n", t);
     rc = pthread_create(&threads[t], NULL, thrfunc, NULL);

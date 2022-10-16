@@ -6,7 +6,7 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
-OBJS = main.o console.o	
+OBJS = main.o gameloop.o console.o
 
 EXE = caterpillar
 
@@ -17,10 +17,13 @@ release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS)
 release: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
+
+gameloop.o: gameloop.c gameloop.h globals.h
+	$(CC) $(CFLAGS) -c gameloop.c
 
 console.o: console.c console.h
 	$(CC) $(CFLAGS) -c console.c

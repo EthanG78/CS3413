@@ -12,9 +12,11 @@
 
   Author: Ethan Garnier
 */
-#include <stdio.h>
+#include "gameloop.h"
+#include <stdlib.h>
 
 int main(int argc, char**argv) 
 {
-	printf("HAVE FUN LMAO\n");
+	executeGameLoop();
+  return EXIT_SUCCESS;
 }

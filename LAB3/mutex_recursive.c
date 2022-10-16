@@ -23,7 +23,7 @@ pthread_mutex_t mutex;
 void test_recursive_mutex(){
   int i, j;
   pthread_mutexattr_init(&attributes);
-  pthread_mutexattr_settype(&attributes, PTHREAD_MUTEX_NORMAL);
+  pthread_mutexattr_settype(&attributes, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&mutex, &attributes);
   printf("Testing recursive mutex.\n");
   for(i = 0; i < 10; i++){

@@ -21,6 +21,7 @@ void executeGameLoop()
     consoleFinish();
 }
 
+// SEGAFAULTS
 void animatePlayerTest()
 {
     int col = GAME_COLS / 2;

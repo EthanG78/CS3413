@@ -6,9 +6,9 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
-OBJS = main.o console.o example.o
+OBJS = main.o console.o	
 
-EXE = centipede
+EXE = caterpillar
 
 debug: CFLAGS = $(BASEFLAGS) $(DEBUG_FLAGS)
 debug: $(EXE)
@@ -24,9 +24,6 @@ main.o: main.c
 
 console.o: console.c console.h
 	$(CC) $(CFLAGS) -c console.c
-
-example.o: example.c
-	$(CC) $(CFLAGS) -c example.c
 
 clean:
 	rm -f $(OBJS)

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   // initialize the random number generator
   srandom(time(NULL));
 
-  pthread_mutex_init(&mutex, NULL)
+  pthread_mutex_init(&mutex, NULL);
 
       for (t = 0; t < NUM_THREADS; t++)
   {

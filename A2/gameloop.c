@@ -15,8 +15,8 @@ void executeGameLoop()
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
     {
         animatePlayerTest();
-        finalKeypress(); /* wait for final key before killing curses and game */
         putBanner("Game Over");
+        finalKeypress(); /* wait for final key before killing curses and game */
     }
     consoleFinish();
 }

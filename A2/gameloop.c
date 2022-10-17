@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-
 #include "gameloop.h"
 #include "console.h"
 #include "globals.h"
@@ -17,11 +16,11 @@ void executeGameLoop()
     {
         animatePlayerTest();
         finalKeypress(); /* wait for final key before killing curses and game */
+        putBanner("Game Over");
     }
     consoleFinish();
 }
 
-// SEGAFAULTS
 void animatePlayerTest()
 {
     int col = GAME_COLS / 2;

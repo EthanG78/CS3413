@@ -31,7 +31,7 @@ void animatePlayerTest()
     // this "animation" is just the body changing appearance (changing numbers)
     for (int i = 0; i < 10; i++)
     {
-        for (int j = 0; i < PLAYER_BODY_ANIM_TILES; j++)
+        for (int j = 0; j < PLAYER_BODY_ANIM_TILES; j++)
         {
             char **frame = PLAYER_BODY[j];
 

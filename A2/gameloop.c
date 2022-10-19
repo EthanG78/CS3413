@@ -24,3 +24,9 @@ void executeGameLoop()
     }
     consoleFinish();
 }
+
+int cleanupGameLoop()
+{
+    // destroy mutexes and stuff
+    return 1;
+}

@@ -5,6 +5,7 @@
 
 // Global mutexes
 pthread_mutex_t mConsole;
+pthread_mutex_t mPlayerPos;
 
 // Control definitions
 #define MOVE_LEFT 'a'
@@ -44,6 +45,10 @@ char *GAME_BOARD[] = {
 "", 
 "" };
 
+/*
+* Caterpillar Globals
+*/
+
 #define ENEMY_HEIGHT 2
 #define ENEMY_BODY_ANIM_TILES 8 
 
@@ -68,8 +73,15 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
    "8"}
 };
 
+/*
+* Player Globals
+*/
+
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2 
+
+int playerPosX;
+int playerPosY;
 
 // There are two annimation frames for the player
 // The player has width three and height threee

@@ -1,42 +1,52 @@
+#include <math.h>
+
 #include "player.h"
 #include "globals.h"
 #include "console.h"
 
 int movePlayer(int deltaX, int deltaY)
 {
-    pthread_mutext_lock(&mPlayerPos);
+    pthread_mutex_lock(&M_PlayerPos);
 
-    playerPosX += deltaX;
-    playerPosY += deltaY;
+    PLAYER_POS_X += floor(deltaX);
+    PLAYER_POS_Y += floor(deltaY);
 
-    pthread_mutext_unlock(&mPlayerPos);
+    pthread_mutex_unlock(&M_PlayerPos);
 }
 
 void *playerController(void *x)
 {
     // here is where we handle input and call moveplayer
+
+    // Move player to starting position
+    movePlayer(GAME_COLS / 2, 19);
 }
 
 void *animatePlayer(void *tickRate)
 {
     int sleepTime = 1 / (*(int *)tickRate);
 
-    for (int j = 0; j < PLAYER_BODY_ANIM_TILES; j++)
+    while (IS_RUNNING)
     {
-        char **frame = PLAYER_BODY[j];
+        for (int j = 0; j < PLAYER_BODY_ANIM_TILES; j++)
+        {
+            char **frame = PLAYER_BODY[j];
 
-        pthread_mutex_lock(&mConsole);
-        pthread_mutext_lock(&mPlayerPos);
+            pthread_mutex_lock(&M_Console);
+            pthread_mutex_lock(&M_PlayerPos);
 
-        consoleClearImage(playerPosY, playerPosX, PLAYER_HEIGHT, strlen(frame[0])); // clear the last drawing
-        consoleDrawImage(playerPosY, playerPosX, frame, PLAYER_HEIGHT);             // draw the player
-        consoleRefresh();                                                           // reset the state of the console drawing tool
+            consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0])); // clear the last drawing
+            consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);             // draw the player
 
-        pthread_mutext_unlock(&mPlayerPos);
-        pthread_mutex_unlock(&mConsole);
+            // All refreshing must be done in own thread
+            // consoleRefresh();
 
-        // sleep based on the provided tickrate
-        sleep(sleepTime);
+            pthread_mutex_unlock(&M_PlayerPos);
+            pthread_mutex_unlock(&M_Console);
+
+            // sleep based on the provided tickrate
+            sleep(sleepTime);
+        }
     }
 }
 

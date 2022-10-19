@@ -3,11 +3,20 @@
 
 #include <pthread.h>
 
-// Global mutexes
-pthread_mutex_t mConsole;
-pthread_mutex_t mPlayerPos;
+/*
+* Global Mutexes
+*/
+pthread_mutex_t M_Console;
+pthread_mutex_t M_PlayerPos;
 
-// Control definitions
+/*
+* Game State Definitions
+*/
+int IS_RUNNING = 0;
+
+/*
+* Control Definitions
+*/
 #define MOVE_LEFT 'a'
 #define MOVE_RIGHT 'd'
 #define MOVE_UP 'w'
@@ -80,8 +89,8 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2 
 
-int playerPosX;
-int playerPosY;
+int PLAYER_POS_X = 0;
+int PLAYER_POS_Y = 0;
 
 // There are two annimation frames for the player
 // The player has width three and height threee

@@ -15,8 +15,12 @@
 #include "gameloop.h"
 #include <stdlib.h>
 
-int main(int argc, char**argv) 
+int main(int argc, char **argv)
 {
-	executeGameLoop();
+  if (initializeGameLoop())
+  {
+    executeGameLoop();
+  }
+
   return EXIT_SUCCESS;
 }

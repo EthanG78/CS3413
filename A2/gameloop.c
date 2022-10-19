@@ -10,6 +10,12 @@
 
 void animatePlayerTest();
 
+int initializeGameLoop()
+{
+    // init global mutexes 
+    return 1;
+}
+
 void executeGameLoop()
 {
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)

@@ -1,6 +1,12 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <pthread.h>
+
+// Global mutexes
+pthread_mutex_t mConsole;
+
+// Control definitions
 #define MOVE_LEFT 'a'
 #define MOVE_RIGHT 'd'
 #define MOVE_UP 'w'

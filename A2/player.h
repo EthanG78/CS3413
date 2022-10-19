@@ -5,5 +5,7 @@
 //  - Capture user input with pselect
 //  - Move player based on user input
 
+void animatePlayerTest();
+
 #endif // PLAYER_H
 

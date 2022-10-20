@@ -4,7 +4,7 @@ BASEFLAGS = -Wall -pthread -std=c99
 NODEBUG_FLAGS = -dN DEBUG 
 DEBUG_FLAGS = -g
 
-LDLIBS = -lcurses -pthread
+LDLIBS = -lcurses -pthread -lm
 
 OBJS = main.o console.o player.o gameloop.o
 

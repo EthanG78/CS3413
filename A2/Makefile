@@ -6,7 +6,7 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
-OBJS = main.o gameloop.o player.o console.o
+OBJS = main.o console.o player.o gameloop.o
 
 EXE = caterpillar
 
@@ -22,14 +22,14 @@ $(EXE): $(OBJS)
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
-gameloop.o: gameloop.c gameloop.h player.h globals.h console.h
-	$(CC) $(CFLAGS) -c gameloop.c
-
-player.o: player.c player.h globals.h console.h
-	$(CC) $(CFLAGS) -c player.c
-
 console.o: console.c console.h
 	$(CC) $(CFLAGS) -c console.c
+
+player.o: player.c player.h globals.h
+	$(CC) $(CFLAGS) -c player.c
+
+gameloop.o: gameloop.c gameloop.h player.h globals.h
+	$(CC) $(CFLAGS) -c gameloop.c
 
 clean:
 	rm -f $(OBJS)

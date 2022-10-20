@@ -26,6 +26,13 @@ int initPlayer()
     PLAYER_POS_X = 0;
     PLAYER_POS_Y = 0;
 
+    // Move player to starting position
+    if (!movePlayer(GAME_COLS / 2, 19))
+    {
+        // todo:
+        // if movePlayer() returns 0, there was an issue
+    }
+
     return 1;
 }
 
@@ -64,21 +71,7 @@ int movePlayer(int deltaX, int deltaY)
 
 void *playerController(void *x)
 {
-    if (!initPlayer())
-    {
-        // todo:
-        // there was a problem
-        pthread_exit(NULL);
-    }
-
     // here is where we handle input and call moveplayer
-
-    // Move player to starting position
-    if (!movePlayer(GAME_COLS / 2, 19))
-    {
-        // todo:
-        // if movePlayer() returns 0, there was an issue
-    }
 
     pthread_exit(NULL);
 }
@@ -87,6 +80,13 @@ void *animatePlayer(void *idleTicks)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = *(int *)idleTicks;
+
+    if (!initPlayer())
+    {
+        // todo:
+        // there was a problem
+        pthread_exit(NULL);
+    }
 
     while (IS_RUNNING)
     {

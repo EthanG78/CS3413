@@ -64,7 +64,7 @@ void *playerController(void *x)
     {
         // todo:
         // there was a problem
-        return NULL;
+        pthread_exit(NULL);
     }
 
     // here is where we handle input and call moveplayer
@@ -76,7 +76,7 @@ void *playerController(void *x)
         // if movePlayer() returns 0, there was an issue
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 void *animatePlayer(void *idleTicks)
@@ -92,13 +92,13 @@ void *animatePlayer(void *idleTicks)
             if (pthread_mutex_lock(&M_Console) != 0)
             {
                 perror("pthread_mutex_lock()");
-                return NULL;
+                pthread_exit(NULL);
             }
 
             if (pthread_mutex_lock(&M_PlayerPos) != 0)
             {
                 perror("pthread_mutex_lock()");
-                return NULL;
+                pthread_exit(NULL);
             }
 
             // clear the last drawing
@@ -109,13 +109,13 @@ void *animatePlayer(void *idleTicks)
             if (pthread_mutex_unlock(&M_PlayerPos) != 0)
             {
                 perror("pthread_mutex_unlock()");
-                return NULL;
+                pthread_exit(NULL);
             }
 
             if (pthread_mutex_unlock(&M_Console) != 0)
             {
                 perror("pthread_mutex_unlock()");
-                return NULL;
+                pthread_exit(NULL);
             }
 
             // sleep nTicksPerAnimFrame * 20ms
@@ -123,5 +123,5 @@ void *animatePlayer(void *idleTicks)
         }
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }

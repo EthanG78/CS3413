@@ -39,9 +39,41 @@ char *GAME_BOARD[] = {
 
 int initializeGameLoop()
 {
+    // set game state to running
     IS_RUNNING = 0;
 
     // init global mutexes
+    pthread_mutexattr_t errAttr;
+
+    if (pthread_mutexattr_init(&errAttr) != 0)
+    {
+        perror("pthread_mutexattr_init()");
+        return 0;
+    }
+
+    if (pthread_mutexattr_settype(&errAttr, PTHREAD_MUTEX_ERRORCHECK) != 0)
+    {
+        perror("pthread_mutexattr_settype()");
+        return 0;
+    }
+
+    if (pthread_mutex_init(&M_Console, &errAttr) != 0)
+    {
+        perror("pthread_mutex_init()");
+        return 0;
+    }
+
+    if (pthread_mutex_init(&M_PlayerPos, &errAttr) != 0)
+    {
+        perror("pthread_mutex_init()");
+        return 0;
+    }
+
+    if (pthread_mutexattr_destroy(&errAttr) != 0)
+    {
+        perror("pthread_mutexattr_destroy()");
+        return 0;
+    }
 
     return 1;
 }
@@ -54,13 +86,29 @@ void executeGameLoop()
 
         // TODO: Figure out cond variable and who joins threads
 
-        // animatePlayerTest();
+        // Might have to put mutex around this
         putBanner("Game Over");
         finalKeypress(); /* wait for final key before killing curses and game */
     }
+
+    if (pthread_mutex_lock(&M_Console) != 0)
+    {
+        perror("pthread_mutex_lock()");
+        pthread_exit(NULL);
+    }
+
     consoleFinish();
 
-    IS_RUNNING = 0;
+    if (pthread_mutex_unlock(&M_Console) != 0)
+    {
+        perror("pthread_mutex_unlock()");
+        pthread_exit(NULL);
+    }
+
+    if (!cleanupGameLoop())
+    {
+        printf("UNABLE TO CLEANUP GAME LOOP");
+    }
 }
 
 void *refreshGameLoop(void *refreshRate)
@@ -74,7 +122,7 @@ void *refreshGameLoop(void *refreshRate)
         if (pthread_mutex_lock(&M_Console) != 0)
         {
             perror("pthread_mutex_lock()");
-            return NULL;
+            pthread_exit(NULL);
         }
 
         consoleRefresh();
@@ -82,17 +130,32 @@ void *refreshGameLoop(void *refreshRate)
         if (pthread_mutex_unlock(&M_Console) != 0)
         {
             perror("pthread_mutex_unlock()");
-            return NULL;
+            pthread_exit(NULL);
         }
 
         sleepTicks(nTicksPerRefresh);
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 int cleanupGameLoop()
 {
+    // clear game state
+    IS_RUNNING = 0;
+
     // destroy mutexes and stuff
+    if (pthread_mutex_destroy(&M_Console) != 0)
+    {
+        perror("pthread_mutex_destroy()");
+        return 0;
+    }
+
+    if (pthread_mutex_destroy(&M_PlayerPos) != 0)
+    {
+        perror("pthread_mutex_destroy()");
+        return 0;
+    }
+
     return 1;
 }

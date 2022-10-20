@@ -37,13 +37,13 @@ int movePlayer(int deltaX, int deltaY)
         return 0;
     }
 
-    int newPosX = PLAYER_POS_X + (int) floor((double)deltaX);
+    int newPosX = PLAYER_POS_X + (int)floor((double)deltaX);
     if (newPosX <= GAME_COLS && newPosX >= 0)
     {
         PLAYER_POS_X = newPosX;
     }
 
-    int newPosY = PLAYER_POS_Y + (int )floor((double)deltaY);
+    int newPosY = PLAYER_POS_Y + (int)floor((double)deltaY);
     if (newPosY <= GAME_ROWS && newPosY > 16)
     {
         PLAYER_POS_Y = newPosY;

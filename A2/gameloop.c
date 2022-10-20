@@ -172,7 +172,7 @@ int launchThreads()
     pthread_t threads[nThreads];
 
     int refreshRate = 1;
-    int playerIdleTicks = 5;
+    int playerIdleTicks = 50;
 
     int errorCode = 0;
 

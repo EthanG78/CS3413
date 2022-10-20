@@ -10,7 +10,9 @@
 #include "gameloop.h"
 #include "player.h"
 
-#define _GNU_SOURCE
+// Required to access pthread_mutexattr_settype
+// and PTHREAD_MUTEX_ERRORCHECK... Check pthread.h
+#define __USE_UNIX98
 
 /**** DIMENSIONS MUST MATCH the ROWS/COLS */
 char *GAME_BOARD[] = {

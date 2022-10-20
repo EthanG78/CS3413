@@ -175,7 +175,7 @@ int launchThreads()
 
     int errorCode = 0;
 
-    errorCode = pthread_create(&threads[0], NULL, refreshGameLoop, (void *)refreshRate);
+    errorCode = pthread_create(&threads[0], NULL, refreshGameLoop, (void *)&refreshRate);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");

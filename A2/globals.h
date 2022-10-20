@@ -1,6 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+// Required to access pthread_mutexattr_settype
+// and PTHREAD_MUTEX_ERRORCHECK... Check pthread.h
+#define __USE_UNIX98
+
 #include <pthread.h>
 
 /*

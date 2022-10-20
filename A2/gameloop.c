@@ -10,6 +10,8 @@
 #include "gameloop.h"
 #include "player.h"
 
+#define _GNU_SOURCE
+
 /**** DIMENSIONS MUST MATCH the ROWS/COLS */
 char *GAME_BOARD[] = {
     "                   Score:          Lives:",

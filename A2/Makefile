@@ -1,10 +1,10 @@
 CC = gcc
 
-BASEFLAGS = -Wall -lpthread -std=c99
+BASEFLAGS = -Wall -pthread -std=c99
 NODEBUG_FLAGS = -dN DEBUG 
 DEBUG_FLAGS = -g
 
-LDLIBS = -lcurses -lpthread -lm
+LDLIBS = -lcurses -pthread -lm
 
 OBJS = main.o console.o player.o gameloop.o
 

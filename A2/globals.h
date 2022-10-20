@@ -12,7 +12,7 @@ pthread_mutex_t M_PlayerPos;
 /*
 * Game State Definitions
 */
-int IS_RUNNING = 0;
+int IS_RUNNING;
 
 /*
 * Control Definitions
@@ -89,8 +89,8 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2 
 
-int PLAYER_POS_X = 0;
-int PLAYER_POS_Y = 0;
+int PLAYER_POS_X;
+int PLAYER_POS_Y;
 
 // There are two annimation frames for the player
 // The player has width three and height threee

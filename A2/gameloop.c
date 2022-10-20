@@ -11,7 +11,10 @@
 
 int initializeGameLoop()
 {
+    IS_RUNNING = 0;
+
     // init global mutexes
+
     return 1;
 }
 
@@ -40,9 +43,19 @@ void *refreshGameLoop(void *refreshRate)
         // todo:
         // is sleepTicks() part of my critical section?
 
-        pthread_mutex_lock(&M_Console);
+        if (pthread_mutex_lock(&M_Console) != 0)
+        {
+            perror("pthread_mutex_lock()");
+            return NULL;
+        }
+
         consoleRefresh();
-        pthread_mutex_unlock(&M_Console);
+
+        if (pthread_mutex_unlock(&M_Console) != 0)
+        {
+            perror("pthread_mutex_unlock()");
+            return NULL;
+        }
 
         sleepTicks(nTicksPerRefresh);
     }

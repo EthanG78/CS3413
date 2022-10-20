@@ -45,45 +45,54 @@ int initializeGameLoop()
     // init global mutexes
     pthread_mutexattr_t errAttr;
 
-    if (pthread_mutexattr_init(&errAttr) != 0)
+    int errorCode = 0;
+
+    errorCode = pthread_mutexattr_init(&errAttr);
+    if (errorCode != 0)
     {
-        perror("pthread_mutexattr_init()");
+        print_error(errorCode, "pthread_mutexattr_init()");
         return 0;
     }
 
-    if (pthread_mutexattr_settype(&errAttr, PTHREAD_MUTEX_ERRORCHECK) != 0)
+    errorCode = pthread_mutexattr_settype(&errAttr, PTHREAD_MUTEX_ERRORCHECK);
+    if (errorCode != 0)
     {
-        perror("pthread_mutexattr_settype()");
+        print_error(errorCode, "pthread_mutexattr_settype()");
         return 0;
     }
 
-    if (pthread_mutex_init(&M_Console, &errAttr) != 0)
+    errorCode = pthread_mutex_init(&M_Console, &errAttr);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_init()");
+        print_error(errorCode, "pthread_mutex_init()");
         return 0;
     }
 
-    if (pthread_mutex_init(&M_PlayerPos, &errAttr) != 0)
+    errorCode = pthread_mutex_init(&M_PlayerPos, &errAttr);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_init()");
+        print_error(errorCode, "pthread_mutex_init()");
         return 0;
     }
 
-    if (pthread_mutex_init(&M_IsRunningCV, &errAttr) != 0)
+    errorCode = pthread_mutex_init(&M_IsRunningCV, &errAttr);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_init()");
+        print_error(errorCode, "pthread_mutex_init()");
         return 0;
     }
 
-    if (pthread_cond_init(&IsRunningCv, NULL) != 0)
+    errorCode = pthread_cond_init(&IsRunningCv, NULL);
+    if (errorCode != 0)
     {
-        perror("pthread_cond_init()");
+        print_error(errorCode, "pthread_cond_init()");
         return 0;
     }
 
-    if (pthread_mutexattr_destroy(&errAttr) != 0)
+    errorCode = pthread_mutexattr_destroy(&errAttr);
+    if (errorCode != 0)
     {
-        perror("pthread_mutexattr_destroy()");
+        print_error(errorCode, "pthread_mutexattr_destroy()");
         return 0;
     }
 
@@ -92,7 +101,30 @@ int initializeGameLoop()
 
 int launchThreads()
 {
-    pthread_t threads[3];
+    int nThreads = 3;
+    pthread_t threads[nThreads];
+
+    int refreshRate = 1;
+
+    int errorCode = 0;
+
+    errorCode = pthread_create(&threads[0], NULL, refreshGameLoop, (void *)refreshRate);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_create()");
+        return 0;
+    }
+
+    for (int i = 0; i < nThreads; i++)
+    {
+        errorCode = pthread_join(threads[i], NULL);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_join()");
+            return 0;
+        }
+    }
+
     return 1;
 }
 
@@ -158,23 +190,26 @@ void executeGameLoop()
 
 void *refreshGameLoop(void *refreshRate)
 {
+    int errorCode = 0;
     int nTicksPerRefresh = *(int *)refreshRate;
     while (IS_RUNNING)
     {
         // todo:
         // is sleepTicks() part of my critical section?
 
-        if (pthread_mutex_lock(&M_Console) != 0)
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
         {
-            perror("pthread_mutex_lock()");
+            print_error(errorCode, "pthread_mutex_lock()");
             pthread_exit(NULL);
         }
 
         consoleRefresh();
 
-        if (pthread_mutex_unlock(&M_Console) != 0)
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
         {
-            perror("pthread_mutex_unlock()");
+            print_error(errorCode, "pthread_mutex_unlock()");
             pthread_exit(NULL);
         }
 
@@ -186,28 +221,34 @@ void *refreshGameLoop(void *refreshRate)
 
 int cleanupGameLoop()
 {
+    int errorCode = 0;
+
     // destroy mutexes and stuff
-    if (pthread_mutex_destroy(&M_Console) != 0)
+    errorCode = pthread_mutex_destroy(&M_Console);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_destroy()");
+        print_error(errorCode, "pthread_mutex_destroy()");
         return 0;
     }
 
-    if (pthread_mutex_destroy(&M_PlayerPos) != 0)
+    errorCode = pthread_mutex_destroy(&M_PlayerPos);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_destroy()");
+        print_error(errorCode, "pthread_mutex_destroy()");
         return 0;
     }
 
-    if (pthread_mutex_destroy(&M_IsRunningCV) != 0)
+    errorCode = pthread_mutex_destroy(&M_IsRunningCV);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_destroy()");
+        print_error(errorCode, "pthread_mutex_destroy()");
         return 0;
     }
 
-    if (pthread_cond_destroy(&IsRunningCv) != 0)
+    errorCode = pthread_cond_destroy(&IsRunningCv);
+    if (errorCode != 0)
     {
-        perror("pthread_cond_destroy()");
+        print_error(errorCode, "pthread_cond_destroy()");
         return 0;
     }
 

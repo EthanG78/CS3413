@@ -8,8 +8,16 @@
 #include <pthread.h>
 
 /*
-* Global Mutexes
-*/
+ * Error printing function adapted
+ * from https://man7.org/linux/man-pages/man3/pthread_create.3.html
+ */
+#define print_error(e, msg) \
+  errno = e;                \
+  perror(msg);
+
+/*
+ * Global Mutexes
+ */
 pthread_mutex_t M_Console;
 pthread_mutex_t M_PlayerPos;
 pthread_mutex_t M_IsRunningCV;
@@ -17,13 +25,13 @@ pthread_mutex_t M_IsRunningCV;
 pthread_cond_t IsRunningCv;
 
 /*
-* Game State Definitions
-*/
+ * Game State Definitions
+ */
 int IS_RUNNING;
 
 /*
-* Control Definitions
-*/
+ * Control Definitions
+ */
 #define MOVE_LEFT 'a'
 #define MOVE_RIGHT 'd'
 #define MOVE_UP 'w'
@@ -35,14 +43,14 @@ int IS_RUNNING;
 #define GAME_COLS 80
 
 /*
-* Caterpillar Globals
-*/
+ * Caterpillar Globals
+ */
 
 #define ENEMY_HEIGHT 2
-#define ENEMY_BODY_ANIM_TILES 8 
+#define ENEMY_BODY_ANIM_TILES 8
 
 // MODIFY MODEL
-/*char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] = 
+/*char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
 {
   {"1",
    "1"},
@@ -63,11 +71,11 @@ int IS_RUNNING;
 };*/
 
 /*
-* Player Globals
-*/
+ * Player Globals
+ */
 
 #define PLAYER_HEIGHT 3
-#define PLAYER_BODY_ANIM_TILES 2 
+#define PLAYER_BODY_ANIM_TILES 2
 
 int PLAYER_POS_X;
 int PLAYER_POS_Y;

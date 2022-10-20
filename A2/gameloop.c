@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errono.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -8,6 +9,33 @@
 #include "globals.h"
 #include "gameloop.h"
 #include "player.h"
+
+/**** DIMENSIONS MUST MATCH the ROWS/COLS */
+char *GAME_BOARD[] = {
+"                   Score:          Lives:",
+"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-centipiede!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"" };
 
 int initializeGameLoop()
 {

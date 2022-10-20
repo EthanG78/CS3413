@@ -1,9 +1,26 @@
+#include <stdio.h>
+#include <errono.h>
 #include <math.h>
 #include <string.h>
 
 #include "player.h"
 #include "globals.h"
 #include "console.h"
+
+// There are two annimation frames for the player
+// The player has width three and height threee
+//   A   M
+//  <x> <X>
+//   V   V
+char* PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] = 
+{
+  {" A ",
+   "<x>",
+   " V "},
+  {" M ",
+   "<X>",
+   " V "}
+};
 
 int initPlayer()
 {

@@ -27,33 +27,6 @@ int IS_RUNNING;
 #define GAME_ROWS 24
 #define GAME_COLS 80
 
-/**** DIMENSIONS MUST MATCH the ROWS/COLS */
-char *GAME_BOARD[] = {
-"                   Score:          Lives:",
-"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-centipiede!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"" };
-
 /*
 * Caterpillar Globals
 */
@@ -62,7 +35,7 @@ char *GAME_BOARD[] = {
 #define ENEMY_BODY_ANIM_TILES 8 
 
 // MODIFY MODEL
-char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] = 
+/*char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] = 
 {
   {"1",
    "1"},
@@ -80,7 +53,7 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
    "7"},
   {"8",
    "8"}
-};
+};*/
 
 /*
 * Player Globals
@@ -91,20 +64,5 @@ char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
 
 int PLAYER_POS_X;
 int PLAYER_POS_Y;
-
-// There are two annimation frames for the player
-// The player has width three and height threee
-//   A   M
-//  <x> <X>
-//   V   V
-char* PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] = 
-{
-  {" A ",
-   "<x>",
-   " V "},
-  {" M ",
-   "<X>",
-   " V "}
-};
 
 #endif // GLOBALS_H

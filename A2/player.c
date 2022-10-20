@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <errono.h>
+#include <errno.h>
 #include <math.h>
 #include <string.h>
 

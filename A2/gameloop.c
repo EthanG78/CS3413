@@ -46,6 +46,8 @@ void *refreshGameLoop(void *refreshRate)
 
         sleepTicks(nTicksPerRefresh);
     }
+
+    return NULL;
 }
 
 int cleanupGameLoop()

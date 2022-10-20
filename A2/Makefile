@@ -22,7 +22,7 @@ $(EXE): $(OBJS)
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
-gameloop.o: gameloop.c gameloop.h globals.h console.h
+gameloop.o: gameloop.c gameloop.h player.h globals.h console.h
 	$(CC) $(CFLAGS) -c gameloop.c
 
 player.o: player.c player.h globals.h console.h

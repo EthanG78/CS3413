@@ -29,6 +29,8 @@ void *playerController(void *x)
 
     // Move player to starting position
     movePlayer(GAME_COLS / 2, 19);
+
+    return NULL;
 }
 
 void *animatePlayer(void *idleTicks)
@@ -56,4 +58,6 @@ void *animatePlayer(void *idleTicks)
             sleepTicks(nTicksPerAnimFrame);
         }
     }
+
+    return NULL;
 }

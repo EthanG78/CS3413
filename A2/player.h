@@ -13,4 +13,3 @@ void *playerController(void *x);
 void *animatePlayer(void *idleTicks)
 
 #endif // PLAYER_H
-

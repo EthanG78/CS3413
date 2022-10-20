@@ -42,7 +42,7 @@ void *refreshGameLoop(void *refreshRate)
 
         pthread_mutex_lock(&M_Console);
         consoleRefresh();
-        pthread_mutex_unlock(&M_Console)
+        pthread_mutex_unlock(&M_Console);
 
         sleepTicks(nTicksPerRefresh);
     }

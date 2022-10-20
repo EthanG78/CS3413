@@ -6,7 +6,7 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread
 
-OBJS = main.o gameloop.o console.o
+OBJS = main.o gameloop.o player.o console.o
 
 EXE = caterpillar
 

@@ -1,3 +1,7 @@
+// Required to access pthread_mutexattr_settype
+// and PTHREAD_MUTEX_ERRORCHECK... Check pthread.h
+#define __USE_UNIX98
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -9,10 +13,6 @@
 #include "globals.h"
 #include "gameloop.h"
 #include "player.h"
-
-// Required to access pthread_mutexattr_settype
-// and PTHREAD_MUTEX_ERRORCHECK... Check pthread.h
-#define __USE_UNIX98
 
 /**** DIMENSIONS MUST MATCH the ROWS/COLS */
 char *GAME_BOARD[] = {

@@ -31,9 +31,12 @@ int initPlayer()
 
 int movePlayer(int deltaX, int deltaY)
 {
-    if (pthread_mutex_lock(&M_PlayerPos) != 0)
+    int errorCode = 0;
+
+    errorCode = pthread_mutex_lock(&M_PlayerPos);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_lock()");
+        print_error(errorCode, "pthread_mutex_lock()");
         return 0;
     }
 
@@ -49,9 +52,10 @@ int movePlayer(int deltaX, int deltaY)
         PLAYER_POS_Y = newPosY;
     }
 
-    if (pthread_mutex_unlock(&M_PlayerPos) != 0)
+    errorCode = pthread_mutex_unlock(&M_PlayerPos);
+    if (errorCode != 0)
     {
-        perror("pthread_mutex_unlock()");
+        print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
 
@@ -81,6 +85,7 @@ void *playerController(void *x)
 
 void *animatePlayer(void *idleTicks)
 {
+    int errorCode = 0;
     int nTicksPerAnimFrame = *(int *)idleTicks;
 
     while (IS_RUNNING)
@@ -89,15 +94,17 @@ void *animatePlayer(void *idleTicks)
         {
             char **frame = PLAYER_BODY[j];
 
-            if (pthread_mutex_lock(&M_Console) != 0)
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
             {
-                perror("pthread_mutex_lock()");
+                print_error(errorCode, "pthread_mutex_lock()");
                 pthread_exit(NULL);
             }
 
-            if (pthread_mutex_lock(&M_PlayerPos) != 0)
+            errorCode = pthread_mutex_lock(&M_PlayerPos);
+            if (errorCode != 0)
             {
-                perror("pthread_mutex_lock()");
+                print_error(errorCode, "pthread_mutex_lock()");
                 pthread_exit(NULL);
             }
 
@@ -106,15 +113,17 @@ void *animatePlayer(void *idleTicks)
             // draw the player
             consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);
 
-            if (pthread_mutex_unlock(&M_PlayerPos) != 0)
+            errorCode = pthread_mutex_unlock(&M_PlayerPos);
+            if (errorCode != 0)
             {
-                perror("pthread_mutex_unlock()");
+                print_error(errorCode, "pthread_mutex_unlock()");
                 pthread_exit(NULL);
             }
 
-            if (pthread_mutex_unlock(&M_Console) != 0)
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
             {
-                perror("pthread_mutex_unlock()");
+                print_error(errorCode, "pthread_mutex_unlock()");
                 pthread_exit(NULL);
             }
 

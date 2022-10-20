@@ -10,9 +10,7 @@ int movePlayer(int deltaX, int deltaY);
 
 void *playerController(void *x);
 
-void *animatePlayer(void *tickRate);
-
-void animatePlayerTest();
+void *animatePlayer(void *idleTicks)
 
 #endif // PLAYER_H
 

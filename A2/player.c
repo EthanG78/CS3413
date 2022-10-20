@@ -8,8 +8,17 @@ int movePlayer(int deltaX, int deltaY)
 {
     pthread_mutex_lock(&M_PlayerPos);
 
-    PLAYER_POS_X += floor(deltaX);
-    PLAYER_POS_Y += floor(deltaY);
+    int newPosX = PLAYER_POS_X + floor(deltaX);
+    if (newPosX <= GAME_COLS && newPosX >= 0)
+    {
+        PLAYER_POS_X = newPosX;
+    }
+
+    int newPosY = PLAYER_POS_Y + floor(deltaY);
+    if (newPosY <= GAME_ROWS && newPosY > 16)
+    {
+        PLAYER_POS_Y = newPosY;
+    }
 
     pthread_mutex_unlock(&M_PlayerPos);
 }
@@ -22,9 +31,9 @@ void *playerController(void *x)
     movePlayer(GAME_COLS / 2, 19);
 }
 
-void *animatePlayer(void *tickRate)
+void *animatePlayer(void *idleTicks)
 {
-    int sleepTime = 1 / (*(int *)tickRate);
+    int nTicksPerAnimFrame = *(int *)idleTicks;
 
     while (IS_RUNNING)
     {
@@ -35,39 +44,16 @@ void *animatePlayer(void *tickRate)
             pthread_mutex_lock(&M_Console);
             pthread_mutex_lock(&M_PlayerPos);
 
-            consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0])); // clear the last drawing
-            consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);             // draw the player
-
-            // All refreshing must be done in own thread
-            // consoleRefresh();
+            // clear the last drawing
+            consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
+            // draw the player
+            consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);
 
             pthread_mutex_unlock(&M_PlayerPos);
             pthread_mutex_unlock(&M_Console);
 
-            // sleep based on the provided tickrate
-            sleep(sleepTime);
-        }
-    }
-}
-
-void animatePlayerTest()
-{
-    int col = GAME_COLS / 2;
-    int row = GAME_ROWS / 2;
-
-    // loop over the whole enemy animation ten times
-    // this "animation" is just the body changing appearance (changing numbers)
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < PLAYER_BODY_ANIM_TILES; j++)
-        {
-            char **frame = PLAYER_BODY[j];
-
-            consoleClearImage(row, col, PLAYER_HEIGHT, strlen(frame[0])); // clear the last drawing (why is this necessary?)
-            consoleDrawImage(row, col, frame, PLAYER_HEIGHT);             // draw the player
-            consoleRefresh();                                             // reset the state of the console drawing tool
-
-            sleep(1); // give up our turn on the CPU
+            // sleep nTicksPerAnimFrame * 20ms
+            sleepTicks(nTicksPerAnimFrame);
         }
     }
 }

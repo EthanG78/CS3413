@@ -12,6 +12,9 @@
 */
 pthread_mutex_t M_Console;
 pthread_mutex_t M_PlayerPos;
+pthread_mutex_t M_IsRunningCV;
+
+pthread_cond_t IsRunningCv;
 
 /*
 * Game State Definitions

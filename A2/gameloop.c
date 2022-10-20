@@ -69,6 +69,18 @@ int initializeGameLoop()
         return 0;
     }
 
+    if (pthread_mutex_init(&M_IsRunningCV, &errAttr) != 0)
+    {
+        perror("pthread_mutex_init()");
+        return 0;
+    }
+
+    if (pthread_cond_init(&IsRunningCv, NULL) != 0)
+    {
+        perror("pthread_cond_init()");
+        return 0;
+    }
+
     if (pthread_mutexattr_destroy(&errAttr) != 0)
     {
         perror("pthread_mutexattr_destroy()");
@@ -78,17 +90,50 @@ int initializeGameLoop()
     return 1;
 }
 
+int launchThreads()
+{
+    pthread_t threads[3];
+    return 1;
+}
+
 void executeGameLoop()
 {
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
     {
         IS_RUNNING = 1;
 
-        // TODO: Figure out cond variable and who joins threads
+        if (!launchThreads())
+        {
+            // Might have to put mutex around this
+            putBanner("Unable to launch game threads. Exiting.");
+        }
+        else
+        {
+            // wait on condition variable to tell us we are done
+            if (pthread_mutex_lock(&M_IsRunningCV) != 0)
+            {
+                perror("pthread_mutex_lock()");
+            }
 
-        // Might have to put mutex around this
-        putBanner("Game Over");
-        finalKeypress(); /* wait for final key before killing curses and game */
+            if (pthread_cond_wait(&IsRunningCv, &M_IsRunningCV) != 0)
+            {
+                perror("pthread_cond_wait()");
+            }
+
+            if (pthread_mutex_unlock(&M_IsRunningCV) != 0)
+            {
+                perror("pthread_mutex_unlock()");
+            }
+
+            // Might have to put mutex around this
+            putBanner("Game Over");
+        }
+
+        // wait for final key before killing curses and game
+        finalKeypress();
+
+        // clear game state
+        IS_RUNNING = 0;
     }
 
     if (pthread_mutex_lock(&M_Console) != 0)
@@ -141,9 +186,6 @@ void *refreshGameLoop(void *refreshRate)
 
 int cleanupGameLoop()
 {
-    // clear game state
-    IS_RUNNING = 0;
-
     // destroy mutexes and stuff
     if (pthread_mutex_destroy(&M_Console) != 0)
     {
@@ -154,6 +196,18 @@ int cleanupGameLoop()
     if (pthread_mutex_destroy(&M_PlayerPos) != 0)
     {
         perror("pthread_mutex_destroy()");
+        return 0;
+    }
+
+    if (pthread_mutex_destroy(&M_IsRunningCV) != 0)
+    {
+        perror("pthread_mutex_destroy()");
+        return 0;
+    }
+
+    if (pthread_cond_destroy(&IsRunningCv) != 0)
+    {
+        perror("pthread_cond_destroy()");
         return 0;
     }
 

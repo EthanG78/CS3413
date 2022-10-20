@@ -4,10 +4,10 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "gameloop.h"
-#include "player.h"
 #include "console.h"
 #include "globals.h"
+#include "gameloop.h"
+#include "player.h"
 
 int initializeGameLoop()
 {

@@ -168,7 +168,7 @@ void *refreshGameLoop(void *refreshRate)
 
 int launchThreads()
 {
-    int nThreads = 2;
+    int nThreads = 3;
     pthread_t threads[nThreads];
 
     int refreshRate = 1;
@@ -184,6 +184,13 @@ int launchThreads()
     }
 
     errorCode = pthread_create(&threads[1], NULL, animatePlayer, (void *)&playerIdleTicks);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_create()");
+        return 0;
+    }
+
+    errorCode = pthread_create(&threads[2], NULL, playerController, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");

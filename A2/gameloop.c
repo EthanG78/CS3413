@@ -215,9 +215,9 @@ void executeGameLoop()
     int errorCode = 0;
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
     {
-        IS_RUNNING = 1;
+        IS_RUNNING = launchThreads();
 
-        if (!launchThreads())
+        if (!IS_RUNNING)
         {
             // Might have to put mutex around this
             putBanner("Unable to launch game threads. Exiting.");
@@ -231,10 +231,13 @@ void executeGameLoop()
                 print_error(errorCode, "pthread_mutex_lock()");
             }
 
-            errorCode = pthread_cond_wait(&IsRunningCv, &M_IsRunningCV);
-            if (errorCode != 0)
+            while (IS_RUNNING)
             {
-                print_error(errorCode, "pthread_cond_wait()");
+                errorCode = pthread_cond_wait(&IsRunningCv, &M_IsRunningCV);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_cond_wait()");
+                }
             }
 
             errorCode = pthread_mutex_unlock(&M_IsRunningCV);
@@ -256,10 +259,6 @@ void executeGameLoop()
             {
                 print_error(errorCode, "pthread_mutex_unlock()");
             }*/
-
-            // clear game state
-            // may need to move this somewhere else
-            IS_RUNNING = 0;
         }
 
         // wait for final key before killing curses and game

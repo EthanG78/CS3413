@@ -131,6 +131,9 @@ void *playerController(void *x)
                     print_error(errorCode, "pthread_mutex_lock()");
                 }
 
+                // change game state and signal main thread
+                IS_RUNNING = 0;
+                
                 errorCode = pthread_cond_signal(&IsRunningCv);
                 if (errorCode != 0)
                 {

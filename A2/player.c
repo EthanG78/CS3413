@@ -137,10 +137,10 @@ void *playerController(void *x)
                     print_error(errorCode, "pthread_cond_signal()");
                 }
 
-                errorCode = pthread_mutex_lock(&M_IsRunningCV);
+                errorCode = pthread_mutex_unlock(&M_IsRunningCV);
                 if (errorCode != 0)
                 {
-                    print_error(errorCode, "pthread_mutex_lock()");
+                    print_error(errorCode, "pthread_mutex_unlock()");
                 }
                 break;
             default:

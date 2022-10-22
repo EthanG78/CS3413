@@ -215,10 +215,12 @@ void executeGameLoop()
     int errorCode = 0;
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
     {
-        IS_RUNNING = launchThreads();
+        IS_RUNNING = 1;
 
-        if (!IS_RUNNING)
+        if (!launchThreads())
         {
+            IS_RUNNING = 0;
+
             // Might have to put mutex around this
             putBanner("Unable to launch game threads. Exiting.");
         }

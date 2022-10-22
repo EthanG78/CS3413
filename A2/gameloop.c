@@ -243,8 +243,19 @@ void executeGameLoop()
                 print_error(errorCode, "pthread_mutex_unlock()");
             }
 
-            // Might have to put mutex around this
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+            }
+
             putBanner("Game Over");
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+            }
 
             // clear game state
             // may need to move this somewhere else

@@ -32,6 +32,13 @@ int movePlayer(int deltaX, int deltaY)
 {
     int errorCode = 0;
 
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
     errorCode = pthread_mutex_lock(&M_PlayerPos);
     if (errorCode != 0)
     {
@@ -42,6 +49,9 @@ int movePlayer(int deltaX, int deltaY)
     int newPosX = PLAYER_POS_X + deltaX;
     if (newPosX <= GAME_COLS && newPosX >= 0)
     {
+        // Clear prev position
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
+
         PLAYER_POS_X = newPosX;
     }
 
@@ -51,10 +61,20 @@ int movePlayer(int deltaX, int deltaY)
     int newPosY = PLAYER_POS_Y - deltaY;
     if (newPosY <= GAME_ROWS && newPosY > 16)
     {
+        // Clear prev position
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
+
         PLAYER_POS_Y = newPosY;
     }
 
     errorCode = pthread_mutex_unlock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
@@ -181,8 +201,6 @@ void *animatePlayer(void *idleTicks)
                 pthread_exit(NULL);
             }
 
-            // clear the last drawing
-            consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
             // draw the player
             consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);
 

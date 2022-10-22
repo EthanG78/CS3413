@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <math.h>
 #include <string.h>
-#define __USE_XOPEN2k
+#define __USE_XOPEN2K
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>

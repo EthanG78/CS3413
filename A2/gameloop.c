@@ -238,13 +238,14 @@ void executeGameLoop()
 
             // Might have to put mutex around this
             putBanner("Game Over");
+
+            // clear game state
+            // may need to move this somewhere else
+            IS_RUNNING = 0;
         }
 
         // wait for final key before killing curses and game
         finalKeypress();
-
-        // clear game state
-        IS_RUNNING = 0;
     }
 
     errorCode = pthread_mutex_lock(&M_Console);

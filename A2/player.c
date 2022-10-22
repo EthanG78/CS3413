@@ -56,7 +56,10 @@ int movePlayer(int deltaX, int deltaY)
         PLAYER_POS_X = newPosX;
     }
 
-    int newPosY = PLAYER_POS_Y + (int)floor((double)deltaY);
+    // I am subtracting deltaY because I want a -deltaY to
+    // make the player go down in rows, but in reality it will
+    // be going up in rows.
+    int newPosY = PLAYER_POS_Y - (int)floor((double)deltaY);
     if (newPosY <= GAME_ROWS && newPosY > 16)
     {
         PLAYER_POS_Y = newPosY;
@@ -77,6 +80,8 @@ void *playerController(void *x)
     // required for pselect call to stdin
     fd_set readfds;
     int ret;
+    int errorCode;
+    char inputChar;
 
     while (IS_RUNNING)
     {
@@ -96,6 +101,45 @@ void *playerController(void *x)
             perror("pselect()");
         }
         else if (IS_RUNNING && ret >= 1)
+        {
+            inputChar = getchar();
+
+            switch (inputChar)
+            {
+            case MOVE_DOWN:
+                movePlayer(0, -1);
+                break;
+            case MOVE_UP:
+                movePlayer(0, 1);
+                break;
+            case MOVE_LEFT:
+                movePlayer(-1, 0);
+                break;
+            case MOVE_RIGHT:
+                movePlayer(1, 0);
+                break;
+            case QUIT:
+                errorCode = pthread_mutex_lock(&M_IsRunningCV);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                }
+
+                errorCode = pthread_cond_signal(&IsRunningCv);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_cond_signal()");
+                }
+
+                // DO I NEED TO UNLOCK THE MUTEX??
+
+                break;
+            default:
+                // user entered input
+                // we do not handle
+                break;
+            }
+        }
     }
 
     pthread_exit(NULL);

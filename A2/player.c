@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include "player.h"
@@ -90,7 +91,7 @@ void *playerController(void *x)
         FD_ZERO(&readfds);
         FD_SET(STDIN_FILENO, &readfds);
         struct timespec timeout = getTimeout(1); /* duration of one tick */
-        int ret = pselect(FD_SETSIZE, &readfds, NULL, NULL, &timeout, NULL);
+        ret = pselect(FD_SETSIZE, &readfds, NULL, NULL, &timeout, NULL);
 
         if (ret == -1)
         {

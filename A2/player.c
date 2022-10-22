@@ -1,5 +1,6 @@
-// for pselect?
-#define __USE_XOPEN2K
+#include "player.h"
+#include "globals.h"
+#include "console.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -9,10 +10,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "player.h"
-#include "globals.h"
-#include "console.h"
 
 // There are two annimation frames for the player
 // The player has width three and height threee

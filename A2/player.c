@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
-#include <math.h>
 #include <string.h>
-// This define statement is required for 
+// This define statement is required for
 // pselect to be seen in sys/select.h
 // on FCS machines.
 #define __USE_XOPEN2K
@@ -29,21 +28,6 @@ char *PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] =
          "<X>",
          " V "}};
 
-int initPlayer()
-{
-    PLAYER_POS_X = 0;
-    PLAYER_POS_Y = 0;
-
-    // Move player to starting position
-    if (!movePlayer(GAME_COLS / 2, 19))
-    {
-        // todo:
-        // if movePlayer() returns 0, there was an issue
-    }
-
-    return 1;
-}
-
 int movePlayer(int deltaX, int deltaY)
 {
     int errorCode = 0;
@@ -55,7 +39,7 @@ int movePlayer(int deltaX, int deltaY)
         return 0;
     }
 
-    int newPosX = PLAYER_POS_X + (int)floor((double)deltaX);
+    int newPosX = PLAYER_POS_X + deltaX;
     if (newPosX <= GAME_COLS && newPosX >= 0)
     {
         PLAYER_POS_X = newPosX;
@@ -64,7 +48,7 @@ int movePlayer(int deltaX, int deltaY)
     // I am subtracting deltaY because I want a -deltaY to
     // make the player go down in rows, but in reality it will
     // be going up in rows.
-    int newPosY = PLAYER_POS_Y - (int)floor((double)deltaY);
+    int newPosY = PLAYER_POS_Y - deltaY;
     if (newPosY <= GAME_ROWS && newPosY > 16)
     {
         PLAYER_POS_Y = newPosY;
@@ -75,6 +59,21 @@ int movePlayer(int deltaX, int deltaY)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
+    }
+
+    return 1;
+}
+
+int initPlayer()
+{
+    PLAYER_POS_X = 0;
+    PLAYER_POS_Y = 0;
+
+    // Move player to starting position
+    if (!movePlayer((int)(GAME_COLS / 2), -19))
+    {
+        // todo:
+        // if movePlayer() returns 0, there was an issue
     }
 
     return 1;

@@ -40,7 +40,7 @@ int movePlayer(int deltaX, int deltaY)
     }
 
     int newPosX = PLAYER_POS_X + deltaX;
-    if (newPosX <= GAME_COLS && newPosX >= 0)
+    if (newPosX <= GAME_COLS - PLAYER_HEIGHT && newPosX >= 0)
     {
         PLAYER_PREV_POS_X = PLAYER_POS_X;
         PLAYER_POS_X = newPosX;
@@ -50,7 +50,7 @@ int movePlayer(int deltaX, int deltaY)
     // make the player go down in rows, but in reality it will
     // be going up in rows.
     int newPosY = PLAYER_POS_Y - deltaY;
-    if (newPosY <= GAME_ROWS && newPosY > 16)
+    if (newPosY <= GAME_ROWS - PLAYER_HEIGHT && newPosY > 16)
     {
         PLAYER_PREV_POS_Y = PLAYER_POS_Y;
         PLAYER_POS_Y = newPosY;
@@ -137,8 +137,11 @@ void *playerController(void *x)
                     print_error(errorCode, "pthread_cond_signal()");
                 }
 
-                // DO I NEED TO UNLOCK THE MUTEX??
-
+                errorCode = pthread_mutex_lock(&M_IsRunningCV);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                }
                 break;
             default:
                 // user entered input
@@ -184,6 +187,8 @@ void *animatePlayer(void *idleTicks)
             }
 
             // clear the last drawing
+            // BUGS: If the player holds down an input key,
+            // or presses two at once, this won't clear the LAST position
             consoleClearImage(PLAYER_PREV_POS_Y, PLAYER_PREV_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
             // draw the player
             consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);

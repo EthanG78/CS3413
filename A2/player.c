@@ -2,6 +2,9 @@
 #include <errno.h>
 #include <math.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "player.h"
 #include "globals.h"
@@ -71,7 +74,29 @@ int movePlayer(int deltaX, int deltaY)
 
 void *playerController(void *x)
 {
-    // here is where we handle input and call moveplayer
+    // required for pselect call to stdin
+    fd_set readfds;
+    int ret;
+
+    while (IS_RUNNING)
+    {
+        // Need to set stdin file descriptor
+        // on each loop as pselect may modify it
+        FD_ZERO(&readfds);
+        FD_SET(STDIN_FILENO, &readfds);
+        struct timespec timeout = getTimeout(1); /* duration of one tick */
+        int ret = pselect(FD_SETSIZE, &readfds, NULL, NULL, &timeout, NULL);
+
+        if (ret == -1)
+        {
+            // todo:
+            // Since we redefine readfds and
+            // timeout on each loop, I don't think
+            // we need to exit here?
+            perror("pselect()");
+        }
+        else if (IS_RUNNING && ret >= 1)
+    }
 
     pthread_exit(NULL);
 }

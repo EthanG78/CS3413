@@ -1,10 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-// Require this definition to use
-// the pselect function
-#define __USE_XOPEN2k
-
 // functions we need:
 //  - Capture user input with pselect
 //  - Move player based on user input

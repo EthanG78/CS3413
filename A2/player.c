@@ -1,15 +1,16 @@
-#include "player.h"
-#include "globals.h"
-#include "console.h"
-
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
 #include <string.h>
+#define __USE_XOPEN2k
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "player.h"
+#include "globals.h"
+#include "console.h"
 
 // There are two annimation frames for the player
 // The player has width three and height threee

@@ -47,7 +47,7 @@ int movePlayer(int deltaX, int deltaY)
     }
 
     int newPosX = PLAYER_POS_X + deltaX;
-    if (newPosX <= GAME_COLS && newPosX >= 0)
+    if (newPosX <= GAME_COLS - 3 && newPosX >= 0)
     {
         // Clear prev position
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
@@ -59,7 +59,7 @@ int movePlayer(int deltaX, int deltaY)
     // make the player go down in rows, but in reality it will
     // be going up in rows.
     int newPosY = PLAYER_POS_Y - deltaY;
-    if (newPosY <= GAME_ROWS && newPosY > 16)
+    if (newPosY <= GAME_ROWS - 3 && newPosY > 16)
     {
         // Clear prev position
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));

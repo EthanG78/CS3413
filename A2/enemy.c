@@ -229,7 +229,7 @@ void *animateEnemy(void *enemy)
             }
 
             // draw enemy head
-            consoleDrawImage(caterpillar->col, caterpillar->row, headFrame, ENEMY_HEIGHT);
+            consoleDrawImage(caterpillar->row, caterpillar->col, headFrame, ENEMY_HEIGHT);
 
             errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
@@ -257,7 +257,7 @@ void *animateEnemy(void *enemy)
                 }
 
                 // draw body segment head width * j segments behind head
-                consoleDrawImage(caterpillar->col + (2 * j), caterpillar->row, bodyFrame, ENEMY_HEIGHT);
+                consoleDrawImage(caterpillar->row, caterpillar->col + (2 * j), bodyFrame, ENEMY_HEIGHT);
 
                 errorCode = pthread_mutex_unlock(&M_Console);
                 if (errorCode != 0)
@@ -267,9 +267,23 @@ void *animateEnemy(void *enemy)
                 }
             }
 
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
             // We need to clear the drawing directly behind the last
             // segment of the long caterpillar
-            consoleClearImage(caterpillar->col + (2 * (caterpillar->length - 1)), caterpillar->row, ENEMY_HEIGHT, strlen(headFrame[0]));
+            consoleClearImage(caterpillar->row, caterpillar->col + (2 * (caterpillar->length - 1)), ENEMY_HEIGHT, strlen(headFrame[0]));
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
 
             // Move the caterpillar one column to the left (for now)
             caterpillar->col -= 1;
@@ -374,7 +388,7 @@ void *enemyTest(void *idleTicks)
             }
 
             // draw enemy head
-            consoleDrawImage(caterpillar.col, caterpillar.row, headFrame, ENEMY_HEIGHT);
+            consoleDrawImage(caterpillar.row, caterpillar.col, headFrame, ENEMY_HEIGHT);
 
             errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
@@ -402,7 +416,7 @@ void *enemyTest(void *idleTicks)
                 }
 
                 // draw body segment head width * j segments behind head
-                consoleDrawImage(caterpillar.col + (2 * j), caterpillar.row, bodyFrame, ENEMY_HEIGHT);
+                consoleDrawImage(caterpillar.row, caterpillar.col + (2 * j), bodyFrame, ENEMY_HEIGHT);
 
                 errorCode = pthread_mutex_unlock(&M_Console);
                 if (errorCode != 0)
@@ -412,10 +426,23 @@ void *enemyTest(void *idleTicks)
                 }
             }
 
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
             // We need to clear the drawing directly behind the last
             // segment of the long caterpillar
-            consoleClearImage(caterpillar.col + (2 * (caterpillar.length - 1)), caterpillar.row, ENEMY_HEIGHT, strlen(headFrame[0]));
+            consoleClearImage(caterpillar.row, caterpillar.col + (2 * (caterpillar.length - 1)), ENEMY_HEIGHT, strlen(headFrame[0]));
 
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
             // Move the caterpillar one column to the left (for now)
             caterpillar.col -= 1;
 

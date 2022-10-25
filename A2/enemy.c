@@ -200,7 +200,23 @@ void *animateEnemy(void *head)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
-    Caterpillar *caterpillar = ((EnemyNode*)head)->enemy;
+    Caterpillar *caterpillar = ((EnemyNode *)head)->enemy;
+
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        pthread_exit(NULL);
+    }
+
+    putBanner("BRUH");
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        pthread_exit(NULL);
+    }
 
     while (IS_RUNNING && caterpillar->row < 16)
     {

@@ -172,7 +172,7 @@ int launchThreads()
     pthread_t threads[nThreads];
 
     int refreshRate = 1;
-    int playerIdleTicks = 50;
+    int playerIdleTicks = 25;
 
     int errorCode = 0;
 
@@ -243,20 +243,6 @@ void executeGameLoop()
             }
 
             errorCode = pthread_mutex_unlock(&M_IsRunningCV);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_unlock()");
-            }
-
-            errorCode = pthread_mutex_lock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_lock()");
-            }
-
-            putBanner("Game Over");
-
-            errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
             {
                 print_error(errorCode, "pthread_mutex_unlock()");

@@ -62,17 +62,59 @@ int movePlayer(int deltaX, int deltaY)
     return 1;
 }
 
+int playerQuit()
+{
+    int errorCode = 0;
+
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    putBanner("You're lame....");
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_lock(&M_IsRunningCV);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // change game state and signal main thread
+    IS_RUNNING = 0;
+
+    errorCode = pthread_cond_signal(&IsRunningCv);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_cond_signal()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_unlock(&M_IsRunningCV);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+}
+
 int initPlayer()
 {
     PLAYER_POS_X = 0;
     PLAYER_POS_Y = 0;
 
-    // Move player to starting position
-    if (!movePlayer((int)(GAME_COLS / 2), -19))
-    {
-        // todo:
-        // if movePlayer() returns 0, there was an issue
-    }
+    // Move player to starting position, if this fails
+    // then what do we have to life for but nothing?
+    if (!movePlayer((int)(GAME_COLS / 2), -19)) return 0;
 
     return 1;
 }
@@ -106,41 +148,29 @@ void *playerController(void *x)
         {
             inputChar = getchar();
 
+            // If the player move, shoot, or quit function
+            // returns error, we continue to next loop and
+            // try to execute the user input again. 
             switch (inputChar)
             {
             case MOVE_DOWN:
-                movePlayer(0, -1);
+                if(!movePlayer(0, -1)) continue;
                 break;
             case MOVE_UP:
-                movePlayer(0, 1);
+                if (!movePlayer(0, 1)) continue;
                 break;
             case MOVE_LEFT:
-                movePlayer(-1, 0);
+                if (!movePlayer(-1, 0)) continue;
                 break;
             case MOVE_RIGHT:
-                movePlayer(1, 0);
+                if (!movePlayer(1, 0)) continue;
+                break;
+            case SHOOT:
+                // todo:
+                // Player shoots a bullet
                 break;
             case QUIT:
-                errorCode = pthread_mutex_lock(&M_IsRunningCV);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_lock()");
-                }
-
-                // change game state and signal main thread
-                IS_RUNNING = 0;
-                
-                errorCode = pthread_cond_signal(&IsRunningCv);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_cond_signal()");
-                }
-
-                errorCode = pthread_mutex_unlock(&M_IsRunningCV);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_unlock()");
-                }
+                if (!playerQuit()) continue;
                 break;
             default:
                 // user entered input

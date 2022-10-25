@@ -337,7 +337,7 @@ void *enemyTest(void *idleTicks)
     if (!initEnemies())
         pthread_exit(NULL);
 
-    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, head->enemy);
+    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, (void *)head->enemy);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");

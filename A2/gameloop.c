@@ -248,7 +248,7 @@ void executeGameLoop()
                 print_error(errorCode, "pthread_mutex_unlock()");
             }
 
-            /*errorCode = pthread_mutex_lock(&M_Console);
+            errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
             {
                 print_error(errorCode, "pthread_mutex_lock()");
@@ -260,7 +260,7 @@ void executeGameLoop()
             if (errorCode != 0)
             {
                 print_error(errorCode, "pthread_mutex_unlock()");
-            }*/
+            }
         }
 
         // wait for final key before killing curses and game

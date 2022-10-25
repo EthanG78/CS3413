@@ -41,38 +41,15 @@ int IS_RUNNING;
 /*
  * Caterpillar Globals
  */
-
 #define ENEMY_HEIGHT 2
-#define ENEMY_BODY_ANIM_TILES 8
-
-// MODIFY MODEL
-/*char* ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
-{
-  {"1",
-   "1"},
-  {"2",
-   "2"},
-  {"3",
-   "3"},
-  {"4",
-   "4"},
-  {"5",
-   "5"},
-  {"6",
-   "6"},
-  {"7",
-   "7"},
-  {"8",
-   "8"}
-};*/
+#define ENEMY_HEAD_ANIM_TILES 2
+#define ENEMY_BODY_ANIM_TILES 2
 
 /*
  * Player Globals
  */
-
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2
-
 
 // todo:
 // the whole prev_pos thing

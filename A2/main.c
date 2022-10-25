@@ -12,8 +12,9 @@
 
   Author: Ethan Garnier
 */
-#include "gameloop.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include "gameloop.h"
 
 int main(int argc, char **argv)
 {
@@ -21,6 +22,8 @@ int main(int argc, char **argv)
   {
     executeGameLoop();
   }
+
+  printf("done!");
 
   return EXIT_SUCCESS;
 }

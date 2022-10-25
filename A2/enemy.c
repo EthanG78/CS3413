@@ -202,30 +202,11 @@ int destroyEnemy(Caterpillar *enemy)
     return 1;
 }
 
-void *animateEnemy(void *head)
+void *animateEnemy(void *node)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
-    Caterpillar *caterpillar = ((EnemyNode *)head)->enemy;
-
-    if (caterpillar->length == GAME_COLS)
-    {
-        errorCode = pthread_mutex_lock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_lock()");
-            pthread_exit(NULL);
-        }
-
-        putBanner("BRUH");
-
-        errorCode = pthread_mutex_unlock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_unlock()");
-            pthread_exit(NULL);
-        }
-    }
+    Caterpillar *caterpillar = ((EnemyNode *)node)->enemy;
 
     while (IS_RUNNING && caterpillar->row < 16)
     {

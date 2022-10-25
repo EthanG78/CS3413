@@ -343,7 +343,7 @@ void *enemyTest(void *x)
         pthread_exit(NULL);
     }
 
-    errorCode = pthread_join(,enemyThread NULL);
+    errorCode = pthread_join(enemyThread, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_join()");

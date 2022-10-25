@@ -7,4 +7,6 @@
 
 int enemiesRemaining();
 
+int cleanupEnemies();
+
 #endif // ENEMY_H

@@ -43,8 +43,7 @@ int IS_RUNNING;
  * Caterpillar Globals
  */
 #define ENEMY_HEIGHT 2
-#define ENEMY_HEAD_ANIM_TILES 2
-#define ENEMY_BODY_ANIM_TILES 2
+#define ENEMY_ANIM_TILES 2
 #define ENEMY_MIN_LENGTH 5
 
 /*

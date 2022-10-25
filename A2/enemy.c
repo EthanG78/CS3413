@@ -22,14 +22,14 @@
 //  |o   |-
 //
 //
-char *ENEMY_HEAD_LEFT[ENEMY_HEAD_ANIM_TILES][ENEMY_HEIGHT] =
+char *ENEMY_HEAD_LEFT[ENEMY_ANIM_TILES][ENEMY_HEIGHT] =
     {
         {"o|",
          "  "},
         {"-|",
          "  "}};
 
-char *ENEMY_HEAD_RIGHT[ENEMY_HEAD_ANIM_TILES][ENEMY_HEIGHT] =
+char *ENEMY_HEAD_RIGHT[ENEMY_ANIM_TILES][ENEMY_HEIGHT] =
     {
         {"|o",
          "  "},
@@ -38,7 +38,7 @@ char *ENEMY_HEAD_RIGHT[ENEMY_HEAD_ANIM_TILES][ENEMY_HEIGHT] =
 
 // There are two animation frames for each body segment of the
 // caterpillar. Each body segment has height two and width two.
-char *ENEMY_BODY[ENEMY_BODY_ANIM_TILES][ENEMY_HEIGHT] =
+char *ENEMY_BODY[ENEMY_ANIM_TILES][ENEMY_HEIGHT] =
     {
         {"~~",
          "/,"},
@@ -190,6 +190,124 @@ int destroyEnemy(Caterpillar *enemy)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
+    }
+
+    return 1;
+}
+
+void *animateEnemy(void *enemy)
+{
+    int errorCode = 0;
+    Caterpillar *caterpillar = (Caterpillar *)enemy;
+
+    while (IS_RUNNING)
+    {
+        // todo: needs testing...
+        // Loop animation until caterpillar reaches player
+        while (caterpillar->row < 16)
+        {
+            // todo:
+            // worry about just moving left right now,
+            // but we will need to address the wrap around
+            // and moving right
+            char **headFrame = ENEMY_HEAD_LEFT[(caterpillar->col & 1)];
+
+            // Since this caterpillar is the only one
+            // accesing its location, i don't think I need
+            // to have a mutex for it, but we do need
+            // one for the console functions
+            // APPENDING^^^ I THINK WE DO NEED A MUTEX FOR EACH
+            // CATERPILLAR SINCE THE LENGTH OF A CATERPILLAR
+            // MAY CHANGE IF A BULLET HITS IT
+
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
+            // draw enemy head
+            consoleDrawImage(caterpillar->col, caterpillar->row, headFrame, ENEMY_HEIGHT);
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
+
+            // Draw the body tiles for each unit length
+            // of the caterpillar
+            for (int j = 0; j < caterpillar->length; j++)
+            {
+                // Each frame will use a different animation
+                // than its neighbour
+                char **bodyFrame = ENEMY_BODY[(j & 1)];
+
+                // TESTING:
+                // this will draw items off screen, but I believe
+                // that is what we want...
+                errorCode = pthread_mutex_lock(&M_Console);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                    pthread_exit(NULL);
+                }
+
+                // draw body segment head width * j segments behind head
+                consoleDrawImage(caterpillar->col + (2 * j), caterpillar->row, bodyFrame, ENEMY_HEIGHT);
+
+                errorCode = pthread_mutex_unlock(&M_Console);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    pthread_exit(NULL);
+                }
+            }
+
+            // We need to clear the drawing directly behind the last
+            // segment of the long caterpillar
+            consoleClearImage(caterpillar->col + (2 * (caterpillar->length - 1)), caterpillar->row, ENEMY_HEIGHT, strlen(headFrame[0]));
+
+            // Move the caterpillar one column to the left (for now)
+            caterpillar->col -= 1;
+        }
+    }
+}
+
+int cleanupEnemies()
+{
+    // In the event that the game ends
+    // and there are still caterpillars alive,
+    // we need to free their memory.
+    // todo:
+    //      - we will also have to exit their threads...
+
+    EnemyNode *current = head;
+    EnemyNode *prev = NULL;
+
+    while (current != NULL)
+    {
+        prev = current;
+        current = current->next;
+
+        int errorCode = 0;
+        errorCode = pthread_mutex_lock(&M_EnemyList);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            return 0;
+        }
+
+        free(prev);
+
+        errorCode = pthread_mutex_unlock(&M_EnemyList);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            return 0;
+        }
     }
 
     return 1;

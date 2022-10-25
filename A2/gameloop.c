@@ -184,7 +184,7 @@ void *refreshGameLoop(void *refreshRate)
 int launchThreads()
 {
     int errorCode = 0;
-    int nThreads = 3;
+    int nThreads = 4;
     pthread_t threads[nThreads];
 
     // Store functions to be run in their

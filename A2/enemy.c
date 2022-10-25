@@ -360,8 +360,6 @@ void *enemyTest(void *idleTicks)
 
     Caterpillar caterpillar = {GAME_COLS - 3, 3, GAME_COLS};
 
-    printf("%d\n", caterpillar.row);
-
     while (IS_RUNNING)
     {
         // todo: needs testing...
@@ -372,7 +370,7 @@ void *enemyTest(void *idleTicks)
             // worry about just moving left right now,
             // but we will need to address the wrap around
             // and moving right
-            char **headFrame = ENEMY_HEAD_LEFT[1];
+            char **headFrame = ENEMY_HEAD_LEFT[(caterpillar.col & 1)];
 
             // Since this caterpillar is the only one
             // accesing its location, i don't think I need
@@ -403,7 +401,9 @@ void *enemyTest(void *idleTicks)
             // of the caterpillar
             for (int j = 0; j < caterpillar.length; j++)
             {
-                char **bodyFrame = ENEMY_BODY[0];
+                // Each frame will use a different animation
+                // than its neighbour
+                char **bodyFrame = ENEMY_BODY[(j & 1)];
 
                 // TESTING:
                 // this will draw items off screen, but I believe

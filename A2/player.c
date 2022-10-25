@@ -105,6 +105,8 @@ int playerQuit()
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
+
+    return 1;
 }
 
 int initPlayer()
@@ -124,7 +126,6 @@ void *playerController(void *x)
     // required for pselect call to stdin
     fd_set readfds;
     int ret;
-    int errorCode;
     char inputChar;
 
     while (IS_RUNNING)

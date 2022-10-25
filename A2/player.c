@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-// This define statement is required for
-// pselect to be seen in sys/select.h
-// on FCS machines.
-#define __USE_XOPEN2K
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>

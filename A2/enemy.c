@@ -72,8 +72,13 @@ int spawnEnemy(int x, int y)
 {
     // Initialize a new caterpillar at the top right hand
     // corner of the game board. All new caterpillars have
-    // length equivalent to the width of the game board initially
-    Caterpillar newEnemy = {x, y, GAME_COLS};
+    // length equivalent to the width of the game board initially.
+    // Need to malloc each caterpillar so that it exists outside of this scope
+    // and can be accessed as the linked list is accessed.
+    Caterpillar *newEnemy = (Caterpillar *)malloc(sizeof(Caterpillar));
+    newEnemy->col = x;
+    newEnemy->row = y;
+    newEnemy->length = GAME_COLS;
 
     // We must store this caterpillar in the list of enemies.
     // It stores this new enemy at the front of the linked list
@@ -85,7 +90,7 @@ int spawnEnemy(int x, int y)
         return 0;
     }
 
-    newNode->enemy = &newEnemy;
+    newNode->enemy = newEnemy;
     newNode->next = head;
 
     int errorCode = 0;
@@ -184,6 +189,7 @@ int destroyEnemy(Caterpillar *enemy)
         prev->next = current->next;
     }
 
+    free(current->enemy);
     free(current);
 
     errorCode = pthread_mutex_unlock(&M_EnemyList);
@@ -334,6 +340,7 @@ int cleanupEnemies()
             return 0;
         }
 
+        free(prev->enemy);
         free(prev);
 
         errorCode = pthread_mutex_unlock(&M_EnemyList);

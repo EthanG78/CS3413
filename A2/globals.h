@@ -17,6 +17,7 @@
 pthread_mutex_t M_Console;
 pthread_mutex_t M_PlayerPos;
 pthread_mutex_t M_IsRunningCV;
+pthread_mutex_t M_EnemyList;
 
 pthread_cond_t IsRunningCv;
 
@@ -44,6 +45,7 @@ int IS_RUNNING;
 #define ENEMY_HEIGHT 2
 #define ENEMY_HEAD_ANIM_TILES 2
 #define ENEMY_BODY_ANIM_TILES 2
+#define ENEMY_MIN_LENGTH 5
 
 /*
  * Player Globals

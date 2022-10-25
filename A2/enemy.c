@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -274,6 +275,8 @@ void *animateEnemy(void *enemy)
             caterpillar->col -= 1;
         }
     }
+
+    pthread_exit(NULL);
 }
 
 int cleanupEnemies()

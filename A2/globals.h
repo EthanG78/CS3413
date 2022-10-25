@@ -73,6 +73,11 @@ int IS_RUNNING;
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2
 
+
+// todo:
+// the whole prev_pos thing
+// kinda sucks, look at something
+// better when you can.
 int PLAYER_POS_X;
 int PLAYER_PREV_POS_X;
 int PLAYER_POS_Y;

@@ -116,7 +116,8 @@ int initPlayer()
 
     // Move player to starting position, if this fails
     // then what do we have to life for but nothing?
-    if (!movePlayer((int)(GAME_COLS / 2), -19)) return 0;
+    if (!movePlayer((int)(GAME_COLS / 2), -19))
+        return 0;
 
     return 1;
 }
@@ -151,27 +152,32 @@ void *playerController(void *x)
 
             // If the player move, shoot, or quit function
             // returns error, we continue to next loop and
-            // try to execute the user input again. 
+            // try to execute the user input again.
             switch (inputChar)
             {
             case MOVE_DOWN:
-                if(!movePlayer(0, -1)) continue;
+                if (!movePlayer(0, -1))
+                    continue;
                 break;
             case MOVE_UP:
-                if (!movePlayer(0, 1)) continue;
+                if (!movePlayer(0, 1))
+                    continue;
                 break;
             case MOVE_LEFT:
-                if (!movePlayer(-1, 0)) continue;
+                if (!movePlayer(-1, 0))
+                    continue;
                 break;
             case MOVE_RIGHT:
-                if (!movePlayer(1, 0)) continue;
+                if (!movePlayer(1, 0))
+                    continue;
                 break;
             case SHOOT:
                 // todo:
                 // Player shoots a bullet
                 break;
             case QUIT:
-                if (!playerQuit()) continue;
+                if (!playerQuit())
+                    continue;
                 break;
             default:
                 // user entered input

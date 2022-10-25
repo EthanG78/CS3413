@@ -62,7 +62,7 @@ typedef struct Caterpillar
 typedef struct EnemyNode
 {
     Caterpillar *enemy;
-    EnemyNode *next;
+    struct EnemyNode *next;
 } EnemyNode;
 
 EnemyNode *head;
@@ -79,7 +79,7 @@ int spawnEnemy(int x, int y)
     // It stores this new enemy at the front of the linked list
     // todo: this may cause issue
     EnemyNode newNode = (EnemyNode *)malloc(sizeof(EnemyNode));
-    if (newNode == NULL)
+    if (newNode == (EnemyNode *)NULL)
     {
         perror("malloc()");
         return 0;

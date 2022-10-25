@@ -78,7 +78,7 @@ int spawnEnemy(int x, int y)
     // We must store this caterpillar in the list of enemies.
     // It stores this new enemy at the front of the linked list
     // todo: this may cause issue
-    EnemyNode newNode = (EnemyNode *)malloc(sizeof(EnemyNode));
+    EnemyNode *newNode = (EnemyNode *)malloc(sizeof(EnemyNode));
     if (newNode == (EnemyNode *)NULL)
     {
         perror("malloc()");

@@ -172,7 +172,9 @@ int launchThreads()
     int nThreads = 3;
     pthread_t threads[nThreads];
 
-    void *(*threadFunctions[nThreads])(void *) = {
+    // Store functions to be run in their
+    // own threads here
+    void *(*threadFunctions[])(void *) = {
         &refreshGameLoop,
         &animatePlayer,
         &playerController};
@@ -180,7 +182,10 @@ int launchThreads()
     int refreshRate = 1;
     int playerIdleTicks = 25;
 
-    void *threadParams[nThreads] = {
+    // Store function params at same
+    // index in this array as the function
+    // in threadFunctions array
+    void *threadParams[] = {
         (void *)&refreshRate,
         (void *)&playerIdleTicks,
         NULL};
@@ -194,27 +199,6 @@ int launchThreads()
             return 0;
         }
     }
-
-    /*errorCode = pthread_create(&threads[0], NULL, refreshGameLoop, (void *)&refreshRate);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_create()");
-        return 0;
-    }
-
-    errorCode = pthread_create(&threads[1], NULL, animatePlayer, (void *)&playerIdleTicks);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_create()");
-        return 0;
-    }
-
-    errorCode = pthread_create(&threads[2], NULL, playerController, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_create()");
-        return 0;
-    }*/
 
     for (int i = 0; i < nThreads; i++)
     {

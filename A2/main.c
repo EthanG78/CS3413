@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     executeGameLoop();
   }
 
-  printf("done!");
+  printf("done!\n");
 
   return EXIT_SUCCESS;
 }

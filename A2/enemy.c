@@ -360,7 +360,7 @@ void *enemyTest(void *idleTicks)
 
     Caterpillar caterpillar = {GAME_COLS - 3, 3, GAME_COLS};
 
-    printf(caterpillar.row);
+    printf("%d\n", caterpillar.row);
 
     while (IS_RUNNING)
     {

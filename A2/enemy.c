@@ -85,6 +85,9 @@ int spawnEnemy(int x, int y)
         return 0;
     }
 
+    newNode->enemy = &newEnemy;
+    newNode->next = head;
+
     int errorCode = 0;
     errorCode = pthread_mutex_lock(&M_EnemyList);
     if (errorCode != 0)
@@ -92,9 +95,6 @@ int spawnEnemy(int x, int y)
         print_error(errorCode, "pthread_mutex_lock()");
         return 0;
     }
-
-    newNode->enemy = &newEnemy;
-    newNode->next = head;
 
     head = newNode;
 
@@ -196,11 +196,11 @@ int destroyEnemy(Caterpillar *enemy)
     return 1;
 }
 
-void *animateEnemy(void *enemy)
+void *animateEnemy(void *head)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
-    Caterpillar *caterpillar = (Caterpillar *)enemy;
+    Caterpillar *caterpillar = ((EnemyNode*)head)->enemy;
 
     while (IS_RUNNING && caterpillar->row < 16)
     {
@@ -328,23 +328,22 @@ int cleanupEnemies()
     return 1;
 }
 
-void *enemyTest(void *idleTicks)
+void *enemyTest(void *x)
 {
     int errorCode = 0;
-    int nTicksPerAnimFrame = *(int *)idleTicks;
     pthread_t enemyThread;
 
     if (!initEnemies())
         pthread_exit(NULL);
 
-    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, (void *)head->enemy);
+    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, (void *)head);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");
         pthread_exit(NULL);
     }
 
-    errorCode = pthread_join(enemyThread, NULL);
+    errorCode = pthread_join(,enemyThread NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_join()");

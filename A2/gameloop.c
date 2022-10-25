@@ -197,7 +197,7 @@ int launchThreads()
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
-    int enemyIdleTicks = 25;
+    //int enemyIdleTicks = 25;
 
     // Store function params at same
     // index in this array as the function
@@ -206,7 +206,7 @@ int launchThreads()
         (void *)&refreshRate,
         (void *)&playerIdleTicks,
         NULL,
-        (void *)&enemyIdleTicks};
+        NULL};
 
     for (int i = 0; i < nThreads; i++)
     {

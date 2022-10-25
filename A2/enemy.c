@@ -358,97 +358,92 @@ void *enemyTest(void *idleTicks)
     // maybe in main??
     cleanupEnemies();*/
 
-    Caterpillar caterpillar = {GAME_COLS - 3, 3, GAME_COLS};
+    Caterpillar caterpillar = {GAME_COLS - 1, 2, GAME_COLS};
 
-    while (IS_RUNNING)
+    while (IS_RUNNING && caterpillar.row < 16)
     {
-        // todo: needs testing...
-        // Loop animation until caterpillar reaches player
-        while (caterpillar.row < 16)
+        // todo:
+        // worry about just moving left right now,
+        // but we will need to address the wrap around
+        // and moving right
+        char **headFrame = ENEMY_HEAD_LEFT[(caterpillar.col & 1)];
+
+        // Since this caterpillar is the only one
+        // accesing its location, i don't think I need
+        // to have a mutex for it, but we do need
+        // one for the console functions
+        // APPENDING^^^ I THINK WE DO NEED A MUTEX FOR EACH
+        // CATERPILLAR SINCE THE LENGTH OF A CATERPILLAR
+        // MAY CHANGE IF A BULLET HITS IT
+
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
         {
-            // todo:
-            // worry about just moving left right now,
-            // but we will need to address the wrap around
-            // and moving right
-            char **headFrame = ENEMY_HEAD_LEFT[(caterpillar.col & 1)];
-
-            // Since this caterpillar is the only one
-            // accesing its location, i don't think I need
-            // to have a mutex for it, but we do need
-            // one for the console functions
-            // APPENDING^^^ I THINK WE DO NEED A MUTEX FOR EACH
-            // CATERPILLAR SINCE THE LENGTH OF A CATERPILLAR
-            // MAY CHANGE IF A BULLET HITS IT
-
-            errorCode = pthread_mutex_lock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_lock()");
-                pthread_exit(NULL);
-            }
-
-            // draw enemy head
-            consoleDrawImage(caterpillar.row, caterpillar.col, headFrame, ENEMY_HEIGHT);
-
-            errorCode = pthread_mutex_unlock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_unlock()");
-                pthread_exit(NULL);
-            }
-
-            // Draw the body tiles for each unit length
-            // of the caterpillar
-            for (int j = 0; j < caterpillar.length; j++)
-            {
-                // Each frame will use a different animation
-                // than its neighbour
-                char **bodyFrame = ENEMY_BODY[(j & 1)];
-
-                // TESTING:
-                // this will draw items off screen, but I believe
-                // that is what we want...
-                errorCode = pthread_mutex_lock(&M_Console);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_lock()");
-                    pthread_exit(NULL);
-                }
-
-                // draw body segment head width * j segments behind head
-                consoleDrawImage(caterpillar.row, caterpillar.col + (2 * j), bodyFrame, ENEMY_HEIGHT);
-
-                errorCode = pthread_mutex_unlock(&M_Console);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_unlock()");
-                    pthread_exit(NULL);
-                }
-            }
-
-            errorCode = pthread_mutex_lock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_lock()");
-                pthread_exit(NULL);
-            }
-
-            // We need to clear the drawing directly behind the last
-            // segment of the long caterpillar
-            consoleClearImage(caterpillar.row, caterpillar.col + (2 * (caterpillar.length - 1)), ENEMY_HEIGHT, strlen(headFrame[0]));
-
-            errorCode = pthread_mutex_unlock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_unlock()");
-                pthread_exit(NULL);
-            }
-            // Move the caterpillar one column to the left (for now)
-            caterpillar.col -= 1;
-
-            // sleep nTicksPerAnimFrame * 20ms
-            sleepTicks(nTicksPerAnimFrame);
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
         }
+
+        // draw enemy head
+        consoleDrawImage(caterpillar.row, caterpillar.col, headFrame, ENEMY_HEIGHT);
+
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+
+        // Draw the body tiles for each unit length
+        // of the caterpillar
+        for (int j = 0; j < caterpillar.length; j++)
+        {
+            // Each frame will use a different animation
+            // than its neighbour
+            char **bodyFrame = ENEMY_BODY[(j & 1)];
+
+            // TESTING:
+            // this will draw items off screen, but I believe
+            // that is what we want...
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
+            // draw body segment head width * j segments behind head
+            consoleDrawImage(caterpillar.row, caterpillar.col + (2 * (j + 1)), bodyFrame, ENEMY_HEIGHT);
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
+        }
+
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
+        }
+
+        // We need to clear the drawing directly behind the last
+        // segment of the long caterpillar
+        consoleClearImage(caterpillar.row, caterpillar.col + (2 * (caterpillar.length)), ENEMY_HEIGHT, strlen(headFrame[0]));
+
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+        // Move the caterpillar one column to the left (for now)
+        caterpillar.col -= 1;
+
+        // sleep nTicksPerAnimFrame * 20ms
+        sleepTicks(nTicksPerAnimFrame);
     }
 
     pthread_exit(NULL);

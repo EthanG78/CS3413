@@ -350,13 +350,13 @@ void *enemyTest(void *idleTicks)
     {
         // todo: needs testing...
         // Loop animation until caterpillar reaches player
-        while (caterpillar->row < 16)
+        while (caterpillar.row < 16)
         {
             // todo:
             // worry about just moving left right now,
             // but we will need to address the wrap around
             // and moving right
-            char **headFrame = ENEMY_HEAD_LEFT[(caterpillar->col & 1)];
+            char **headFrame = ENEMY_HEAD_LEFT[(caterpillar.col & 1)];
 
             // Since this caterpillar is the only one
             // accesing its location, i don't think I need
@@ -374,7 +374,7 @@ void *enemyTest(void *idleTicks)
             }
 
             // draw enemy head
-            consoleDrawImage(caterpillar->col, caterpillar->row, headFrame, ENEMY_HEIGHT);
+            consoleDrawImage(caterpillar.col, caterpillar.row, headFrame, ENEMY_HEIGHT);
 
             errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
@@ -385,7 +385,7 @@ void *enemyTest(void *idleTicks)
 
             // Draw the body tiles for each unit length
             // of the caterpillar
-            for (int j = 0; j < caterpillar->length; j++)
+            for (int j = 0; j < caterpillar.length; j++)
             {
                 // Each frame will use a different animation
                 // than its neighbour
@@ -402,7 +402,7 @@ void *enemyTest(void *idleTicks)
                 }
 
                 // draw body segment head width * j segments behind head
-                consoleDrawImage(caterpillar->col + (2 * j), caterpillar->row, bodyFrame, ENEMY_HEIGHT);
+                consoleDrawImage(caterpillar.col + (2 * j), caterpillar.row, bodyFrame, ENEMY_HEIGHT);
 
                 errorCode = pthread_mutex_unlock(&M_Console);
                 if (errorCode != 0)
@@ -414,10 +414,10 @@ void *enemyTest(void *idleTicks)
 
             // We need to clear the drawing directly behind the last
             // segment of the long caterpillar
-            consoleClearImage(caterpillar->col + (2 * (caterpillar->length - 1)), caterpillar->row, ENEMY_HEIGHT, strlen(headFrame[0]));
+            consoleClearImage(caterpillar.col + (2 * (caterpillar.length - 1)), caterpillar.row, ENEMY_HEIGHT, strlen(headFrame[0]));
 
             // Move the caterpillar one column to the left (for now)
-            caterpillar->col -= 1;
+            caterpillar.col -= 1;
 
             // sleep nTicksPerAnimFrame * 20ms
             sleepTicks(nTicksPerAnimFrame);

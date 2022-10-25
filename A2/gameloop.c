@@ -9,6 +9,7 @@
 #include "globals.h"
 #include "gameloop.h"
 #include "player.h"
+#include "enemy.h"
 
 /**** DIMENSIONS MUST MATCH the ROWS/COLS */
 char *GAME_BOARD[] = {
@@ -191,7 +192,8 @@ int launchThreads()
     void *(*threadFunctions[])(void *) = {
         &refreshGameLoop,
         &animatePlayer,
-        &playerController};
+        &playerController,
+        &enemyTest};
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
@@ -202,6 +204,7 @@ int launchThreads()
     void *threadParams[] = {
         (void *)&refreshRate,
         (void *)&playerIdleTicks,
+        NULL,
         NULL};
 
     for (int i = 0; i < nThreads; i++)

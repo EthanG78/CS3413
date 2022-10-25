@@ -9,4 +9,6 @@ int enemiesRemaining();
 
 int cleanupEnemies();
 
+void *enemyTest(void *x);
+
 #endif // ENEMY_H

@@ -315,3 +315,33 @@ int cleanupEnemies()
 
     return 1;
 }
+
+void *enemyTest(void *x)
+{
+    int errorCode = 0;
+    pthread_t enemyThread;
+
+    if (!initEnemies())
+        pthread_exit(NULL);
+
+    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, head->enemy);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_create()");
+        pthread_exit(NULL);
+    }
+
+    errorCode = pthread_join(enemyThread, NULL);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_join()");
+        pthread_exit(NULL);
+    }
+
+    // todo:
+    // find optimal location for this
+    // maybe in main??
+    cleanupEnemies();
+
+    pthread_exit(NULL);
+}

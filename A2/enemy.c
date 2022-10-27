@@ -300,6 +300,8 @@ void *animateEnemy(void *node)
             // independently of the head, as the current body
             // segment may be on a different row than the head!
             int segmentPos = caterpillarPos - j;
+            if (segmentPos < 0)
+                break;
             int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
             int segmentCol = (isGoingLeft == 1)
                                  ? GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))

@@ -235,7 +235,7 @@ void *animateEnemy(void *node)
     // Based on the isGoingLeft flag, we subtract/add
     // the column number from the enemyCols variable
 
-    //while (IS_RUNNING && caterpillar->row < 16)
+    // while (IS_RUNNING && caterpillar->row < 16)
     while (IS_RUNNING)
     {
         char **headFrame = (isGoingLeft == 1)
@@ -331,8 +331,6 @@ void *animateEnemy(void *node)
         // Move the caterpillar one column to the left (for now)
         // caterpillar->col -= 1;
 
-        caterpillarPos++;
-
         // When we reach the end of the row, flip
         // the isGoingLeft flag
         if (caterpillarPos % GAME_COLS == 0)
@@ -340,6 +338,8 @@ void *animateEnemy(void *node)
             isGoingLeft = !isGoingLeft;
             rowOffset++;
         }
+
+        caterpillarPos++;
 
         // sleep nTicksPerAnimFrame * 20ms
         sleepTicks(nTicksPerAnimFrame);

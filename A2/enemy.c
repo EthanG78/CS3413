@@ -223,6 +223,9 @@ void *animateEnemy(void *node)
     //
     // and store the caterpillar's head position (starts at 0)
     int caterpillarPos = 1;
+    int segmentPos = 0;
+    int segmentCol = 0;
+    int segmentRow = 0;
     // int enemyRows = GAME_ROWS - 11;
     // int enemyCols = GAME_COLS;
     // int maxPos = enemyRows * enemyCols;
@@ -283,7 +286,7 @@ void *animateEnemy(void *node)
 
         // Draw the body tiles for each unit length
         // of the caterpillar
-        for (int j = 0; j < caterpillar->length; j++)
+        for (int j = 0; j <= caterpillar->length; j++)
         {
             // Each frame will use a different animation
             // than its neighbour
@@ -292,16 +295,14 @@ void *animateEnemy(void *node)
             // We calculate the current segment's row/col
             // independently of the head, as the current body
             // segment may be on a different row than the head!
-            int segmentPos = caterpillarPos - (ENEMY_HEIGHT * (j + 1));
+            segmentPos = caterpillarPos - (ENEMY_HEIGHT * (j + 1));
             if (segmentPos <= 0)
                 break;
 
-            
-            int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
-            
+            segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
+
             // If we are a different row than the head, then the body segment
             // is movingf in a different direction
-            int segmentCol;
             if (segmentRow == caterpillar->row)
             {
                 segmentCol = (isGoingLeft == 1)
@@ -315,15 +316,6 @@ void *animateEnemy(void *node)
                                  : GAME_COLS - (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS));
             }
 
-            // Draw body segment enemy head height/width * j segments
-            // behind the head. This is an addition or subtraction
-            // from caterpillar->col based on if it is going left or not
-            // int segCol = (isGoingLeft == 1)
-            //                 ? caterpillar->col + (ENEMY_HEIGHT * (j + 1))
-            //                 : caterpillar->col - (ENEMY_HEIGHT * (j + 1));
-
-            // We calculate the current segment row independently of
-
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
             {
@@ -331,7 +323,15 @@ void *animateEnemy(void *node)
                 pthread_exit(NULL);
             }
 
-            consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
+            if (j != caterpillar->length)
+            {
+                consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
+            }
+            else
+            {
+                // Clear if we reached the end of the caterpillar
+                consoleClearImage(segmentRow, segmentCol, ENEMY_HEIGHT, strlen(headFrame[0]));
+            }
 
             errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
@@ -339,31 +339,6 @@ void *animateEnemy(void *node)
                 print_error(errorCode, "pthread_mutex_unlock()");
                 pthread_exit(NULL);
             }
-        }
-
-        errorCode = pthread_mutex_lock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_lock()");
-            pthread_exit(NULL);
-        }
-
-        // We need to clear the drawing directly behind the last
-        // segment of the long caterpillar
-        if (isGoingLeft == 1)
-        {
-            consoleClearImage(caterpillar->row, caterpillar->col + (2 * (caterpillar->length)), ENEMY_HEIGHT, strlen(headFrame[0]));
-        }
-        else
-        {
-            consoleClearImage(caterpillar->row, caterpillar->col - (2 * (caterpillar->length)), ENEMY_HEIGHT, strlen(headFrame[0]));
-        }
-
-        errorCode = pthread_mutex_unlock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_unlock()");
-            pthread_exit(NULL);
         }
 
         // When we reach the end of the row, flip

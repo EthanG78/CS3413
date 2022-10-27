@@ -46,7 +46,7 @@ int movePlayer(int deltaX, int deltaY)
     if (newPosX <= GAME_COLS - PLAYER_HEIGHT && newPosX >= 0)
     {
         // PLAYER_PREV_POS_X = PLAYER_POS_X;
-        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
         PLAYER_POS_X = newPosX;
     }
 
@@ -57,7 +57,7 @@ int movePlayer(int deltaX, int deltaY)
     if (newPosY <= GAME_ROWS - PLAYER_HEIGHT && newPosY > 16)
     {
         // PLAYER_PREV_POS_Y = PLAYER_POS_Y;
-        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
         PLAYER_POS_Y = newPosY;
     }
 

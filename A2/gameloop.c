@@ -112,7 +112,7 @@ int cleanupGameLoop()
     int errorCode = 0;
 
     // Cleanup all enemies
-    cleanupEnemies();
+    //cleanupEnemies();
 
     // destroy mutexes and stuff
     errorCode = pthread_mutex_destroy(&M_Console);

@@ -432,10 +432,12 @@ void *enemySpawner(void *ticksPerEnemy)
         }
 
         // Threads are joined in cleanup
-
+        
         // Wait nTicksPerSpawn before spawning another enemy
         sleepTicks(nTicksPerSpawn);
     }
+
+    cleanupEnemies();
 
     pthread_exit(NULL);
 }

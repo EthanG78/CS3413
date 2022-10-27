@@ -208,6 +208,7 @@ void *animateEnemy(void *node)
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
     int isGoingLeft = 1;
+    int rowOffset = 0;
     Caterpillar *caterpillar = ((EnemyNode *)node)->enemy;
 
     // To determine where to draw each segment of the caterpillar,
@@ -245,7 +246,7 @@ void *animateEnemy(void *node)
         // int col = caterpillarPos - ((row - 1) * enemyCols);
 
         // Get the current row that the caterpillar is on
-        caterpillar->row = (int)ceil(((double)caterpillarPos / GAME_COLS)) + 1;
+        caterpillar->row = ((int)ceil(((double)caterpillarPos / GAME_COLS)) + 1) + rowOffset;
 
         // Based on which direction the caterpillar is facing, we either
         // subtract what column we are at from the max number of columns,
@@ -335,7 +336,10 @@ void *animateEnemy(void *node)
         // When we reach the end of the row, flip
         // the isGoingLeft flag
         if (caterpillarPos % GAME_COLS == 0)
+        {
             isGoingLeft = !isGoingLeft;
+            rowOffset++;
+        }
 
         // sleep nTicksPerAnimFrame * 20ms
         sleepTicks(nTicksPerAnimFrame);

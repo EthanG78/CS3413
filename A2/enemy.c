@@ -295,6 +295,8 @@ void *animateEnemy(void *node)
             int segmentPos = caterpillarPos - (ENEMY_HEIGHT * (j + 1));
             if (segmentPos <= 0)
                 break;
+
+            
             int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
             
             // If we are a different row than the head, then the body segment
@@ -309,8 +311,8 @@ void *animateEnemy(void *node)
             else
             {
                 segmentCol = (isGoingLeft == 1)
-                                 ? (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
-                                 : GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
+                                 ? (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS))
+                                 : GAME_COLS - (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS));
             }
 
             // Draw body segment enemy head height/width * j segments

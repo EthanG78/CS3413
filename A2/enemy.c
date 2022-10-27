@@ -288,10 +288,6 @@ void *animateEnemy(void *node)
         // of the caterpillar
         for (int j = 0; j <= caterpillar->length; j++)
         {
-            // Each frame will use a different animation
-            // than its neighbour
-            char **bodyFrame = ENEMY_BODY[(j & 1)];
-
             // We calculate the current segment's row/col
             // independently of the head, as the current body
             // segment may be on a different row than the head!
@@ -299,10 +295,15 @@ void *animateEnemy(void *node)
             if (segmentPos <= 0)
                 break;
 
+            // Each frame will use a different animation
+            // than its neighbour
+            char **bodyFrame = ENEMY_BODY[(segmentPos & 1)];
+
+            // Determine what row the segment is on
             segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
 
             // If we are a different row than the head, then the body segment
-            // is movingf in a different direction
+            // is moving in a different direction
             if (segmentRow == caterpillar->row)
             {
                 segmentCol = (isGoingLeft == 1)
@@ -323,14 +324,15 @@ void *animateEnemy(void *node)
                 pthread_exit(NULL);
             }
 
-            if (j != caterpillar->length)
+            if (j < caterpillar->length)
             {
                 consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
             }
             else
             {
+                // todo broken:
                 // Clear if we reached the end of the caterpillar
-                consoleClearImage(segmentRow, segmentCol, ENEMY_HEIGHT, strlen(headFrame[0]));
+                consoleClearImage(segmentRow, segmentCol, ENEMY_HEIGHT, strlen(bodyFrame[0]));
             }
 
             errorCode = pthread_mutex_unlock(&M_Console);

@@ -244,14 +244,14 @@ void *animateEnemy(void *node)
         // int col = caterpillarPos - ((row - 1) * enemyCols);
 
         // Get the current row that the caterpillar is on
-        caterpillar->row = (int)ceil(caterpillarPos / GAME_COLS) + 3;
+        caterpillar->row = (int)ceil(caterpillarPos / GAME_COLS) + 2;
 
         // Based on which direction the caterpillar is facing, we either
         // subtract what column we are at from the max number of columns,
         // or just increment the columns
         caterpillar->col = (isGoingLeft)
-                               ? GAME_COLS - (caterpillarPos - ((caterpillar->row - 1) * GAME_COLS))
-                               : (caterpillarPos - ((caterpillar->row - 1) * GAME_COLS));
+                               ? GAME_COLS - (caterpillarPos - ((caterpillar->row - 3) * GAME_COLS))
+                               : (caterpillarPos - ((caterpillar->row - 3) * GAME_COLS));
 
         // todo:
         // Since this caterpillar is the only one

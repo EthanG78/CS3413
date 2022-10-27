@@ -293,12 +293,25 @@ void *animateEnemy(void *node)
             // independently of the head, as the current body
             // segment may be on a different row than the head!
             int segmentPos = caterpillarPos - (ENEMY_HEIGHT * (j + 1));
-            if (segmentPos < 0)
+            if (segmentPos <= 0)
                 break;
             int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
-            int segmentCol = (isGoingLeft == 1)
+            
+            // If we are a different row than the head, then the body segment
+            // is movingf in a different direction
+            int segmentCol;
+            if (segmentRow == caterpillar->row)
+            {
+                segmentCol = (isGoingLeft == 1)
                                  ? GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
                                  : (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
+            }
+            else
+            {
+                segmentCol = (isGoingLeft == 1)
+                                 ? (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
+                                 : GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
+            }
 
             // Draw body segment enemy head height/width * j segments
             // behind the head. This is an addition or subtraction

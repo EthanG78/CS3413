@@ -283,15 +283,12 @@ void *animateEnemy(void *node)
 
         // Draw the body tiles for each unit length
         // of the caterpillar
-        /*for (int j = 0; j < caterpillar->length; j++)
+        for (int j = 0; j < caterpillar->length; j++)
         {
             // Each frame will use a different animation
             // than its neighbour
             char **bodyFrame = ENEMY_BODY[(j & 1)];
 
-            // TESTING:
-            // this will draw items off screen, but I believe
-            // that is what we want...
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
             {
@@ -299,8 +296,25 @@ void *animateEnemy(void *node)
                 pthread_exit(NULL);
             }
 
-            // draw body segment head width * j segments behind head
-            consoleDrawImage(caterpillar->row, caterpillar->col + (2 * (j + 1)), bodyFrame, ENEMY_HEIGHT);
+            // We calculate the current segment's row/col
+            // independently of the head, as the current body
+            // segment may be on a different row than the head!
+            int segmentPos = caterpillarPos - j;
+            int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
+            int segmentCol = (isGoingLeft == 1)
+                                 ? GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
+                                 : (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
+
+            // Draw body segment enemy head height/width * j segments
+            // behind the head. This is an addition or subtraction
+            // from caterpillar->col based on if it is going left or not
+            // int segCol = (isGoingLeft == 1)
+            //                 ? caterpillar->col + (ENEMY_HEIGHT * (j + 1))
+            //                 : caterpillar->col - (ENEMY_HEIGHT * (j + 1));
+
+            // We calculate the current segment row independently of
+
+            consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
 
             errorCode = pthread_mutex_unlock(&M_Console);
             if (errorCode != 0)
@@ -319,20 +333,25 @@ void *animateEnemy(void *node)
 
         // We need to clear the drawing directly behind the last
         // segment of the long caterpillar
-        consoleClearImage(caterpillar->row, caterpillar->col + (2 * (caterpillar->length)), ENEMY_HEIGHT, strlen(headFrame[0]));
+        if (isGoingLeft == 1)
+        {
+            consoleClearImage(caterpillar->row, caterpillar->col + (2 * (caterpillar->length)), ENEMY_HEIGHT, strlen(headFrame[0]));
+        }
+        else
+        {
+            consoleClearImage(caterpillar->row, caterpillar->col - (2 * (caterpillar->length)), ENEMY_HEIGHT, strlen(headFrame[0]));
+        }
 
         errorCode = pthread_mutex_unlock(&M_Console);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
             pthread_exit(NULL);
-        }*/
-
-        // Move the caterpillar one column to the left (for now)
-        // caterpillar->col -= 1;
+        }
 
         // When we reach the end of the row, flip
-        // the isGoingLeft flag
+        // the isGoingLeft flag and increment
+        // the row offset
         if (caterpillarPos % GAME_COLS == 0)
         {
             isGoingLeft = !isGoingLeft;

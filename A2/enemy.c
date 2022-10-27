@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -206,16 +207,53 @@ void *animateEnemy(void *node)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
+    int isGoingLeft = 1;
     Caterpillar *caterpillar = ((EnemyNode *)node)->enemy;
+
+    // To determine where to draw each segment of the caterpillar,
+    // I have come up with a clever way where we don't explicitly need to
+    // increment/decrement rows/cols and care about the direction.
+    // I number the caterpillar area as a grid as follows:
+    //
+    //  4  3  2  1
+    //  5  6  7  8
+    //  12 11 10 9          EXAMPLE 4x4 caterpillar grid
+    //  13 14 15 16
+    //
+    // and store the caterpillar's head position (starts at 0)
+    int caterpillarPos = 1;
+    // int enemyRows = GAME_ROWS - 11;
+    // int enemyCols = GAME_COLS;
+    // int maxPos = enemyRows * enemyCols;
+
+    // todo Revise:
+    // I can calculate the caterpillars current row/col based
+    // on the above grid using the following math:
+    // row = ceil(pos / cols)
+    // col = pos - ((row - 1) * enemyCols)
+    // Based on the isGoingLeft flag, we subtract/add
+    // the column number from the enemyCols variable
 
     while (IS_RUNNING && caterpillar->row < 16)
     {
-        // todo:
-        // worry about just moving left right now,
-        // but we will need to address the wrap around
-        // and moving right
-        char **headFrame = ENEMY_HEAD_LEFT[(caterpillar->col & 1)];
+        char **headFrame = (isGoingLeft)
+                               ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
+                               : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
 
+        // int row = (int)ceil(caterpillarPos / enemyRows);
+        // int col = caterpillarPos - ((row - 1) * enemyCols);
+
+        // Get the current row that the caterpillar is on
+        caterpillar->row = (int)ceil(caterpillarPos / GAME_COLS);
+
+        // Based on which direction the caterpillar is facing, we either
+        // subtract what column we are at from the max number of columns,
+        // or just increment the columns
+        caterpillar->col = (isGoingLeft)
+                               ? GAME_COLS - (caterpillarPos - ((caterpillar->row - 1) * GAME_COLS))
+                               : (caterpillarPos - ((caterpillar->row - 1) * GAME_COLS));
+
+        // todo:
         // Since this caterpillar is the only one
         // accesing its location, i don't think I need
         // to have a mutex for it, but we do need
@@ -243,7 +281,7 @@ void *animateEnemy(void *node)
 
         // Draw the body tiles for each unit length
         // of the caterpillar
-        for (int j = 0; j < caterpillar->length; j++)
+        /*for (int j = 0; j < caterpillar->length; j++)
         {
             // Each frame will use a different animation
             // than its neighbour
@@ -286,9 +324,17 @@ void *animateEnemy(void *node)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
             pthread_exit(NULL);
-        }
+        }*/
+
         // Move the caterpillar one column to the left (for now)
-        caterpillar->col -= 1;
+        // caterpillar->col -= 1;
+
+        caterpillarPos++;
+
+        // When we reach the end of the row, flip
+        // the isGoingLeft flag
+        if (caterpillarPos % GAME_COLS == 0)
+            isGoingLeft = !isGoingLeft;
 
         // sleep nTicksPerAnimFrame * 20ms
         sleepTicks(nTicksPerAnimFrame);

@@ -211,6 +211,12 @@ void *animateEnemy(void *node)
     int rowOffset = 0;
     Caterpillar *caterpillar = ((EnemyNode *)node)->enemy;
 
+    char **headFrame;
+    char **bodyFrame;
+
+    // todo: rewrite comments that
+    // explain animation system
+
     // To determine where to draw each segment of the caterpillar,
     // I have come up with a clever way where we don't explicitly need to
     // increment/decrement rows/cols and care about the direction.
@@ -241,9 +247,9 @@ void *animateEnemy(void *node)
     // while (IS_RUNNING && caterpillar->row < 16)
     while (IS_RUNNING)
     {
-        char **headFrame = (isGoingLeft == 1)
-                               ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
-                               : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
+        headFrame = (isGoingLeft == 1)
+                        ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
+                        : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
 
         // int row = (int)ceil(caterpillarPos / enemyRows);
         // int col = caterpillarPos - ((row - 1) * enemyCols);
@@ -297,7 +303,7 @@ void *animateEnemy(void *node)
 
             // Each frame will use a different animation
             // than its neighbour
-            char **bodyFrame = ENEMY_BODY[(segmentPos & 1)];
+            bodyFrame = ENEMY_BODY[(segmentPos & 1)];
 
             // Determine what row the segment is on
             // todo: rowOffset is messing things up.....

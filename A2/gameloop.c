@@ -193,11 +193,11 @@ int launchThreads()
         &refreshGameLoop,
         &animatePlayer,
         &playerController,
-        &enemyTest};
+        &enemySpawner};
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
-    //int enemyIdleTicks = 25;
+    int ticksPerEnemy = 500;
 
     // Store function params at same
     // index in this array as the function
@@ -206,7 +206,7 @@ int launchThreads()
         (void *)&refreshRate,
         (void *)&playerIdleTicks,
         NULL,
-        NULL};
+        (void *)&ticksPerEnemy};
 
     for (int i = 0; i < nThreads; i++)
     {

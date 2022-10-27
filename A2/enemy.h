@@ -9,6 +9,6 @@ int enemiesRemaining();
 
 int cleanupEnemies();
 
-void *enemyTest(void *x);
+void *enemySpawner(void *ticksPerEnemy);
 
 #endif // ENEMY_H

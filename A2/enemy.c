@@ -288,14 +288,7 @@ void *animateEnemy(void *node)
             // Each frame will use a different animation
             // than its neighbour
             char **bodyFrame = ENEMY_BODY[(j & 1)];
-
-            errorCode = pthread_mutex_lock(&M_Console);
-            if (errorCode != 0)
-            {
-                print_error(errorCode, "pthread_mutex_lock()");
-                pthread_exit(NULL);
-            }
-
+            
             // We calculate the current segment's row/col
             // independently of the head, as the current body
             // segment may be on a different row than the head!
@@ -315,6 +308,13 @@ void *animateEnemy(void *node)
             //                 : caterpillar->col - (ENEMY_HEIGHT * (j + 1));
 
             // We calculate the current segment row independently of
+
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
 
             consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
 

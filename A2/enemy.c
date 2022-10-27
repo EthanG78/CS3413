@@ -300,18 +300,24 @@ void *animateEnemy(void *node)
             char **bodyFrame = ENEMY_BODY[(segmentPos & 1)];
 
             // Determine what row the segment is on
-            segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;
+            // todo: rowOffset is messing things up.....
+            // when we switch to a new row, then we no longer draw on the last row....
+            segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1; // + rowOffset;
 
             // If we are a different row than the head, then the body segment
-            // is moving in a different direction
-            if (segmentRow == caterpillar->row)
+            // is moving in a different direction and the row offset will be different
+            if (segmentRow == caterpillar->row - rowOffset)
             {
+                segmentRow += rowOffset;
+
                 segmentCol = (isGoingLeft == 1)
                                  ? GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
                                  : (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
             }
             else
             {
+                segmentRow += rowOffset - 1;
+
                 segmentCol = (isGoingLeft == 1)
                                  ? (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS))
                                  : GAME_COLS - (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS));

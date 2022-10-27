@@ -79,7 +79,7 @@ int spawnEnemy(int x, int y)
     Caterpillar *newEnemy = (Caterpillar *)malloc(sizeof(Caterpillar));
     newEnemy->col = x;
     newEnemy->row = y;
-    newEnemy->length = GAME_COLS;
+    newEnemy->length = 10;
 
     // We must store this caterpillar in the list of enemies.
     // It stores this new enemy at the front of the linked list

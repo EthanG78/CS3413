@@ -28,6 +28,13 @@ int movePlayer(int deltaX, int deltaY)
 {
     int errorCode = 0;
 
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        pthread_exit(NULL);
+    }
+
     errorCode = pthread_mutex_lock(&M_PlayerPos);
     if (errorCode != 0)
     {
@@ -38,7 +45,8 @@ int movePlayer(int deltaX, int deltaY)
     int newPosX = PLAYER_POS_X + deltaX;
     if (newPosX <= GAME_COLS - PLAYER_HEIGHT && newPosX >= 0)
     {
-        PLAYER_PREV_POS_X = PLAYER_POS_X;
+        // PLAYER_PREV_POS_X = PLAYER_POS_X;
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
         PLAYER_POS_X = newPosX;
     }
 
@@ -48,7 +56,8 @@ int movePlayer(int deltaX, int deltaY)
     int newPosY = PLAYER_POS_Y - deltaY;
     if (newPosY <= GAME_ROWS - PLAYER_HEIGHT && newPosY > 16)
     {
-        PLAYER_PREV_POS_Y = PLAYER_POS_Y;
+        // PLAYER_PREV_POS_Y = PLAYER_POS_Y;
+        consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
         PLAYER_POS_Y = newPosY;
     }
 
@@ -57,6 +66,13 @@ int movePlayer(int deltaX, int deltaY)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
+    }
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        pthread_exit(NULL);
     }
 
     return 1;
@@ -225,7 +241,7 @@ void *animatePlayer(void *idleTicks)
             // clear the last drawing
             // BUGS: If the player holds down an input key,
             // or presses two at once, this won't clear the LAST position
-            consoleClearImage(PLAYER_PREV_POS_Y, PLAYER_PREV_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
+            //consoleClearImage(PLAYER_PREV_POS_Y, PLAYER_PREV_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
             // draw the player
             consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);
 

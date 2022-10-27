@@ -111,6 +111,9 @@ int cleanupGameLoop()
 {
     int errorCode = 0;
 
+    // Cleanup all enemies
+    cleanupEnemies();
+
     // destroy mutexes and stuff
     errorCode = pthread_mutex_destroy(&M_Console);
     if (errorCode != 0)
@@ -197,7 +200,7 @@ int launchThreads()
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
-    int ticksPerEnemy = 10000;
+    int ticksPerEnemy = 5000;
 
     // Store function params at same
     // index in this array as the function

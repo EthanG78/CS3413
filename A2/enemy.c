@@ -431,18 +431,11 @@ void *enemySpawner(void *ticksPerEnemy)
             pthread_exit(NULL);
         }
 
-        /*errorCode = pthread_join(*head->enemyThread, NULL);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_join()");
-            pthread_exit(NULL);
-        }*/
+        // Threads are joined in cleanup
 
         // Wait nTicksPerSpawn before spawning another enemy
         sleepTicks(nTicksPerSpawn);
     }
-
-    cleanupEnemies();
 
     pthread_exit(NULL);
 }

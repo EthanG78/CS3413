@@ -59,27 +59,33 @@ typedef struct Caterpillar
 } Caterpillar;
 
 // Define the node struct for our linked list of enemies.
-// This node holds a reference to a caterpillar and a
+// This node holds a reference to a caterpillar,
+// a reference to a pthread_t where the enemy 'lives', and a
 // reference to the next node in the list.
 typedef struct EnemyNode
 {
     Caterpillar *enemy;
+    pthread_t *enemyThread;
     struct EnemyNode *next;
 } EnemyNode;
 
-EnemyNode *head;
+EnemyNode *head = NULL;
 
 int spawnEnemy(int x, int y)
 {
-    // Initialize a new caterpillar at the top right hand
-    // corner of the game board. All new caterpillars have
-    // length equivalent to the width of the game board initially.
-    // Need to malloc each caterpillar so that it exists outside of this scope
+    // Initialize a new caterpillar at col = x, row = y.
+    // All new caterpillars have length equivalent to the
+    // width of the game board initially. Need to malloc each
+    // caterpillar so that it exists outside of this scope
     // and can be accessed as the linked list is accessed.
     Caterpillar *newEnemy = (Caterpillar *)malloc(sizeof(Caterpillar));
     newEnemy->col = x;
     newEnemy->row = y;
     newEnemy->length = ENEMY_DEFAULT_LENGTH;
+
+    // Initialize the pthread that this new enemy will
+    // execute on. We must allocate this on the stack.
+    pthread_t *newEnemyThread = (pthread_t *)malloc(sizeof(pthread_t));
 
     // We must store this caterpillar in the list of enemies.
     // It stores this new enemy at the front of the linked list
@@ -92,6 +98,7 @@ int spawnEnemy(int x, int y)
     }
 
     newNode->enemy = newEnemy;
+    newNode->enemyThread = newEnemyThread;
     newNode->next = head;
 
     int errorCode = 0;
@@ -110,22 +117,6 @@ int spawnEnemy(int x, int y)
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
-
-    return 1;
-}
-
-int initEnemies()
-{
-    // Initialize enemy caterpillars
-    // by spawning first caterpillar
-    // and allocating space for it
-    // in linked list of enemies
-    head = NULL;
-
-    // Spawn first enemy, storing it at
-    // head of linked list.
-    if (!spawnEnemy(GAME_COLS - 1, 2))
-        return 0;
 
     return 1;
 }
@@ -203,13 +194,13 @@ int destroyEnemy(Caterpillar *enemy)
     return 1;
 }
 
-void *animateEnemy(void *node)
+void *animateEnemy(void *enemy)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
     int isGoingLeft = 1;
     int rowOffset = 0;
-    Caterpillar *caterpillar = ((EnemyNode *)node)->enemy;
+    Caterpillar *caterpillar = (Caterpillar *)enemy;
 
     char **headFrame;
     char **bodyFrame;
@@ -305,10 +296,8 @@ void *animateEnemy(void *node)
             // than its neighbour
             bodyFrame = ENEMY_BODY[(segmentPos & 1)];
 
-            // Determine what row the segment is on
-            // todo: rowOffset is messing things up.....
-            // when we switch to a new row, then we no longer draw on the last row....
-            segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1; // + rowOffset;
+            // Determine what row the segment is on IGNORING rowOffset (for now)
+            segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1;
 
             // If we are a different row than the head, then the body segment
             // is moving in a different direction and the row offset will be different
@@ -338,11 +327,11 @@ void *animateEnemy(void *node)
 
             if (j < caterpillar->length)
             {
+                // Draw caterpillar body segment
                 consoleDrawImage(segmentRow, segmentCol, bodyFrame, ENEMY_HEIGHT);
             }
             else
             {
-                // todo broken:
                 // Clear if we reached the end of the caterpillar
                 consoleClearImage(segmentRow, segmentCol, ENEMY_HEIGHT, strlen(bodyFrame[0]));
             }
@@ -411,22 +400,58 @@ int cleanupEnemies()
     return 1;
 }
 
+void *enemySpawner(void *ticksPerEnemy)
+{
+    // spawn enemies at given spawn rate
+    int nTicksPerSpawn = *(int *)ticksPerEnemy;
+    int errorCode = 0;
+
+    while (IS_RUNNING)
+    {
+        // Spawn enemy at start location,
+        // storing it at head of linked list.
+        if (!spawnEnemy(GAME_COLS - 1, 2))
+            pthread_exit(NULL);
+
+        // Launch animate thread for newly spawned enemy
+        errorCode = pthread_create(head->enemyThread, NULL, animateEnemy, (void *)head->enemy);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_create()");
+            pthread_exit(NULL);
+        }
+
+        errorCode = pthread_join(head->enemyThread, NULL);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_join()");
+            pthread_exit(NULL);
+        }
+
+        // Wait nTicksPerSpawn before spawning another enemy
+        sleepTicks(nTicksPerSpawn);
+    }
+
+    cleanupEnemies();
+
+    pthread_exit(NULL);
+}
+
 void *enemyTest(void *x)
 {
     int errorCode = 0;
-    pthread_t enemyThread;
 
-    if (!initEnemies())
+    if (!spawnEnemy(GAME_COLS - 1, 2))
         pthread_exit(NULL);
 
-    errorCode = pthread_create(&enemyThread, NULL, animateEnemy, (void *)head);
+    errorCode = pthread_create(head->enemyThread, NULL, animateEnemy, (void *)head->enemy);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");
         pthread_exit(NULL);
     }
 
-    errorCode = pthread_join(enemyThread, NULL);
+    errorCode = pthread_join(head->enemyThread, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_join()");

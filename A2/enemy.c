@@ -288,11 +288,11 @@ void *animateEnemy(void *node)
             // Each frame will use a different animation
             // than its neighbour
             char **bodyFrame = ENEMY_BODY[(j & 1)];
-            
+
             // We calculate the current segment's row/col
             // independently of the head, as the current body
             // segment may be on a different row than the head!
-            int segmentPos = caterpillarPos - j;
+            int segmentPos = caterpillarPos - (j + 1);
             if (segmentPos < 0)
                 break;
             int segmentRow = (int)ceil((double)segmentPos / GAME_COLS) + 1 + rowOffset;

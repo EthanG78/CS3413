@@ -44,6 +44,7 @@ int IS_RUNNING;
  */
 #define ENEMY_HEIGHT 2
 #define ENEMY_ANIM_TILES 2
+#define ENEMY_DEFAULT_LENGTH 20
 #define ENEMY_MIN_LENGTH 5
 
 /*

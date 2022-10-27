@@ -370,6 +370,8 @@ int cleanupEnemies()
     // todo:
     //      - we will also have to exit their threads...
 
+    int errorCode = 0;
+
     EnemyNode *current = head;
     EnemyNode *prev = NULL;
 
@@ -378,15 +380,23 @@ int cleanupEnemies()
         prev = current;
         current = current->next;
 
-        int errorCode = 0;
+        // Join the thread that the caterpillar was running on
+        errorCode = pthread_join(*prev->enemyThread, NULL);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_join()");
+            pthread_exit(NULL);
+        }
+
         errorCode = pthread_mutex_lock(&M_EnemyList);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_lock()");
             return 0;
         }
-
+    
         free(prev->enemy);
+        free(prev->enemyThread);
         free(prev);
 
         errorCode = pthread_mutex_unlock(&M_EnemyList);
@@ -421,12 +431,12 @@ void *enemySpawner(void *ticksPerEnemy)
             pthread_exit(NULL);
         }
 
-        errorCode = pthread_join(*head->enemyThread, NULL);
+        /*errorCode = pthread_join(*head->enemyThread, NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
             pthread_exit(NULL);
-        }
+        }*/
 
         // Wait nTicksPerSpawn before spawning another enemy
         sleepTicks(nTicksPerSpawn);

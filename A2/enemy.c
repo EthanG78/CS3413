@@ -234,9 +234,10 @@ void *animateEnemy(void *node)
     // Based on the isGoingLeft flag, we subtract/add
     // the column number from the enemyCols variable
 
-    while (IS_RUNNING && caterpillar->row < 16)
+    //while (IS_RUNNING && caterpillar->row < 16)
+    while (IS_RUNNING)
     {
-        char **headFrame = (isGoingLeft)
+        char **headFrame = (isGoingLeft == 1)
                                ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
                                : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
 
@@ -249,7 +250,7 @@ void *animateEnemy(void *node)
         // Based on which direction the caterpillar is facing, we either
         // subtract what column we are at from the max number of columns,
         // or just increment the columns
-        caterpillar->col = (isGoingLeft)
+        caterpillar->col = (isGoingLeft == 1)
                                ? GAME_COLS - (caterpillarPos - ((caterpillar->row - 4) * GAME_COLS))
                                : (caterpillarPos - ((caterpillar->row - 4) * GAME_COLS));
 

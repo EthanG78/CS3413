@@ -80,3 +80,112 @@ int spawnBullet(int x, int y, int isFromPlayer)
 
     return 1;
 }
+
+int destroyBullet(Bullet *bullet)
+{
+    BulletNode *current = bulletHead;
+    BulletNode *prev = NULL;
+
+    while (current->bullet != bullet)
+    {
+        if (current->next == NULL)
+        {
+            // This should never happen, but if it
+            // does then we have a mutex problem.
+            return 0;
+        }
+        else
+        {
+            prev = current;
+            current = current->next;
+        }
+    }
+
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_BulletList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // We must safely delete the desired
+    // enemy, and re-establish continuity
+    // in the enemy linked list
+    if (current == bulletHead)
+    {
+        bulletHead = bulletHead->next;
+    }
+    else
+    {
+        prev->next = current->next;
+    }
+
+    // Join the thread that the bullet was running on
+    errorCode = pthread_join(*current->bulletThread, NULL);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_join()");
+        pthread_exit(NULL);
+    }
+
+    free(current->bullet);
+    free(current->bulletThread);
+    free(current);
+
+    errorCode = pthread_mutex_unlock(&M_BulletList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    return 1;
+}
+
+int cleanupBullets()
+{
+    // In the event that the game ends
+    // and there are still caterpillars alive,
+    // we need to free their memory and join their
+    // threads.
+
+    int errorCode = 0;
+
+    BulletNode *current = bulletHead;
+    BulletNode *prev = NULL;
+
+    while (current != NULL)
+    {
+        prev = current;
+        current = current->next;
+
+        // Join the thread that the bullet was running on
+        errorCode = pthread_join(*prev->bulletThread, NULL);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_join()");
+            pthread_exit(NULL);
+        }
+
+        errorCode = pthread_mutex_lock(&M_BulletList);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            return 0;
+        }
+
+        free(prev->bullet);
+        free(prev->bulletThread);
+        free(prev);
+
+        errorCode = pthread_mutex_unlock(&M_BulletList);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            return 0;
+        }
+    }
+
+    return 1;
+}

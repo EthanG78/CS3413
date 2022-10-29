@@ -89,7 +89,6 @@ int spawnEnemy(int x, int y)
 
     // We must store this caterpillar in the list of enemies.
     // It stores this new enemy at the front of the linked list
-    // todo: this may cause issue
     EnemyNode *newNode = (EnemyNode *)malloc(sizeof(EnemyNode));
     if (newNode == (EnemyNode *)NULL)
     {
@@ -198,15 +197,7 @@ void *animateEnemy(void *enemy)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = 25;
-    int isGoingLeft = 1;
-    int rowOffset = 0;
     Caterpillar *caterpillar = (Caterpillar *)enemy;
-
-    char **headFrame;
-    char **bodyFrame;
-
-    // todo: rewrite comments that
-    // explain animation system
 
     // To determine where to draw each segment of the caterpillar,
     // I have come up with a clever way where we don't explicitly need to
@@ -219,31 +210,47 @@ void *animateEnemy(void *enemy)
     //  13 14 15 16
     //
     // and store the caterpillar's head position (starts at 0)
+    // Since we know the width of the caterpillar's head,  the width
+    // of each body segment, and the length of the caterpillar, we
+    // can determine the row/col to draw each segment based on the
+    // numbered grid system and the location of the caterpillars head
+    // in that grid system.
+
+    // Position in grid of caterpillar head
     int caterpillarPos = 1;
+    // Position in grid of caterpillar body segment
     int segmentPos = 0;
+    // Calculated column position of body segment
     int segmentCol = 0;
+    // Calculated row position of body segment
     int segmentRow = 0;
-    // int enemyRows = GAME_ROWS - 11;
-    // int enemyCols = GAME_COLS;
-    // int maxPos = enemyRows * enemyCols;
 
-    // todo Revise:
-    // I can calculate the caterpillars current row/col based
-    // on the above grid using the following math:
-    // row = ceil(pos / cols)
-    // col = pos - ((row - 1) * enemyCols)
-    // Based on the isGoingLeft flag, we subtract/add
-    // the column number from the enemyCols variable
+    // The row and column of each segment can be transformed
+    // from the caterpillarPos/segmentPos using the following math:
+    //
+    //  row = ceiling(pos / GAME_COLS) + 1 + offset
+    //  - we add one since the caterpillar starts at index
+    //    2 of the game board, and we add an offset to account for
+    //    the fact that caterpillar skip each row (since they have height 2)
+    //
+    //  column = pos - ((row - 2 - offset) * GAME_COLS)
+    //  - based on which direction the caterpillar is moving, we
+    //    either use this as the column to draw the segment at, or we
+    //    subtract this value from GAME_COLS and draw it at that column
 
-    // while (IS_RUNNING && caterpillar->row < 16)
-    while (IS_RUNNING)
+    // Required to account for each second row being skipped
+    int rowOffset = 0;
+    // Flag that we flip each time the caterpillar reaches end of screen
+    int isGoingLeft = 1;
+
+    char **headFrame;
+    char **bodyFrame;
+
+    while (IS_RUNNING && caterpillar->row < 16)
     {
         headFrame = (isGoingLeft == 1)
                         ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
                         : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
-
-        // int row = (int)ceil(caterpillarPos / enemyRows);
-        // int col = caterpillarPos - ((row - 1) * enemyCols);
 
         // Get the current row that the caterpillar is on
         caterpillar->row = (int)ceil((double)caterpillarPos / GAME_COLS) + 1 + rowOffset;
@@ -366,9 +373,8 @@ int cleanupEnemies()
 {
     // In the event that the game ends
     // and there are still caterpillars alive,
-    // we need to free their memory.
-    // todo:
-    //      - we will also have to exit their threads...
+    // we need to free their memory and join their
+    // threads.
 
     int errorCode = 0;
 
@@ -394,7 +400,7 @@ int cleanupEnemies()
             print_error(errorCode, "pthread_mutex_lock()");
             return 0;
         }
-    
+
         free(prev->enemy);
         free(prev->enemyThread);
         free(prev);
@@ -436,7 +442,7 @@ void *enemySpawner(void *ticksPerEnemy)
         }
 
         // Threads are joined in cleanup
-        
+
         // Wait nTicksPerSpawn before spawning another enemy
         // This while loop will also not stall the thread
         // if the game dies while we are still waiting
@@ -444,35 +450,6 @@ void *enemySpawner(void *ticksPerEnemy)
             sleepTicks(1);
     }
 
-    cleanupEnemies();
-
-    pthread_exit(NULL);
-}
-
-void *enemyTest(void *x)
-{
-    int errorCode = 0;
-
-    if (!spawnEnemy(GAME_COLS - 1, 2))
-        pthread_exit(NULL);
-
-    errorCode = pthread_create(head->enemyThread, NULL, animateEnemy, (void *)head->enemy);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_create()");
-        pthread_exit(NULL);
-    }
-
-    errorCode = pthread_join(*head->enemyThread, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_join()");
-        pthread_exit(NULL);
-    }
-
-    // todo:
-    // find optimal location for this
-    // maybe in main??
     cleanupEnemies();
 
     pthread_exit(NULL);

@@ -18,6 +18,7 @@ pthread_mutex_t M_Console;
 pthread_mutex_t M_PlayerPos;
 pthread_mutex_t M_IsRunningCV;
 pthread_mutex_t M_EnemyList;
+pthread_mutex_t M_BulletList;
 
 pthread_cond_t IsRunningCv;
 
@@ -36,8 +37,18 @@ int IS_RUNNING;
 #define SHOOT ' '
 #define QUIT 'q'
 
+
+/*
+ * Game Globals
+ */
 #define GAME_ROWS 24
 #define GAME_COLS 80
+
+/*
+ * Bullet Globals
+ */
+
+
 
 /*
  * Caterpillar Globals

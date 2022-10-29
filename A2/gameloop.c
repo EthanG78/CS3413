@@ -90,6 +90,13 @@ int initializeGameLoop()
         return 0;
     }
 
+    errorCode = pthread_mutex_init(&M_BulletList, &errAttr);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_init()");
+        return 0;
+    }
+
     errorCode = pthread_cond_init(&IsRunningCv, NULL);
     if (errorCode != 0)
     {
@@ -110,9 +117,6 @@ int initializeGameLoop()
 int cleanupGameLoop()
 {
     int errorCode = 0;
-
-    // Cleanup all enemies
-    //cleanupEnemies();
 
     // destroy mutexes and stuff
     errorCode = pthread_mutex_destroy(&M_Console);
@@ -137,6 +141,13 @@ int cleanupGameLoop()
     }
 
     errorCode = pthread_mutex_destroy(&M_EnemyList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_destroy()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_destroy(&M_BulletList);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_destroy()");

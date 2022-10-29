@@ -434,7 +434,10 @@ void *enemySpawner(void *ticksPerEnemy)
         // Threads are joined in cleanup
         
         // Wait nTicksPerSpawn before spawning another enemy
-        sleepTicks(nTicksPerSpawn);
+        // This while loop will also not stall the thread
+        // if the game dies while we are still waiting
+        while (nTicksPerSpawn-- > 0 && IS_RUNNING)
+            sleepTicks(1);
     }
 
     cleanupEnemies();

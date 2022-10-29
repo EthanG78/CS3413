@@ -200,7 +200,7 @@ int launchThreads()
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
-    int ticksPerEnemy = 5000;
+    int ticksPerEnemy = 2500;
 
     // Store function params at same
     // index in this array as the function

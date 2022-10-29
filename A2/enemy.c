@@ -414,10 +414,14 @@ void *enemySpawner(void *ticksPerEnemy)
 {
     // spawn enemies at given spawn rate
     int nTicksPerSpawn = *(int *)ticksPerEnemy;
+    int spawnCountdown;
     int errorCode = 0;
 
     while (IS_RUNNING)
     {
+        // Reset spawn countdown
+        spawnCountdown = nTicksPerSpawn;
+
         // Spawn enemy at start location,
         // storing it at head of linked list.
         if (!spawnEnemy(GAME_COLS - 1, 2))
@@ -436,7 +440,7 @@ void *enemySpawner(void *ticksPerEnemy)
         // Wait nTicksPerSpawn before spawning another enemy
         // This while loop will also not stall the thread
         // if the game dies while we are still waiting
-        while (nTicksPerSpawn-- > 0 && IS_RUNNING)
+        while (spawnCountdown-- >= 0 && IS_RUNNING)
             sleepTicks(1);
     }
 

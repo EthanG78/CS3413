@@ -34,7 +34,7 @@ typedef struct BulletNode
     struct BulletNode *next;
 } BulletNode;
 
-BulletNode *head = NULL;
+BulletNode *bulletHead = NULL;
 
 int spawnBullet(int x, int y, int isFromPlayer)
 {
@@ -59,7 +59,7 @@ int spawnBullet(int x, int y, int isFromPlayer)
 
     newNode->bullet = newBullet;
     newNode->bulletThread = newBulletThread;
-    newNode->next = head;
+    newNode->next = bulletHead;
 
     int errorCode = 0;
     errorCode = pthread_mutex_lock(&M_BulletList);
@@ -69,7 +69,7 @@ int spawnBullet(int x, int y, int isFromPlayer)
         return 0;
     }
 
-    head = newNode;
+    bulletHead = newNode;
 
     errorCode = pthread_mutex_unlock(&M_BulletList);
     if (errorCode != 0)

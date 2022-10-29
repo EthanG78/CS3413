@@ -69,7 +69,7 @@ typedef struct EnemyNode
     struct EnemyNode *next;
 } EnemyNode;
 
-EnemyNode *head = NULL;
+EnemyNode *enemyHead = NULL;
 
 int spawnEnemy(int x, int y)
 {
@@ -98,7 +98,7 @@ int spawnEnemy(int x, int y)
 
     newNode->enemy = newEnemy;
     newNode->enemyThread = newEnemyThread;
-    newNode->next = head;
+    newNode->next = enemyHead;
 
     int errorCode = 0;
     errorCode = pthread_mutex_lock(&M_EnemyList);
@@ -108,7 +108,7 @@ int spawnEnemy(int x, int y)
         return 0;
     }
 
-    head = newNode;
+    enemyHead = newNode;
 
     errorCode = pthread_mutex_unlock(&M_EnemyList);
     if (errorCode != 0)
@@ -127,7 +127,7 @@ int enemiesRemaining()
     int length = 0;
     EnemyNode *current;
 
-    for (current = head; current != NULL; current = current->next)
+    for (current = enemyHead; current != NULL; current = current->next)
     {
         length++;
     }
@@ -142,7 +142,7 @@ int destroyEnemy(Caterpillar *enemy)
 
     // When a caterpillar reaches a length
     // less than ENEMY_MIN_LENGTH, we must destroy it.
-    EnemyNode *current = head;
+    EnemyNode *current = enemyHead;
     EnemyNode *prev = NULL;
 
     while (current->enemy != enemy)
@@ -171,9 +171,9 @@ int destroyEnemy(Caterpillar *enemy)
     // We must safely delete the desired
     // enemy, and re-establish continuity
     // in the enemy linked list
-    if (current == head)
+    if (current == enemyHead)
     {
-        head = head->next;
+        enemyHead = enemyHead->next;
     }
     else
     {
@@ -378,7 +378,7 @@ int cleanupEnemies()
 
     int errorCode = 0;
 
-    EnemyNode *current = head;
+    EnemyNode *current = enemyHead;
     EnemyNode *prev = NULL;
 
     while (current != NULL)
@@ -434,7 +434,7 @@ void *enemySpawner(void *ticksPerEnemy)
             pthread_exit(NULL);
 
         // Launch animate thread for newly spawned enemy
-        errorCode = pthread_create(head->enemyThread, NULL, animateEnemy, (void *)head->enemy);
+        errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_create()");

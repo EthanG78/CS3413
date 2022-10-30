@@ -196,16 +196,10 @@ void *animateBullet(void *xBullet)
                              ? PLAYER_BULLET[0]
                              : ENEMY_BULLET[0];
 
-    while (IS_RUNNING)
+    // Bullet is alive if it is within the bounds of the playable
+    // area, and the game is still running.
+    while (IS_RUNNING && bullet->row > 3 && bullet->row < GAME_ROWS)
     {
-        if (bullet->row < 3 || bullet->row > GAME_ROWS)
-        {
-            // We want the bullet to die when
-            // it reaches the bounds of the playable
-            // area.
-            break;
-        }
-
         errorCode = pthread_mutex_lock(&M_Console);
         if (errorCode != 0)
         {
@@ -250,8 +244,22 @@ void *animateBullet(void *xBullet)
         sleepTicks(10);
     }
 
-    // Cleanup the bullet
-    //destroyBullet(bullet);
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        pthread_exit(NULL);
+    }
+
+    // clean last bullet pos
+    consoleClearImage(bullet->row, bullet->col, BULLET_HEIGHT, strlen(bulletFrame[0]));
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        pthread_exit(NULL);
+    }
 
     pthread_exit(NULL);
 }
@@ -274,15 +282,21 @@ int fireBullet(int x, int y, int isFromPlayer)
         return 0;
     }
 
+    // todo:
+    // THIS SUCKS BECAUSE WE WAIT UNTIL THE BULLET IS DONE FIRING,
+    // WHAT I NEED TO DO IS CREATE A BULLET UPKEEP THREAD
+    // THAT CONSTANTLY CHECKS ALL BULLETS AND JOINS THEM IN THE BACKGROUND
     // Join the thread that the bullet was running on
-    errorCode = pthread_join(*bulletNode->bulletThread, NULL);
+
+    // Joining and cleanup to an upkeep thread that is running in gameloop.c
+    /*errorCode = pthread_join(*bulletNode->bulletThread, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_join()");
         return 0;
     }
 
-    destroyBullet(bulletNode->bullet);
+    destroyBullet(bulletNode->bullet);*/
 
     return 1;
 }

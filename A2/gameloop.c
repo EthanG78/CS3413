@@ -118,6 +118,10 @@ int cleanupGameLoop()
 {
     int errorCode = 0;
 
+    // Cleanup all bullets
+    if (!cleanupBullets())
+        return 0;
+
     // destroy mutexes and stuff
     errorCode = pthread_mutex_destroy(&M_Console);
     if (errorCode != 0)

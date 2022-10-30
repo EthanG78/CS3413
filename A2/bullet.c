@@ -251,7 +251,7 @@ void *animateBullet(void *xBullet)
     }
 
     // Cleanup the bullet
-    destroyBullet(bullet);
+    //destroyBullet(bullet);
 
     pthread_exit(NULL);
 }

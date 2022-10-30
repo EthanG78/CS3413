@@ -275,7 +275,7 @@ int fireBullet(int x, int y, int isFromPlayer)
     }
 
     // Join the thread that the bullet was running on
-    errorCode = pthread_join(*current->bulletThread, NULL);
+    errorCode = pthread_join(*bulletNode->bulletThread, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_join()");

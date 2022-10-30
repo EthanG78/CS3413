@@ -47,8 +47,8 @@ int IS_RUNNING;
 /*
  * Bullet Globals
  */
-#define BULLET_HEIGHT = 1;
-#define BULLET_ANIM_TILES = 1;
+#define BULLET_HEIGHT 1
+#define BULLET_ANIM_TILES 1
 
 /*
  * Caterpillar Globals

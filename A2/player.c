@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "player.h"
+#include "bullet.h"
 #include "globals.h"
 #include "console.h"
 
@@ -220,8 +221,10 @@ void *playerController(void *x)
                     continue;
                 break;
             case SHOOT:
-                // todo:
-                // Player shoots a bullet
+                // Fire the bullet from the center of the player, 1
+                // tile above them.
+                if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y + 1, 1))
+                    continue;
                 break;
             case QUIT:
                 if (!playerQuit())

@@ -1,6 +1,6 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-// We need a bullet spawning function
+int fireBullet(int x, int y, int isFromPlayer)
 
 #endif // BULLET_H

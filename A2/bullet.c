@@ -194,7 +194,7 @@ int cleanupBullets()
     return 1;
 }
 
-void animateBullet(void *xBullet)
+void *animateBullet(void *xBullet)
 {
     int errorCode = 0;
     Bullet *bullet = (Bullet *)xBullet;

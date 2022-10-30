@@ -234,6 +234,9 @@ void *animateBullet(void *xBullet)
         // then we want the bullet to propagate
         // upwards, otherwise downwards.
         bullet->row = (bullet->fromPlayer == 1) ? bullet->row + 1 : bullet->row - 1;
+        
+        // Sleep 1 tick before moving bullet again
+        sleepTicks(1);
     }
 
     // Cleanup the bullet

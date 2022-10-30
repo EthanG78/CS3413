@@ -220,8 +220,8 @@ void *animateBullet(void *xBullet)
             pthread_exit(NULL);
         }
 
-        // draw bullet
-        consoleDrawImage(bullet->row, bullet->col, bulletFrame, BULLET_HEIGHT);
+        // clean last bullet pos
+        consoleClearImage(bullet->row, bullet->col, BULLET_HEIGHT, strlen(bulletFrame[0]));
 
         errorCode = pthread_mutex_unlock(&M_Console);
         if (errorCode != 0)
@@ -235,9 +235,26 @@ void *animateBullet(void *xBullet)
         // upwards, otherwise downwards. Reminder
         // that row - 1 will move the bullet upwards.
         bullet->row = (bullet->fromPlayer == 1) ? bullet->row - 1 : bullet->row + 1;
-        
-        // Sleep 1 tick before moving bullet again
-        sleepTicks(1);
+
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
+        }
+
+        // draw bullet
+        consoleDrawImage(bullet->row, bullet->col, bulletFrame, BULLET_HEIGHT);
+
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+
+        // Sleep 10 tick before moving bullet again
+        sleepTicks(10);
     }
 
     // Cleanup the bullet

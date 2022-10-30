@@ -9,9 +9,13 @@
 #include "globals.h"
 #include "console.h"
 
-char *PLAYER_BULLET = "^";
+char *PLAYER_BULLET[BULLET_ANIM_TILES][BULLET_HEIGHT] =
+    {
+        {"^"}};
 
-char *ENEMY_BULLET = "v";
+char *ENEMY_BULLET[BULLET_ANIM_TILES][BULLET_HEIGHT] =
+    {
+        {"v"}};
 
 // Define a bullet struct that tracks position
 // of the bullet, as well as if it came from the
@@ -146,7 +150,7 @@ int destroyBullet(Bullet *bullet)
 int cleanupBullets()
 {
     // In the event that the game ends
-    // and there are still caterpillars alive,
+    // and there are still bullets alive,
     // we need to free their memory and join their
     // threads.
 
@@ -186,6 +190,77 @@ int cleanupBullets()
             return 0;
         }
     }
+
+    return 1;
+}
+
+void animateBullet(void *bullet)
+{
+    int errorCode = 0;
+    Bullet *bullet = (Bullet *)bullet;
+
+    char **bulletFrame = (bullet->fromPlayer == 1)
+                             ? PLAYER_BULLET[0]
+                             : ENEMY_BULLET[0];
+
+    while (IS_RUNNING)
+    {
+        if (bullet->fromPlayer == 1 && bullet->row < 3)
+        {
+            // If the bullet was fired from the player,
+            // then we want it to dissapear when we reach
+            // the top of the screen.
+            break;
+        }
+
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
+        }
+
+        // draw bullet
+        consoleDrawImage(bullet->row, bullet->col, PLAYER_BULLET, BULLET_HEIGHT);
+
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+
+        // If the bullet was fired from the player,
+        // then we want the bullet to propagate
+        // upwards, otherwise downwards.
+        bullet->row = (bullet->fromPlayer == 1) ? bullet->row + 1 : bullet->row - 1;
+    }
+
+    // Cleanup the bullet
+    destroyBullet(bullet);
+
+    pthread_exit(NULL);
+}
+
+int fireBullet(int x, int y, int isFromPlayer)
+{
+    int errorCode = 0;
+
+    // Spawn a new bullet object
+    if (!spawnBullet(x, y, isFromPlayer))
+    {
+        return 0;
+    }
+
+    // Once successfull, animate the bullet
+    errorCode = pthread_create(bulletHead->bulletThread, NULL, animateBullet, (void *)bulletHead->bullet);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_create()");
+        return 0;
+    }
+
+    // Threads are joined in cleanup process
 
     return 1;
 }

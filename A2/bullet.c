@@ -205,11 +205,11 @@ void *animateBullet(void *xBullet)
 
     while (IS_RUNNING)
     {
-        if (bullet->fromPlayer == 1 && bullet->row < 3)
+        if (bullet->row < 3 || bullet->row > GAME_ROWS)
         {
-            // If the bullet was fired from the player,
-            // then we want it to dissapear when we reach
-            // the top of the screen.
+            // We want the bullet to die when
+            // it reaches the bounds of the playable
+            // area.
             break;
         }
 
@@ -232,8 +232,9 @@ void *animateBullet(void *xBullet)
 
         // If the bullet was fired from the player,
         // then we want the bullet to propagate
-        // upwards, otherwise downwards.
-        bullet->row = (bullet->fromPlayer == 1) ? bullet->row + 1 : bullet->row - 1;
+        // upwards, otherwise downwards. Reminder
+        // that row - 1 will move the bullet upwards.
+        bullet->row = (bullet->fromPlayer == 1) ? bullet->row - 1 : bullet->row + 1;
         
         // Sleep 1 tick before moving bullet again
         sleepTicks(1);

@@ -85,61 +85,6 @@ BulletNode *spawnBullet(int x, int y, int isFromPlayer)
     return newNode;
 }
 
-int destroyBullet(Bullet *bullet)
-{
-    BulletNode *current = bulletHead;
-    BulletNode *prev = NULL;
-
-    while (current->bullet != bullet)
-    {
-        if (current->next == NULL)
-        {
-            // This should never happen, but if it
-            // does then we have a mutex problem.
-            return 0;
-        }
-        else
-        {
-            prev = current;
-            current = current->next;
-        }
-    }
-
-    int errorCode = 0;
-    errorCode = pthread_mutex_lock(&M_BulletList);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_lock()");
-        return 0;
-    }
-
-    // We must safely delete the desired
-    // enemy, and re-establish continuity
-    // in the enemy linked list
-    if (current == bulletHead)
-    {
-
-        bulletHead = bulletHead->next;
-    }
-    else
-    {
-        prev->next = current->next;
-    }
-
-    errorCode = pthread_mutex_unlock(&M_BulletList);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_unlock()");
-        return 0;
-    }
-
-    free(current->bullet);
-    free(current->bulletThread);
-    free(current);
-
-    return 1;
-}
-
 int cleanupBullets()
 {
     // In the event that the game ends
@@ -294,9 +239,7 @@ int fireBullet(int x, int y, int isFromPlayer)
     {
         print_error(errorCode, "pthread_join()");
         return 0;
-    }
-
-    destroyBullet(bulletNode->bullet);*/
+    }*/
 
     return 1;
 }

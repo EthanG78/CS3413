@@ -180,24 +180,24 @@ int destroyEnemy(Caterpillar *enemy)
         prev->next = current->next;
     }
 
-    // Join the thread that the caterpillar was running on
-    errorCode = pthread_join(*current->enemyThread, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_join()");
-        pthread_exit(NULL);
-    }
-
-    free(current->enemy);
-    free(current->enemyThread);
-    free(current);
-
     errorCode = pthread_mutex_unlock(&M_EnemyList);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
+
+    // Join the thread that the caterpillar was running on
+    errorCode = pthread_join(*current->enemyThread, NULL);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_join()");
+        return 0;
+    }
+
+    free(current->enemy);
+    free(current->enemyThread);
+    free(current);
 
     return 1;
 }

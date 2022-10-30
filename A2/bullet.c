@@ -40,7 +40,7 @@ typedef struct BulletNode
 
 BulletNode *bulletHead = NULL;
 
-int spawnBullet(int x, int y, int isFromPlayer)
+BulletNode *spawnBullet(int x, int y, int isFromPlayer)
 {
     // Initialize a new bullet at col = x, row = y.
     Bullet *newBullet = (Bullet *)malloc(sizeof(Bullet));
@@ -58,7 +58,7 @@ int spawnBullet(int x, int y, int isFromPlayer)
     if (newNode == (BulletNode *)NULL)
     {
         perror("malloc()");
-        return 0;
+        return NULL;
     }
 
     newNode->bullet = newBullet;
@@ -70,7 +70,7 @@ int spawnBullet(int x, int y, int isFromPlayer)
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_lock()");
-        return 0;
+        return NULL;
     }
 
     bulletHead = newNode;
@@ -79,10 +79,10 @@ int spawnBullet(int x, int y, int isFromPlayer)
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
-        return 0;
+        return NULL;
     }
 
-    return 1;
+    return newNode;
 }
 
 int destroyBullet(Bullet *bullet)
@@ -118,6 +118,7 @@ int destroyBullet(Bullet *bullet)
     // in the enemy linked list
     if (current == bulletHead)
     {
+
         bulletHead = bulletHead->next;
     }
     else
@@ -125,24 +126,16 @@ int destroyBullet(Bullet *bullet)
         prev->next = current->next;
     }
 
-    // Join the thread that the bullet was running on
-    errorCode = pthread_join(*current->bulletThread, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_join()");
-        pthread_exit(NULL);
-    }
-
-    free(current->bullet);
-    free(current->bulletThread);
-    free(current);
-
     errorCode = pthread_mutex_unlock(&M_BulletList);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
+
+    free(current->bullet);
+    free(current->bulletThread);
+    free(current);
 
     return 1;
 }
@@ -268,20 +261,28 @@ int fireBullet(int x, int y, int isFromPlayer)
     int errorCode = 0;
 
     // Spawn a new bullet object
-    if (!spawnBullet(x, y, isFromPlayer))
-    {
+    BulletNode *bulletNode = spawnBullet(x, y, isFromPlayer);
+
+    if (bulletNode == NULL)
         return 0;
-    }
 
     // Once successfull, animate the bullet
-    errorCode = pthread_create(bulletHead->bulletThread, NULL, animateBullet, (void *)bulletHead->bullet);
+    errorCode = pthread_create(bulletNode->bulletThread, NULL, animateBullet, (void *)bulletNode->bullet);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_create()");
         return 0;
     }
 
-    // Threads are joined in cleanup process
+    // Join the thread that the bullet was running on
+    errorCode = pthread_join(*current->bulletThread, NULL);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_join()");
+        return 0;
+    }
+
+    destroyBullet(bulletNode->bullet);
 
     return 1;
 }

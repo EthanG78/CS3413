@@ -194,10 +194,10 @@ int cleanupBullets()
     return 1;
 }
 
-void animateBullet(void *bullet)
+void animateBullet(void *xBullet)
 {
     int errorCode = 0;
-    Bullet *bullet = (Bullet *)bullet;
+    Bullet *bullet = (Bullet *)xBullet;
 
     char **bulletFrame = (bullet->fromPlayer == 1)
                              ? PLAYER_BULLET[0]
@@ -221,7 +221,7 @@ void animateBullet(void *bullet)
         }
 
         // draw bullet
-        consoleDrawImage(bullet->row, bullet->col, PLAYER_BULLET, BULLET_HEIGHT);
+        consoleDrawImage(bullet->row, bullet->col, bulletFrame, BULLET_HEIGHT);
 
         errorCode = pthread_mutex_unlock(&M_Console);
         if (errorCode != 0)

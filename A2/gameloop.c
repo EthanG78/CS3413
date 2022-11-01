@@ -106,6 +106,13 @@ int initializeGameLoop()
         return 0;
     }
 
+    errorCode = pthread_mutex_init(&M_DestroyBullets, &errAttr);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_init()");
+        return 0;
+    }
+
     errorCode = pthread_mutex_init(&M_PlayerLives, &errAttr);
     if (errorCode != 0)
     {
@@ -175,6 +182,13 @@ int cleanupGameLoop()
     }
 
     errorCode = pthread_mutex_destroy(&M_BulletList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_destroy()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_destroy(&M_DestroyBullets);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_destroy()");
@@ -276,7 +290,7 @@ void *maintainGameLoop(void *checkRate)
 
     while (IS_RUNNING)
     {
-        if (PLAYER_SCORE <= 100)
+        if (PLAYER_SCORE <= 999)
         {
             errorCode = pthread_mutex_lock(&M_PlayerScore);
             if (errorCode != 0)
@@ -501,6 +515,9 @@ void executeGameLoop()
                 print_error(errorCode, "pthread_mutex_unlock()");
             }
         }
+
+        // disable console from refreshing
+        disableConsole(1);
 
         // wait for final key before killing curses and game
         finalKeypress();

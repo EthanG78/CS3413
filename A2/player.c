@@ -38,7 +38,7 @@ int movePlayer(int deltaX, int deltaY)
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_lock()");
-            pthread_exit(NULL);
+            return 0;
         }
 
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
@@ -47,7 +47,7 @@ int movePlayer(int deltaX, int deltaY)
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
-            pthread_exit(NULL);
+            return 0;
         }
 
         errorCode = pthread_mutex_lock(&M_PlayerPos);
@@ -79,7 +79,7 @@ int movePlayer(int deltaX, int deltaY)
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_lock()");
-            pthread_exit(NULL);
+            return 0;
         }
 
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
@@ -88,7 +88,7 @@ int movePlayer(int deltaX, int deltaY)
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
-            pthread_exit(NULL);
+            return 0;
         }
 
         errorCode = pthread_mutex_lock(&M_PlayerPos);
@@ -113,6 +113,47 @@ int movePlayer(int deltaX, int deltaY)
 
 int playerHit()
 {
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_PlayerLives);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // Decrement player lives
+    PLAYER_LIVES_REMAINING--;
+
+    errorCode = pthread_mutex_unlock(&M_PlayerLives);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // Remove all bullets from screen
+    if (!cleanupBullets())
+        return 0;
+
+    disableConsole(1);
+    sleepTicks(5);
+    disableConsole(0);
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    return 1;
 }
 
 int playerQuit()

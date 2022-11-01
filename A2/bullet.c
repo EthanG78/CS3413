@@ -6,8 +6,11 @@
 #include <unistd.h>
 
 #include "bullet.h"
+#include "player.h"
 #include "globals.h"
 #include "console.h"
+
+int destroyBullets = 0;
 
 char *PLAYER_BULLET[BULLET_ANIM_TILES][BULLET_HEIGHT] =
     {
@@ -88,14 +91,30 @@ BulletNode *spawnBullet(int x, int y, int isFromPlayer)
 int cleanupBullets()
 {
     // In the event that the game ends
-    // and there are still bullets alive,
-    // we need to free their memory and join their
+    // and there are still bullets alive, or
+    // the player gets hit then we need to
+    // free all bullet memory and join bullet
     // threads.
-
     int errorCode = 0;
 
     BulletNode *current = bulletHead;
     BulletNode *prev = NULL;
+
+    errorCode = pthread_mutex_lock(&M_DestroyBullets);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    destroyBullets = 1;
+
+    errorCode = pthread_mutex_unlock(&M_DestroyBullets);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
 
     while (current != NULL)
     {
@@ -129,7 +148,62 @@ int cleanupBullets()
         }
     }
 
+    errorCode = pthread_mutex_lock(&M_DestroyBullets);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    destroyBullets = 0;
+
+    errorCode = pthread_mutex_unlock(&M_DestroyBullets);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
     return 1;
+}
+
+int detectHit(Bullet *bullet)
+{
+    int errorCode = 0;
+    if (bullet->fromPlayer == 0)
+    {
+        // Hit detection on player
+        errorCode = pthread_mutex_lock(&M_PlayerPos);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            return 0;
+        }
+        
+        if (bullet->row == PLAYER_POS_Y)
+        {
+            errorCode = pthread_mutex_unlock(&M_PlayerPos);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                return 0;
+            }
+            return 1;
+        }
+
+        errorCode = pthread_mutex_unlock(&M_PlayerPos);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            return 0;
+        }
+    }
+    else
+    {
+        // Hit detection on caterpillars
+    }
+
+    return 0;
 }
 
 void *animateBullet(void *xBullet)
@@ -162,6 +236,31 @@ void *animateBullet(void *xBullet)
             pthread_exit(NULL);
         }
 
+        // Check if we called cleanupBullets
+        errorCode = pthread_mutex_lock(&M_DestroyBullets);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
+        }
+
+        if (destroyBullets == 1)
+        {
+            errorCode = pthread_mutex_unlock(&M_DestroyBullets);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+            }
+            pthread_exit(NULL);
+        }
+
+        errorCode = pthread_mutex_unlock(&M_DestroyBullets);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+
         // If the bullet was fired from the player,
         // then we want the bullet to propagate
         // upwards, otherwise downwards. Reminder
@@ -183,6 +282,19 @@ void *animateBullet(void *xBullet)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
             pthread_exit(NULL);
+        }
+
+        if (detectHit(bullet))
+        {
+            if (bullet->fromPlayer == 0)
+            {
+                // We have hit the player
+                playerHit();
+            }
+            else
+            {
+                // We have hit a caterpillar
+            }
         }
 
         // Sleep 10 tick before moving bullet again

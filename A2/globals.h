@@ -19,6 +19,7 @@ pthread_mutex_t M_PlayerPos;
 pthread_mutex_t M_IsRunningCV;
 pthread_mutex_t M_EnemyList;
 pthread_mutex_t M_BulletList;
+pthread_mutex_t M_DestroyBullets;
 pthread_mutex_t M_PlayerLives;
 pthread_mutex_t M_PlayerScore;
 

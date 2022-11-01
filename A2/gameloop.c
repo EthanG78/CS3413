@@ -216,11 +216,15 @@ void *maintainGameLoop(void *checkRate)
     char scoreStr[SCORE_MAX_LEN];
     char livesStr[LIVES_MAX_LEN];
 
+    int playerScore = PLAYER_SCORE;
+    int playerLives = PLAYER_LIVES_REMAINING;
+
     while (IS_RUNNING)
     {
-        if (PLAYER_SCORE <= 100)
+        if (playerScore != PLAYER_SCORE && PLAYER_SCORE <= 100)
         {
-            sprintf(scoreStr, "%d", PLAYER_SCORE);
+            playerScore = PLAYER_SCORE;
+            sprintf(scoreStr, "%d", playerScore);
 
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
@@ -239,9 +243,10 @@ void *maintainGameLoop(void *checkRate)
             }
         }
 
-        if (PLAYER_LIVES_REMAINING > 0)
+        if (playerLives != PLAYER_LIVES_REMAINING && PLAYER_LIVES_REMAINING > 0)
         {
-            sprintf(livesStr, "%d", PLAYER_LIVES_REMAINING);
+            playerLives = PLAYER_LIVES_REMAINING;
+            sprintf(livesStr, "%d", playerLives);
 
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
@@ -260,7 +265,7 @@ void *maintainGameLoop(void *checkRate)
             }
         }
 
-        sleepTicks(nTicksPerCheck);
+        //sleepTicks(nTicksPerCheck);
     }
 
     pthread_exit(NULL);

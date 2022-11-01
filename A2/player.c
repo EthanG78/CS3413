@@ -142,9 +142,9 @@ int playerHit()
         return 0;
     }
 
-    disableConsole(1);
+    //disableConsole(1);
     sleepTicks(5);
-    disableConsole(0);
+    //disableConsole(0);
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)

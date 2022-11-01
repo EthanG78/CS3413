@@ -170,7 +170,7 @@ int cleanupBullets()
 int detectHit(Bullet *bullet)
 {
     int errorCode = 0;
-    if (bullet->fromPlayer == 0)
+    if (!bullet->fromPlayer)
     {
         // Hit detection on player
         errorCode = pthread_mutex_lock(&M_PlayerPos);
@@ -179,8 +179,8 @@ int detectHit(Bullet *bullet)
             print_error(errorCode, "pthread_mutex_lock()");
             return 0;
         }
-        
-        if (bullet->row == PLAYER_POS_Y)
+
+        if (bullet->row == PLAYER_POS_Y && bullet->col >= PLAYER_POS_X && bullet->col <= PLAYER_POS_X + PLAYER_WIDTH)
         {
             errorCode = pthread_mutex_unlock(&M_PlayerPos);
             if (errorCode != 0)
@@ -286,7 +286,7 @@ void *animateBullet(void *xBullet)
 
         if (detectHit(bullet))
         {
-            if (bullet->fromPlayer == 0)
+            if (!bullet->fromPlayer)
             {
                 // We have hit the player
                 playerHit();

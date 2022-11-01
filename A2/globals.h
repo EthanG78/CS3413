@@ -71,6 +71,7 @@ int IS_RUNNING;
  * Player Globals
  */
 #define PLAYER_HEIGHT 3
+#define PLAYER_WIDTH 3
 #define PLAYER_BODY_ANIM_TILES 2
 #define PLAYER_MAX_LIVES 10
 

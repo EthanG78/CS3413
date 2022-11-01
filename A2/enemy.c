@@ -128,9 +128,24 @@ int enemiesRemaining()
     int length = 0;
     EnemyNode *current;
 
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_EnemyList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
     for (current = enemyHead; current != NULL; current = current->next)
     {
         length++;
+    }
+
+    errorCode = pthread_mutex_unlock(&M_EnemyList);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
     }
 
     return length;

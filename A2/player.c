@@ -97,7 +97,7 @@ int movePlayer(int deltaX, int deltaY)
             print_error(errorCode, "pthread_mutex_lock()");
             return 0;
         }
-        
+
         PLAYER_POS_Y = newPosY;
 
         errorCode = pthread_mutex_unlock(&M_PlayerPos);
@@ -109,6 +109,10 @@ int movePlayer(int deltaX, int deltaY)
     }
 
     return 1;
+}
+
+int playerHit()
+{
 }
 
 int playerQuit()
@@ -176,6 +180,7 @@ void *playerController(void *x)
     // required for pselect call to stdin
     fd_set readfds;
     int ret;
+    int errorCode = 0;
     char inputChar;
 
     while (IS_RUNNING)
@@ -225,10 +230,22 @@ void *playerController(void *x)
                 // tile above them.
                 if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y - 1, 1))
                     continue;
-                
+
                 // todo:
                 // Increment player score each time we fire, for now
+                errorCode = pthread_mutex_lock(&M_PlayerScore);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                    pthread_exit(NULL);
+                }
                 PLAYER_SCORE++;
+                errorCode = pthread_mutex_unlock(&M_PlayerScore);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    pthread_exit(NULL);
+                }
                 break;
             case QUIT:
                 if (!playerQuit())

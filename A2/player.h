@@ -1,7 +1,9 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-int movePlayer(int deltaX, int deltaY);
+//int movePlayer(int deltaX, int deltaY);
+
+int playerHit();
 
 void *playerController(void *x);
 

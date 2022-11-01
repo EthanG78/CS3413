@@ -223,7 +223,7 @@ void *playerController(void *x)
             case SHOOT:
                 // Fire the bullet from the center of the player, 1
                 // tile above them.
-                if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y + 1, 1))
+                if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y - 1, 1))
                     continue;
                 break;
             case QUIT:

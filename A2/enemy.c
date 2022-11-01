@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "enemy.h"
+#include "bullet.h"
 #include "globals.h"
 #include "console.h"
 
@@ -208,6 +209,12 @@ void *animateEnemy(void *enemy)
     int nTicksPerAnimFrame = 25;
     Caterpillar *caterpillar = (Caterpillar *)enemy;
 
+    // Nuumber of animation cycles we wait before the caterpillar
+    // fires a bullet down from its head towards the player
+    // Bounding this to [5 25]
+    int nCyclesPerBullet = (rand() % 20) + 5;
+    int bulletCounter = nCyclesPerBullet;
+
     // To determine where to draw each segment of the caterpillar,
     // I have come up with a clever way where we don't explicitly need to
     // increment/decrement rows/cols and care about the direction.
@@ -370,6 +377,19 @@ void *animateEnemy(void *enemy)
         }
 
         caterpillarPos++;
+
+        // If we have waited nCyclesPerBullet,
+        // then fire a bullet from the caterpillar's head
+        if (bulletCounter-- == 0)
+        {
+            if (!fireBullet(caterpillar->col, caterpillar->row - ENEMY_HEIGHT, 0))
+            {
+                // todo:
+                // caterpillar couldn't fire bullet
+            }
+
+            bulletCounter = nCyclesPerBullet;
+        }
 
         // sleep nTicksPerAnimFrame * 20ms
         sleepTicks(nTicksPerAnimFrame);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -43,6 +44,9 @@ int initializeGameLoop()
 {
     // set game state to running
     IS_RUNNING = 0;
+
+    // seed random number generator
+    srand((unsigned int)time(NULL));
 
     // init global mutexes
     pthread_mutexattr_t errAttr;

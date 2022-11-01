@@ -211,8 +211,8 @@ void *animateEnemy(void *enemy)
 
     // Nuumber of animation cycles we wait before the caterpillar
     // fires a bullet down from its head towards the player
-    // Bounding this to [5 25]
-    int nCyclesPerBullet = (rand() % 20) + 5;
+    // Bounding this to [5 15]
+    int nCyclesPerBullet = (rand() % 10) + 5;
     int bulletCounter = nCyclesPerBullet;
 
     // To determine where to draw each segment of the caterpillar,

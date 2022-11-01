@@ -382,7 +382,7 @@ void *animateEnemy(void *enemy)
         // then fire a bullet from the caterpillar's head
         if (bulletCounter-- == 0)
         {
-            if (!fireBullet(caterpillar->col, caterpillar->row - ENEMY_HEIGHT, 0))
+            if (!fireBullet(caterpillar->col, caterpillar->row + ENEMY_HEIGHT, 0))
             {
                 // todo:
                 // caterpillar couldn't fire bullet

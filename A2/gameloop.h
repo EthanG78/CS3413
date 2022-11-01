@@ -12,4 +12,8 @@ void executeGameLoop();
 // Return 1 indicating success, error otherwise
 int cleanupGameLoop();
 
+// Signals main thread that the game is over
+// using the condition variable
+int signalGameOver();
+
 #endif // GAMELOOP_H

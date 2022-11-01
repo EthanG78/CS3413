@@ -177,6 +177,36 @@ int cleanupGameLoop()
     return 1;
 }
 
+int signalGameOver()
+{
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_IsRunningCV);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // change game state and signal main thread
+    IS_RUNNING = 0;
+
+    errorCode = pthread_cond_signal(&IsRunningCv);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_cond_signal()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_unlock(&M_IsRunningCV);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    return 1;
+}
+
 void *refreshGameLoop(void *refreshRate)
 {
     int errorCode = 0;
@@ -216,15 +246,11 @@ void *maintainGameLoop(void *checkRate)
     char scoreStr[SCORE_MAX_LEN];
     char livesStr[LIVES_MAX_LEN];
 
-    int playerScore = PLAYER_SCORE;
-    int playerLives = PLAYER_LIVES_REMAINING;
-
     while (IS_RUNNING)
     {
-        if (playerScore != PLAYER_SCORE && PLAYER_SCORE <= 100)
+        if (PLAYER_SCORE <= 100)
         {
-            playerScore = PLAYER_SCORE;
-            sprintf(scoreStr, "%d", playerScore);
+            sprintf(scoreStr, "%d", PLAYER_SCORE);
 
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
@@ -243,10 +269,9 @@ void *maintainGameLoop(void *checkRate)
             }
         }
 
-        if (playerLives != PLAYER_LIVES_REMAINING && PLAYER_LIVES_REMAINING > 0)
+        if (PLAYER_LIVES_REMAINING >= 0)
         {
-            playerLives = PLAYER_LIVES_REMAINING;
-            sprintf(livesStr, "%d", playerLives);
+            sprintf(livesStr, "%d", PLAYER_LIVES_REMAINING);
 
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
@@ -263,9 +288,56 @@ void *maintainGameLoop(void *checkRate)
                 print_error(errorCode, "pthread_mutex_unlock()");
                 pthread_exit(NULL);
             }
+
+            if (PLAYER_LIVES_REMAINING == 0)
+            {
+                // Player has died, let them know and quit!
+                errorCode = pthread_mutex_lock(&M_Console);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                    return 0;
+                }
+
+                putBanner("You lose!");
+
+                errorCode = pthread_mutex_unlock(&M_Console);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    return 0;
+                }
+
+                if (!signalGameOver())
+                    printf("UNABLE TO SIGNAL GAME OVER");
+            }
         }
 
-        //sleepTicks(nTicksPerCheck);
+        if (enemiesRemaining() == 0)
+        {
+            // Player has killed all enemies! They win!
+
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                return 0;
+            }
+
+            putBanner("You win!");
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                return 0;
+            }
+
+            if (!signalGameOver())
+                printf("UNABLE TO SIGNAL GAME OVER");
+        }
+
+        sleepTicks(nTicksPerCheck);
     }
 
     pthread_exit(NULL);
@@ -379,7 +451,5 @@ void executeGameLoop()
     }
 
     if (!cleanupGameLoop())
-    {
         printf("UNABLE TO CLEANUP GAME LOOP");
-    }
 }

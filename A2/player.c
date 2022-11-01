@@ -132,8 +132,8 @@ int playerHit()
     }
 
     // Remove all bullets from screen
-    if (!cleanupBullets())
-        return 0;
+    //if (!cleanupBullets())
+    //    return 0;
 
     errorCode = pthread_mutex_lock(&M_Console);
     if (errorCode != 0)

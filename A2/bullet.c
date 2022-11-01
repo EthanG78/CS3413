@@ -126,7 +126,7 @@ int cleanupBullets()
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
-            pthread_exit(NULL);
+            return 0;
         }
 
         errorCode = pthread_mutex_lock(&M_BulletList);

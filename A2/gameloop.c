@@ -43,7 +43,11 @@ char *GAME_BOARD[] = {
 int initializeGameLoop()
 {
     // set game state to running
-    IS_RUNNING = 0;
+    IS_RUNNING = 1;
+
+    // Set game related info
+    PLAYER_LIVES_REMAINING = PLAYER_MAX_LIVES;
+    PLAYER_SCORE = 0;
 
     // seed random number generator
     srand((unsigned int)time(NULL));
@@ -204,10 +208,68 @@ void *refreshGameLoop(void *refreshRate)
     pthread_exit(NULL);
 }
 
+void *maintainGameLoop(void *checkRate)
+{
+    int errorCode = 0;
+    int nTicksPerCheck = *(int *)checkRate;
+
+    char scoreStr[SCORE_MAX_LEN];
+    char livesStr[LIVES_MAX_LEN];
+
+    while (IS_RUNNING)
+    {
+        if (PLAYER_SCORE <= 100)
+        {
+            sprintf(scoreStr, "%d", PLAYER_SCORE);
+
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
+            putString(scoreStr, SCORE_ROW, SCORE_COL, SCORE_MAX_LEN);
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
+        }
+
+        if (PLAYER_LIVES_REMAINING > 0)
+        {
+            sprintf(livesStr, "%d", PLAYER_LIVES_REMAINING);
+
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                pthread_exit(NULL);
+            }
+
+            putString(livesStr, LIVES_ROW, LIVES_COL, LIVES_MAX_LEN);
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                pthread_exit(NULL);
+            }
+        }
+
+        sleepTicks(nTicksPerCheck);
+    }
+
+    pthread_exit(NULL);
+}
+
 int launchThreads()
 {
     int errorCode = 0;
-    int nThreads = 4;
+    int nThreads = 5;
     pthread_t threads[nThreads];
 
     // Store functions to be run in their
@@ -216,7 +278,8 @@ int launchThreads()
         &refreshGameLoop,
         &animatePlayer,
         &playerController,
-        &enemySpawner};
+        &enemySpawner,
+        &maintainGameLoop};
 
     int refreshRate = 1;
     int playerIdleTicks = 25;
@@ -229,7 +292,8 @@ int launchThreads()
         (void *)&refreshRate,
         (void *)&playerIdleTicks,
         NULL,
-        (void *)&ticksPerEnemy};
+        (void *)&ticksPerEnemy,
+        (void *)&playerIdleTicks};
 
     for (int i = 0; i < nThreads; i++)
     {
@@ -259,8 +323,6 @@ void executeGameLoop()
     int errorCode = 0;
     if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
     {
-        IS_RUNNING = 1;
-
         if (!launchThreads())
         {
             IS_RUNNING = 0;

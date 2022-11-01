@@ -43,6 +43,12 @@ int IS_RUNNING;
  */
 #define GAME_ROWS 24
 #define GAME_COLS 80
+#define SCORE_ROW 0
+#define SCORE_COL 25
+#define SCORE_MAX_LEN 3
+#define LIVES_ROW 0
+#define LIVES_COL 41
+#define LIVES_MAX_LEN 2
 
 /*
  * Bullet Globals
@@ -63,6 +69,7 @@ int IS_RUNNING;
  */
 #define PLAYER_HEIGHT 3
 #define PLAYER_BODY_ANIM_TILES 2
+#define PLAYER_MAX_LIVES 10
 
 // todo:
 // the whole prev_pos thing
@@ -72,5 +79,8 @@ int PLAYER_POS_X;
 int PLAYER_PREV_POS_X;
 int PLAYER_POS_Y;
 int PLAYER_PREV_POS_Y;
+
+int PLAYER_LIVES_REMAINING;
+int PLAYER_SCORE;
 
 #endif // GLOBALS_H

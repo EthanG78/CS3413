@@ -225,6 +225,8 @@ void *playerController(void *x)
                 // tile above them.
                 if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y - 1, 1))
                     continue;
+                // Increment player score each time we fire, for now
+                PLAYER_SCORE++;
                 break;
             case QUIT:
                 if (!playerQuit())

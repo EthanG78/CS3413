@@ -96,7 +96,9 @@ int cleanupBullets()
     // free all bullet memory and join bullet
     // threads.
     int errorCode = 0;
-    BulletNode *current = NULL;
+
+    BulletNode *current = bulletHead;
+    BulletNode *prev = NULL;
 
     errorCode = pthread_mutex_lock(&M_DestroyBullets);
     if (errorCode != 0)
@@ -114,19 +116,13 @@ int cleanupBullets()
         return 0;
     }
 
-    // Join all bullet threads
-    /*while (current != NULL)
+    while (current != NULL)
     {
-        
-
+        prev = current;
         current = current->next;
-    }*/
 
-    while (bulletHead != NULL)
-    {
-        current = bulletHead;
-
-        errorCode = pthread_join(*current->bulletThread, NULL);
+        // Join bullet thread
+        errorCode = pthread_join(*prev->bulletThread, NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
@@ -140,7 +136,7 @@ int cleanupBullets()
             return 0;
         }
 
-        bulletHead = bulletHead->next;
+        bulletHead = current;
 
         free(current->bullet);
         free(current->bulletThread);

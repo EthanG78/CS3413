@@ -219,23 +219,6 @@ void *animateBullet(void *xBullet)
     // area, and the game is still running.
     while (IS_RUNNING && bullet->row > 3 && bullet->row < GAME_ROWS)
     {
-        errorCode = pthread_mutex_lock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_lock()");
-            pthread_exit(NULL);
-        }
-
-        // clean last bullet pos
-        consoleClearImage(bullet->row, bullet->col, BULLET_HEIGHT, strlen(bulletFrame[0]));
-
-        errorCode = pthread_mutex_unlock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_unlock()");
-            pthread_exit(NULL);
-        }
-
         // Check if we called cleanupBullets
         errorCode = pthread_mutex_lock(&M_DestroyBullets);
         if (errorCode != 0)
@@ -251,10 +234,27 @@ void *animateBullet(void *xBullet)
             {
                 print_error(errorCode, "pthread_mutex_unlock()");
             }
-            pthread_exit(NULL);
+            break;
         }
 
         errorCode = pthread_mutex_unlock(&M_DestroyBullets);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            pthread_exit(NULL);
+        }
+
+        errorCode = pthread_mutex_lock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_lock()");
+            pthread_exit(NULL);
+        }
+
+        // clean last bullet pos
+        consoleClearImage(bullet->row, bullet->col, BULLET_HEIGHT, strlen(bulletFrame[0]));
+
+        errorCode = pthread_mutex_unlock(&M_Console);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_unlock()");

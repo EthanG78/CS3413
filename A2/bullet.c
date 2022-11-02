@@ -122,7 +122,7 @@ int cleanupBullets()
         current = current->next;
 
         // Join the thread that the bullet was running on
-        errorCode = pthread_join(*prev->bulletThread, NULL);
+        errorCode = pthread_join(*(prev->bulletThread), NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");

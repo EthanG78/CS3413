@@ -98,7 +98,7 @@ int cleanupBullets()
     int errorCode = 0;
 
     BulletNode *current = bulletHead;
-    BulletNode *prev = NULL;
+    // BulletNode *prev = NULL;
 
     errorCode = pthread_mutex_lock(&M_DestroyBullets);
     if (errorCode != 0)
@@ -116,18 +116,25 @@ int cleanupBullets()
         return 0;
     }
 
+    // Join all bullet threads
     while (current != NULL)
     {
-        prev = current;
-        current = current->next;
-
-        // Join the thread that the bullet was running on
-        errorCode = pthread_join(*(prev->bulletThread), NULL);
+        errorCode = pthread_join(*current->bulletThread, NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
             return 0;
         }
+
+        current = current->next;
+    }
+
+    while (bulletHead != NULL)
+    {
+        // prev = current;
+        // current = current->next;
+
+        current = bulletHead;
 
         errorCode = pthread_mutex_lock(&M_BulletList);
         if (errorCode != 0)
@@ -136,9 +143,11 @@ int cleanupBullets()
             return 0;
         }
 
-        free(prev->bullet);
-        free(prev->bulletThread);
-        free(prev);
+        bulletHead = bulletHead->next;
+
+        free(current->bullet);
+        free(current->bulletThread);
+        free(current);
 
         errorCode = pthread_mutex_unlock(&M_BulletList);
         if (errorCode != 0)
@@ -219,6 +228,7 @@ void *animateBullet(void *xBullet)
     // area, and the game is still running.
     while (IS_RUNNING && bullet->row > 3 && bullet->row < GAME_ROWS)
     {
+        // todo: look at using a cond variable???
         // Check if we called cleanupBullets
         errorCode = pthread_mutex_lock(&M_DestroyBullets);
         if (errorCode != 0)

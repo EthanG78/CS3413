@@ -138,9 +138,9 @@ int cleanupBullets()
 
         bulletHead = current;
 
-        free(current->bullet);
-        free(current->bulletThread);
-        free(current);
+        free(prev->bullet);
+        free(prev->bulletThread);
+        free(prev);
 
         errorCode = pthread_mutex_unlock(&M_BulletList);
         if (errorCode != 0)

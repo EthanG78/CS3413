@@ -78,6 +78,8 @@ int IS_RUNNING;
 #define PLAYER_BODY_ANIM_TILES 2
 #define PLAYER_MAX_LIVES 3
 
+char **currentPlayerFrame;
+
 // todo:
 // the whole prev_pos thing
 // kinda sucks, look at something

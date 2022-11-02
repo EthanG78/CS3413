@@ -32,8 +32,6 @@ int movePlayer(int deltaX, int deltaY)
     int newPosX = PLAYER_POS_X + deltaX;
     if (newPosX <= GAME_COLS - PLAYER_HEIGHT && newPosX >= 0)
     {
-        // PLAYER_PREV_POS_X = PLAYER_POS_X;
-        // this sucks
         errorCode = pthread_mutex_lock(&M_Console);
         if (errorCode != 0)
         {
@@ -42,13 +40,6 @@ int movePlayer(int deltaX, int deltaY)
         }
 
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
-
-        errorCode = pthread_mutex_unlock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_unlock()");
-            return 0;
-        }
 
         errorCode = pthread_mutex_lock(&M_PlayerPos);
         if (errorCode != 0)
@@ -65,6 +56,15 @@ int movePlayer(int deltaX, int deltaY)
             print_error(errorCode, "pthread_mutex_unlock()");
             return 0;
         }
+
+        consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
+
+        errorCode = pthread_mutex_unlock(&M_Console);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            return 0;
+        }
     }
 
     // I am subtracting deltaY because I want a -deltaY to
@@ -73,8 +73,6 @@ int movePlayer(int deltaX, int deltaY)
     int newPosY = PLAYER_POS_Y - deltaY;
     if (newPosY <= GAME_ROWS - PLAYER_HEIGHT && newPosY > 16)
     {
-        // PLAYER_PREV_POS_Y = PLAYER_POS_Y;
-        // this sucks
         errorCode = pthread_mutex_lock(&M_Console);
         if (errorCode != 0)
         {
@@ -83,13 +81,6 @@ int movePlayer(int deltaX, int deltaY)
         }
 
         consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
-
-        errorCode = pthread_mutex_unlock(&M_Console);
-        if (errorCode != 0)
-        {
-            print_error(errorCode, "pthread_mutex_unlock()");
-            return 0;
-        }
 
         errorCode = pthread_mutex_lock(&M_PlayerPos);
         if (errorCode != 0)
@@ -101,6 +92,15 @@ int movePlayer(int deltaX, int deltaY)
         PLAYER_POS_Y = newPosY;
 
         errorCode = pthread_mutex_unlock(&M_PlayerPos);
+        if (errorCode != 0)
+        {
+            print_error(errorCode, "pthread_mutex_unlock()");
+            return 0;
+        }
+
+        consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
+
+        errorCode = pthread_mutex_unlock(&M_Console);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_mutex_unlock()");
@@ -142,9 +142,9 @@ int playerHit()
         return 0;
     }
 
-    // disableConsole(1);
+    disableConsole(true);
     sleepTicks(100);
-    // disableConsole(0);
+    disableConsole(false);
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
@@ -374,14 +374,14 @@ void *animatePlayer(void *idleTicks)
                 return 0;
             }
 
-            frame = PLAYER_BODY[j];
-
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)
             {
                 print_error(errorCode, "pthread_mutex_lock()");
                 pthread_exit(NULL);
             }
+
+            currentFrame = PLAYER_BODY[j];
 
             errorCode = pthread_mutex_lock(&M_PlayerPos);
             if (errorCode != 0)
@@ -395,7 +395,7 @@ void *animatePlayer(void *idleTicks)
             // or presses two at once, this won't clear the LAST position
             // consoleClearImage(PLAYER_PREV_POS_Y, PLAYER_PREV_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
             // draw the player
-            consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, frame, PLAYER_HEIGHT);
+            consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
 
             errorCode = pthread_mutex_unlock(&M_PlayerPos);
             if (errorCode != 0)

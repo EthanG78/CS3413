@@ -471,7 +471,7 @@ int launchThreads()
         &maintainGameLoop};
 
     int refreshRate = 1;
-    int playerIdleTicks = 25;
+    int playerIdleTicks = 15;
     int ticksPerEnemy = 2500;
 
     // Store function params at same

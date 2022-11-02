@@ -96,9 +96,7 @@ int cleanupBullets()
     // free all bullet memory and join bullet
     // threads.
     int errorCode = 0;
-
-    BulletNode *current = bulletHead;
-    // BulletNode *prev = NULL;
+    BulletNode *current = NULL;
 
     errorCode = pthread_mutex_lock(&M_DestroyBullets);
     if (errorCode != 0)
@@ -117,24 +115,23 @@ int cleanupBullets()
     }
 
     // Join all bullet threads
-    while (current != NULL)
+    /*while (current != NULL)
     {
+        
+
+        current = current->next;
+    }*/
+
+    while (bulletHead != NULL)
+    {
+        current = bulletHead;
+
         errorCode = pthread_join(*current->bulletThread, NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
             return 0;
         }
-
-        current = current->next;
-    }
-
-    while (bulletHead != NULL)
-    {
-        // prev = current;
-        // current = current->next;
-
-        current = bulletHead;
 
         errorCode = pthread_mutex_lock(&M_BulletList);
         if (errorCode != 0)
@@ -315,6 +312,10 @@ void *animateBullet(void *xBullet)
                     print_error(errorCode, "pthread_mutex_unlock()");
                     return 0;
                 }
+
+                // break out of the loop when we hit a player
+                // since we are going to be clearing all bullets
+                break;
             }
             else
             {

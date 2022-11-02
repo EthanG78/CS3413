@@ -54,7 +54,7 @@ int IS_RUNNING;
 #define SCORE_MAX_LEN 3
 #define LIVES_ROW 0
 #define LIVES_COL 41
-#define LIVES_MAX_LEN 2
+#define LIVES_MAX_LEN 1
 
 /*
  * Bullet Globals
@@ -76,7 +76,7 @@ int IS_RUNNING;
 #define PLAYER_HEIGHT 3
 #define PLAYER_WIDTH 3
 #define PLAYER_BODY_ANIM_TILES 2
-#define PLAYER_MAX_LIVES 10
+#define PLAYER_MAX_LIVES 3
 
 // todo:
 // the whole prev_pos thing

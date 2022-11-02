@@ -338,7 +338,6 @@ void *animatePlayer(void *idleTicks)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = *(int *)idleTicks;
-    char **frame;
 
     if (!initPlayer())
     {
@@ -381,7 +380,7 @@ void *animatePlayer(void *idleTicks)
                 pthread_exit(NULL);
             }
 
-            currentFrame = PLAYER_BODY[j];
+            currentPlayerFrame = PLAYER_BODY[j];
 
             errorCode = pthread_mutex_lock(&M_PlayerPos);
             if (errorCode != 0)

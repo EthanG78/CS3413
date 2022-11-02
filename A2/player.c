@@ -25,6 +25,8 @@ char *PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] =
          "<X>",
          " V "}};
 
+char **currentPlayerFrame = PLAYER_BODY[0];
+
 int movePlayer(int deltaX, int deltaY)
 {
     int errorCode = 0;

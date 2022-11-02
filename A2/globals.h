@@ -16,14 +16,17 @@
  */
 pthread_mutex_t M_Console;
 pthread_mutex_t M_PlayerPos;
-pthread_mutex_t M_IsRunningCV;
 pthread_mutex_t M_EnemyList;
 pthread_mutex_t M_BulletList;
 pthread_mutex_t M_DestroyBullets;
 pthread_mutex_t M_PlayerLives;
 pthread_mutex_t M_PlayerScore;
 
+pthread_mutex_t M_IsRunningCV;
 pthread_cond_t IsRunningCv;
+
+pthread_mutex_t M_IsPlayerHit;
+//pthread_cond_t IsPlayerHitCv;
 
 /*
  * Game State Definitions
@@ -86,5 +89,7 @@ int PLAYER_PREV_POS_Y;
 
 int PLAYER_LIVES_REMAINING;
 int PLAYER_SCORE;
+
+int IS_PLAYER_HIT;
 
 #endif // GLOBALS_H

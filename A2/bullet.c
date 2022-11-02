@@ -298,8 +298,23 @@ void *animateBullet(void *xBullet)
         {
             if (!bullet->fromPlayer)
             {
-                // We have hit the player
-                playerHit();
+                // We have hit the player, signal the player
+                // by setting the boolean value checked by player thread
+                errorCode = pthread_mutex_lock(&M_IsPlayerHit);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                    return 0;
+                }
+
+                IS_PLAYER_HIT = 1;
+
+                errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    return 0;
+                }
             }
             else
             {

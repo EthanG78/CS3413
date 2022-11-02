@@ -142,9 +142,9 @@ int playerHit()
         return 0;
     }
 
-    //disableConsole(1);
+    // disableConsole(1);
     sleepTicks(100);
-    //disableConsole(0);
+    // disableConsole(0);
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
@@ -205,8 +205,39 @@ int playerQuit()
 
 int initPlayer()
 {
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
     PLAYER_POS_X = 0;
     PLAYER_POS_Y = 0;
+
+    errorCode = pthread_mutex_unlock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_lock(&M_IsPlayerHit);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    IS_PLAYER_HIT = 0;
+
+    errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
 
     // Move player to starting position, if this fails
     // then what do we have to life for but nothing?
@@ -307,6 +338,7 @@ void *animatePlayer(void *idleTicks)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = *(int *)idleTicks;
+    char **frame;
 
     if (!initPlayer())
     {
@@ -319,7 +351,30 @@ void *animatePlayer(void *idleTicks)
     {
         for (int j = 0; j < PLAYER_BODY_ANIM_TILES; j++)
         {
-            char **frame = PLAYER_BODY[j];
+            // Check to see if the player has been hit
+            errorCode = pthread_mutex_lock(&M_IsPlayerHit);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+                return 0;
+            }
+
+            // When the player is hit, call the playerHit function
+            // before returning to this function.
+            if (IS_PLAYER_HIT)
+                playerHit();
+
+            // Reset boolean
+            IS_PLAYER_HIT = 0;
+
+            errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+                return 0;
+            }
+
+            frame = PLAYER_BODY[j];
 
             errorCode = pthread_mutex_lock(&M_Console);
             if (errorCode != 0)

@@ -127,12 +127,26 @@ int initializeGameLoop()
         return 0;
     }
 
+    errorCode = pthread_mutex_init(&M_IsPlayerHit, &errAttr);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_init()");
+        return 0;
+    }
+
     errorCode = pthread_cond_init(&IsRunningCv, NULL);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_cond_init()");
         return 0;
     }
+
+    /*errorCode = pthread_cond_init(&IsPlayerHitCv, NULL);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_cond_init()");
+        return 0;
+    }*/
 
     errorCode = pthread_mutexattr_destroy(&errAttr);
     if (errorCode != 0)
@@ -209,12 +223,26 @@ int cleanupGameLoop()
         return 0;
     }
 
+    errorCode = pthread_mutex_destroy(&M_IsPlayerHit);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_destroy()");
+        return 0;
+    }
+
     errorCode = pthread_cond_destroy(&IsRunningCv);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_cond_destroy()");
         return 0;
     }
+
+    /*errorCode = pthread_cond_destroy(&IsPlayerHitCv);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_cond_destroy()");
+        return 0;
+    }*/
 
     return 1;
 }

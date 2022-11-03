@@ -171,6 +171,8 @@ int isCaterpillarHit(int row, int col)
     EnemyNode *current = enemyHead;
     Caterpillar *enemy = NULL;
 
+    int newLength = 0;
+
     while (current != NULL)
     {
         enemy = current->enemy;
@@ -182,7 +184,8 @@ int isCaterpillarHit(int row, int col)
                 {
                     // We have hit an enemy
                     // Cut down the current caterpillar
-                    enemy->length = col - (enemy->col + 1);
+                    newLength = floor((col - (enemy->col + 1)) / 2);
+                    enemy->length = newLength;
 
                     return 1;
                 }
@@ -193,7 +196,8 @@ int isCaterpillarHit(int row, int col)
                 {
                     // We have hit an enemy
                     // Cut down the current caterpillar
-                    enemy->length = (enemy->col - 1) - col;
+                    newLength = floor(((enemy->col - 1) - col) / 2);
+                    enemy->length = newLength;
 
                     return 1;
                 }

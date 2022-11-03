@@ -57,6 +57,7 @@ typedef struct Caterpillar
     int col;
     int row;
     int length;
+    int movingLeft;
 } Caterpillar;
 
 // Define the node struct for our linked list of enemies.
@@ -87,6 +88,7 @@ int spawnEnemy(int x, int y)
     newEnemy->col = x;
     newEnemy->row = y;
     newEnemy->length = ENEMY_DEFAULT_LENGTH;
+    newEnemy->movingLeft = 1;
 
     // Initialize the pthread that this new enemy will
     // execute on. We must allocate this on the stack.
@@ -177,17 +179,29 @@ int isCaterpillarHit(int row, int col)
         enemy = current->enemy;
         if (row <= enemy->row + ENEMY_HEIGHT)
         {
-            if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
+            if (enemy->movingLeft == 1)
             {
-                // We have hit an enemy
-                // Cut down the current caterpillar
-                enemy->length = abs(col - (enemy->col + 1));
+                if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
+                {
+                    // We have hit an enemy
+                    // Cut down the current caterpillar
+                    enemy->length = col - (enemy->col + 1);
 
-                return 1;
+                    return 1;
+                }
+            }
+            else
+            {
+                if (col <= enemy->col && col >= enemy->col - (2 * enemy->length) - 1)
+                {
+                    // We have hit an enemy
+                    // Cut down the current caterpillar
+                    enemy->length = (enemy->col - 1) - col;
+
+                    return 1;
+                }
             }
         }
-
-
 
         current = current->next;
     }
@@ -314,15 +328,13 @@ void *animateEnemy(void *enemy)
 
     // Required to account for each second row being skipped
     int rowOffset = 0;
-    // Flag that we flip each time the caterpillar reaches end of screen
-    int isGoingLeft = 1;
 
     char **headFrame;
     char **bodyFrame;
 
     while (IS_RUNNING && caterpillar->row < 16 && caterpillar->length >= ENEMY_MIN_LENGTH)
     {
-        headFrame = (isGoingLeft == 1)
+        headFrame = (caterpillar->movingLeft == 1)
                         ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
                         : ENEMY_HEAD_RIGHT[(caterpillar->col & 1)];
 
@@ -332,7 +344,7 @@ void *animateEnemy(void *enemy)
         // Based on which direction the caterpillar is facing, we either
         // subtract what column we are at from the max number of columns,
         // or just increment the columns
-        caterpillar->col = (isGoingLeft == 1)
+        caterpillar->col = (caterpillar->movingLeft == 1)
                                ? GAME_COLS - (caterpillarPos - ((caterpillar->row - 2 - rowOffset) * GAME_COLS))
                                : (caterpillarPos - ((caterpillar->row - 2 - rowOffset) * GAME_COLS));
 
@@ -386,7 +398,7 @@ void *animateEnemy(void *enemy)
             {
                 segmentRow += rowOffset;
 
-                segmentCol = (isGoingLeft == 1)
+                segmentCol = (caterpillar->movingLeft == 1)
                                  ? GAME_COLS - (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS))
                                  : (segmentPos - ((segmentRow - 2 - rowOffset) * GAME_COLS));
             }
@@ -394,7 +406,7 @@ void *animateEnemy(void *enemy)
             {
                 segmentRow += rowOffset - 1;
 
-                segmentCol = (isGoingLeft == 1)
+                segmentCol = (caterpillar->movingLeft == 1)
                                  ? (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS))
                                  : GAME_COLS - (segmentPos - ((segmentRow - 2 - (rowOffset - 1)) * GAME_COLS));
             }
@@ -426,11 +438,11 @@ void *animateEnemy(void *enemy)
         }
 
         // When we reach the end of the row, flip
-        // the isGoingLeft flag and increment
+        // the caterpillar->movingLeft flag and increment
         // the row offset
         if (caterpillarPos % GAME_COLS == 0)
         {
-            isGoingLeft = !isGoingLeft;
+            caterpillar->movingLeft = !caterpillar->movingLeft;
             rowOffset++;
         }
 

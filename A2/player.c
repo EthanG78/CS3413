@@ -144,9 +144,25 @@ int playerHit()
         return 0;
     }
 
-    disableConsole(true);
-    sleepTicks(100);
-    disableConsole(false);
+    errorCode = pthread_mutex_lock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    // Clean the screen besides the player
+    consoleClearImage(0, 0, GAME_ROWS, GAME_COLS);
+    consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
+
+    errorCode = pthread_mutex_unlock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    sleepTicks(250);
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
@@ -154,6 +170,13 @@ int playerHit()
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
+
+    //disableConsole(true);
+    //disableConsole(false);
+
+    // Reset player position
+    if (!initPlayer())
+        return 0;
 
     return 1;
 }
@@ -365,9 +388,6 @@ void *animatePlayer(void *idleTicks)
             if (IS_PLAYER_HIT)
                 playerHit();
 
-            // Reset boolean
-            IS_PLAYER_HIT = 0;
-
             errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
             if (errorCode != 0)
             {
@@ -391,10 +411,6 @@ void *animatePlayer(void *idleTicks)
                 pthread_exit(NULL);
             }
 
-            // clear the last drawing
-            // BUGS: If the player holds down an input key,
-            // or presses two at once, this won't clear the LAST position
-            // consoleClearImage(PLAYER_PREV_POS_Y, PLAYER_PREV_POS_X, PLAYER_HEIGHT, strlen(frame[0]));
             // draw the player
             consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
 

@@ -360,20 +360,6 @@ int fireBullet(int x, int y, int isFromPlayer)
         print_error(errorCode, "pthread_create()");
         return 0;
     }
-
-    // todo:
-    // THIS SUCKS BECAUSE WE WAIT UNTIL THE BULLET IS DONE FIRING,
-    // WHAT I NEED TO DO IS CREATE A BULLET UPKEEP THREAD
-    // THAT CONSTANTLY CHECKS ALL BULLETS AND JOINS THEM IN THE BACKGROUND
-    // Join the thread that the bullet was running on
-
-    // Joining and cleanup to an upkeep thread that is running in gameloop.c
-    /*errorCode = pthread_join(*bulletNode->bulletThread, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_join()");
-        return 0;
-    }*/
-
+    
     return 1;
 }

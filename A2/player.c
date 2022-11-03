@@ -386,13 +386,23 @@ void *animatePlayer(void *idleTicks)
             // When the player is hit, call the playerHit function
             // before returning to this function.
             if (IS_PLAYER_HIT)
-                playerHit();
-
-            errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
-            if (errorCode != 0)
             {
-                print_error(errorCode, "pthread_mutex_unlock()");
-                return 0;
+                errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    return 0;
+                }
+                playerHit();
+            }
+            else
+            {
+                errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    return 0;
+                }
             }
 
             errorCode = pthread_mutex_lock(&M_Console);

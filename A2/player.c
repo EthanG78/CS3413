@@ -195,12 +195,12 @@ int playerHit()
         return 0;
     }
 
-    // Clean the screen besides the player
-    // consoleClearImage(0, 0, GAME_ROWS, GAME_COLS);
-    // consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
-
     sleepTicks(250);
     consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
+
+    // Reset player position
+    PLAYER_POS_Y = 19;
+    PLAYER_POS_X = (int)(GAME_COLS / 2);
 
     errorCode = pthread_mutex_unlock(&M_PlayerPos);
     if (errorCode != 0)
@@ -215,14 +215,6 @@ int playerHit()
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
-
-    /*disableConsole(true);
-    sleepTicks(250);
-    disableConsole(false);*/
-
-    // Reset player position
-    if (!initPlayer())
-        return 0;
 
     return 1;
 }
@@ -388,23 +380,15 @@ void *animatePlayer(void *idleTicks)
             // When the player is hit, call the playerHit function
             // before returning to this function.
             if (IS_PLAYER_HIT)
-            {
-                errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_unlock()");
-                    return 0;
-                }
                 playerHit();
-            }
-            else
+
+            IS_PLAYER_HIT = 0;
+
+            errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+            if (errorCode != 0)
             {
-                errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_unlock()");
-                    return 0;
-                }
+                print_error(errorCode, "pthread_mutex_unlock()");
+                return 0;
             }
 
             errorCode = pthread_mutex_lock(&M_Console);

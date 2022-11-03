@@ -113,6 +113,50 @@ int movePlayer(int deltaX, int deltaY)
     return 1;
 }
 
+int initPlayer()
+{
+    int errorCode = 0;
+    errorCode = pthread_mutex_lock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    PLAYER_POS_X = 0;
+    PLAYER_POS_Y = 0;
+
+    errorCode = pthread_mutex_unlock(&M_PlayerPos);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    errorCode = pthread_mutex_lock(&M_IsPlayerHit);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        return 0;
+    }
+
+    IS_PLAYER_HIT = 0;
+
+    errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        return 0;
+    }
+
+    // Move player to starting position, if this fails
+    // then what do we have to life for but nothing?
+    if (!movePlayer((int)(GAME_COLS / 2), -19))
+        return 0;
+
+    return 1;
+}
+
 int playerHit()
 {
     int errorCode = 0;
@@ -171,8 +215,8 @@ int playerHit()
         return 0;
     }
 
-    //disableConsole(true);
-    //disableConsole(false);
+    // disableConsole(true);
+    // disableConsole(false);
 
     // Reset player position
     if (!initPlayer())
@@ -224,50 +268,6 @@ int playerQuit()
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
-
-    return 1;
-}
-
-int initPlayer()
-{
-    int errorCode = 0;
-    errorCode = pthread_mutex_lock(&M_PlayerPos);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_lock()");
-        return 0;
-    }
-
-    PLAYER_POS_X = 0;
-    PLAYER_POS_Y = 0;
-
-    errorCode = pthread_mutex_unlock(&M_PlayerPos);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_unlock()");
-        return 0;
-    }
-
-    errorCode = pthread_mutex_lock(&M_IsPlayerHit);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_lock()");
-        return 0;
-    }
-
-    IS_PLAYER_HIT = 0;
-
-    errorCode = pthread_mutex_unlock(&M_IsPlayerHit);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_mutex_unlock()");
-        return 0;
-    }
-
-    // Move player to starting position, if this fails
-    // then what do we have to life for but nothing?
-    if (!movePlayer((int)(GAME_COLS / 2), -19))
-        return 0;
 
     return 1;
 }

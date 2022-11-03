@@ -3,6 +3,8 @@
 
 int enemiesRemaining();
 
+int enemyAtBottom();
+
 int cleanupEnemies();
 
 void *enemySpawner(void *ticksPerEnemy);

@@ -395,7 +395,7 @@ void *maintainGameLoop(void *checkRate)
             pthread_exit(NULL);
         }
 
-        if (PLAYER_LIVES_REMAINING == 0)
+        if (PLAYER_LIVES_REMAINING == 0 || enemyAtBottom() == 1)
         {
             // Player has died, let them know and quit!
             errorCode = pthread_mutex_lock(&M_Console);

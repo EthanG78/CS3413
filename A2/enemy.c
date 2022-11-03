@@ -72,6 +72,10 @@ typedef struct EnemyNode
 
 EnemyNode *enemyHead = NULL;
 
+// This value keeps track if a caterpillar
+// has made it to the player
+int enemyAtBottom = 0;
+
 int spawnEnemy(int x, int y)
 {
     // Initialize a new caterpillar at col = x, row = y.
@@ -149,6 +153,11 @@ int enemiesRemaining()
     }
 
     return length;
+}
+
+int enemyAtBottom()
+{
+    return enemyAtBottom;
 }
 
 int destroyEnemy(Caterpillar *enemy)
@@ -416,7 +425,10 @@ void *animateEnemy(void *enemy)
         sleepTicks(nTicksPerAnimFrame);
     }
 
-    // Clear the entire
+    // Set flag based on if caterpillar made it to the player
+    enemyAtBottom = caterpillar->row >= 16;
+
+    // Clear the entire caterpillar animation
 
     pthread_exit(NULL);
 }

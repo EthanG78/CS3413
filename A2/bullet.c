@@ -7,6 +7,7 @@
 
 #include "bullet.h"
 #include "player.h"
+#include "enemy.h"
 #include "globals.h"
 #include "console.h"
 
@@ -203,6 +204,8 @@ int detectHit(Bullet *bullet)
     else
     {
         // Hit detection on caterpillars
+        if (isCaterpillarHit(bullet->row, bullet->col))
+            return 1;
     }
 
     return 0;
@@ -308,15 +311,10 @@ void *animateBullet(void *xBullet)
                     print_error(errorCode, "pthread_mutex_unlock()");
                     return 0;
                 }
-
-                // break out of the loop when we hit a player
-                // since we are going to be clearing all bullets
-                break;
             }
-            else
-            {
-                // We have hit a caterpillar
-            }
+            
+            // break out of the loop when we hit a player or caterpillar
+            break;
         }
 
         // Sleep 10 tick before moving bullet again
@@ -360,6 +358,6 @@ int fireBullet(int x, int y, int isFromPlayer)
         print_error(errorCode, "pthread_create()");
         return 0;
     }
-    
+
     return 1;
 }

@@ -160,11 +160,39 @@ int enemyAtBottom()
     return enemyAtBottomFlag;
 }
 
+// WIPWIPIWPIWP
 int isCaterpillarHit(int row, int col)
 {
     // given the row and col
     // determine if this hits a caterpillar,
     // and if it does then split the caterpillar
+    if (enemiesRemaining() == 0)
+        return 0;
+
+    EnemyNode *current = enemyHead;
+    Caterpillar *enemy = NULL;
+
+    while (current != NULL)
+    {
+        enemy = current->enemy;
+        if (row <= enemy->row + ENEMY_HEIGHT)
+        {
+            if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
+            {
+                // We have hit an enemy
+                // Cut down the current caterpillar
+                enemy->length = abs(col - (enemy->col + 1));
+
+                return 1;
+            }
+        }
+
+
+
+        current = current->next;
+    }
+
+    return 0;
 }
 
 int destroyEnemy(Caterpillar *enemy)
@@ -426,11 +454,8 @@ void *animateEnemy(void *enemy)
         // The smaller the caterpillar is, the faster it moves.
         // The closer the caterpillar is to the player, the
         // faster it moves.
-        sleepTicks(caterpillar->length - rowOffset);
+        sleepTicks((caterpillar->length - (2 * rowOffset)));
     }
-
-    // Set flag based on if caterpillar made it to the player
-    enemyAtBottomFlag = (caterpillar->row >= 16) ? 1 : 0;
 
     errorCode = pthread_mutex_lock(&M_Console);
     if (errorCode != 0)
@@ -451,6 +476,9 @@ void *animateEnemy(void *enemy)
         print_error(errorCode, "pthread_mutex_unlock()");
         pthread_exit(NULL);
     }
+
+    // Set flag based on if caterpillar made it to the player
+    enemyAtBottomFlag = (caterpillar->row >= 16) ? 1 : 0;
 
     pthread_exit(NULL);
 }

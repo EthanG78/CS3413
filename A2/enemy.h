@@ -5,6 +5,8 @@ int enemiesRemaining();
 
 int enemyAtBottom();
 
+int isCaterpillarHit(int row, int col);
+
 int cleanupEnemies();
 
 void *enemySpawner(void *ticksPerEnemy);

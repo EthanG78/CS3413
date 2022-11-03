@@ -160,6 +160,13 @@ int enemyAtBottom()
     return enemyAtBottomFlag;
 }
 
+int isCaterpillarHit(int row, int col)
+{
+    // given the row and col
+    // determine if this hits a caterpillar,
+    // and if it does then split the caterpillar
+}
+
 int destroyEnemy(Caterpillar *enemy)
 {
     if (enemiesRemaining() == 0)
@@ -230,9 +237,6 @@ int destroyEnemy(Caterpillar *enemy)
 void *animateEnemy(void *enemy)
 {
     int errorCode = 0;
-    // This value gets smaller
-    // as the caterpilalr gets closer to the player
-    int nTicksPerAnimFrame = 25;
     Caterpillar *caterpillar = (Caterpillar *)enemy;
 
     // Nuumber of animation cycles we wait before the caterpillar
@@ -288,7 +292,7 @@ void *animateEnemy(void *enemy)
     char **headFrame;
     char **bodyFrame;
 
-    while (IS_RUNNING && caterpillar->row < 16)
+    while (IS_RUNNING && caterpillar->row < 16 && caterpillar->length >= ENEMY_MIN_LENGTH)
     {
         headFrame = (isGoingLeft == 1)
                         ? ENEMY_HEAD_LEFT[(caterpillar->col & 1)]
@@ -400,10 +404,6 @@ void *animateEnemy(void *enemy)
         {
             isGoingLeft = !isGoingLeft;
             rowOffset++;
-
-            // Make the caterpillars faster as they
-            // approach the player.
-            nTicksPerAnimFrame -= rowOffset;
         }
 
         caterpillarPos++;
@@ -421,14 +421,36 @@ void *animateEnemy(void *enemy)
             bulletCounter = nCyclesPerBullet;
         }
 
-        // sleep nTicksPerAnimFrame * 20ms
-        sleepTicks(nTicksPerAnimFrame);
+        // The length of the caterpillar directly influences
+        // how many ticks it sleeps per animation frame.
+        // The smaller the caterpillar is, the faster it moves.
+        // The closer the caterpillar is to the player, the
+        // faster it moves.
+        sleepTicks(caterpillar->length - rowOffset);
     }
 
     // Set flag based on if caterpillar made it to the player
     enemyAtBottomFlag = (caterpillar->row >= 16) ? 1 : 0;
 
+    errorCode = pthread_mutex_lock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_lock()");
+        pthread_exit(NULL);
+    }
+
     // Clear the entire caterpillar animation
+    consoleClearImage(caterpillar->row,
+                      caterpillar->col,
+                      ENEMY_HEIGHT,
+                      strlen(bodyFrame[0]) * caterpillar->length);
+
+    errorCode = pthread_mutex_unlock(&M_Console);
+    if (errorCode != 0)
+    {
+        print_error(errorCode, "pthread_mutex_unlock()");
+        pthread_exit(NULL);
+    }
 
     pthread_exit(NULL);
 }

@@ -43,7 +43,6 @@ int IS_RUNNING;
 #define SHOOT ' '
 #define QUIT 'q'
 
-
 /*
  * Game Globals
  */
@@ -78,14 +77,8 @@ int IS_RUNNING;
 #define PLAYER_BODY_ANIM_TILES 2
 #define PLAYER_MAX_LIVES 3
 
-// todo:
-// the whole prev_pos thing
-// kinda sucks, look at something
-// better when you can.
 int PLAYER_POS_X;
-int PLAYER_PREV_POS_X;
 int PLAYER_POS_Y;
-int PLAYER_PREV_POS_Y;
 
 int PLAYER_LIVES_REMAINING;
 int PLAYER_SCORE;

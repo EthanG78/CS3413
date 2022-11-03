@@ -206,14 +206,14 @@ int playerHit()
         return 0;
     }
 
-    sleepTicks(250);
-
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
     }
+
+    sleepTicks(250);
 
     // disableConsole(true);
     // disableConsole(false);

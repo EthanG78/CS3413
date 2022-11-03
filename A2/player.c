@@ -318,25 +318,9 @@ void *playerController(void *x)
                 break;
             case SHOOT:
                 // Fire the bullet from the center of the player, 1
-                // tile above them.
+                // tile above them. todo: add a firerate for player
                 if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y - 1, 1))
                     continue;
-
-                // todo:
-                // Increment player score each time we fire, for now
-                errorCode = pthread_mutex_lock(&M_PlayerScore);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_lock()");
-                    pthread_exit(NULL);
-                }
-                PLAYER_SCORE++;
-                errorCode = pthread_mutex_unlock(&M_PlayerScore);
-                if (errorCode != 0)
-                {
-                    print_error(errorCode, "pthread_mutex_unlock()");
-                    pthread_exit(NULL);
-                }
                 break;
             case QUIT:
                 if (!playerQuit())

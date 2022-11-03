@@ -312,7 +312,24 @@ void *animateBullet(void *xBullet)
                     return 0;
                 }
             }
-            
+            else
+            {
+                // Increment player score each time hit a caterpillar
+                errorCode = pthread_mutex_lock(&M_PlayerScore);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_lock()");
+                    pthread_exit(NULL);
+                }
+                PLAYER_SCORE++;
+                errorCode = pthread_mutex_unlock(&M_PlayerScore);
+                if (errorCode != 0)
+                {
+                    print_error(errorCode, "pthread_mutex_unlock()");
+                    pthread_exit(NULL);
+                }
+            }
+
             // break out of the loop when we hit a player or caterpillar
             break;
         }

@@ -188,7 +188,7 @@ int playerHit()
         return 0;
     }
 
-    errorCode = pthread_mutex_lock(&M_PlayerPos);
+    /*errorCode = pthread_mutex_lock(&M_PlayerPos);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_lock()");
@@ -196,15 +196,18 @@ int playerHit()
     }
 
     // Clean the screen besides the player
-    consoleClearImage(0, 0, GAME_ROWS, GAME_COLS);
-    consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
+    //consoleClearImage(0, 0, GAME_ROWS, GAME_COLS);
+    //consoleDrawImage(PLAYER_POS_Y, PLAYER_POS_X, currentPlayerFrame, PLAYER_HEIGHT);
 
     errorCode = pthread_mutex_unlock(&M_PlayerPos);
     if (errorCode != 0)
     {
         print_error(errorCode, "pthread_mutex_unlock()");
         return 0;
-    }
+    }*/
+
+    sleepTicks(250);
+    consoleClearImage(PLAYER_POS_Y, PLAYER_POS_X, PLAYER_HEIGHT, strlen(PLAYER_BODY[0][0]));
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
@@ -213,9 +216,9 @@ int playerHit()
         return 0;
     }
 
-    disableConsole(true);
+    /*disableConsole(true);
     sleepTicks(250);
-    disableConsole(false);
+    disableConsole(false);*/
 
     // Reset player position
     if (!initPlayer())

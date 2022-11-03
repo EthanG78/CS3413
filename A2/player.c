@@ -213,10 +213,9 @@ int playerHit()
         return 0;
     }
 
+    disableConsole(true);
     sleepTicks(250);
-
-    // disableConsole(true);
-    // disableConsole(false);
+    disableConsole(false);
 
     // Reset player position
     if (!initPlayer())

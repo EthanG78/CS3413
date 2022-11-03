@@ -221,6 +221,8 @@ int destroyEnemy(Caterpillar *enemy)
 void *animateEnemy(void *enemy)
 {
     int errorCode = 0;
+    // This value gets smaller
+    // as the caterpilalr gets closer to the player
     int nTicksPerAnimFrame = 25;
     Caterpillar *caterpillar = (Caterpillar *)enemy;
 
@@ -285,6 +287,10 @@ void *animateEnemy(void *enemy)
 
         // Get the current row that the caterpillar is on
         caterpillar->row = (int)ceil((double)caterpillarPos / GAME_COLS) + 1 + rowOffset;
+
+        // Make the caterpillars faster as they
+        // approach the player.
+        nTicksPerAnimFrame -= rowOffset;
 
         // Based on which direction the caterpillar is facing, we either
         // subtract what column we are at from the max number of columns,
@@ -409,6 +415,9 @@ void *animateEnemy(void *enemy)
         // sleep nTicksPerAnimFrame * 20ms
         sleepTicks(nTicksPerAnimFrame);
     }
+
+    // Clear the entire
+
 
     pthread_exit(NULL);
 }

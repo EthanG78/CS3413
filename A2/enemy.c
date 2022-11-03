@@ -168,16 +168,13 @@ int isCaterpillarHit(int row, int col)
     // given the row and col
     // determine if this hits a caterpillar,
     // and if it does then split the caterpillar
-    if (enemiesRemaining() == 0)
-        return 0;
-
     EnemyNode *current = enemyHead;
     Caterpillar *enemy = NULL;
 
     while (current != NULL)
     {
         enemy = current->enemy;
-        if (row <= enemy->row + ENEMY_HEIGHT)
+        if (row < enemy->row + ENEMY_HEIGHT)
         {
             if (enemy->movingLeft == 1)
             {

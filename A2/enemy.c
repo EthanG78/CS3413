@@ -74,7 +74,7 @@ EnemyNode *enemyHead = NULL;
 
 // This value keeps track if a caterpillar
 // has made it to the player
-int enemyAtBottom = 0;
+int enemyAtBottomFlag = 0;
 
 int spawnEnemy(int x, int y)
 {
@@ -157,7 +157,7 @@ int enemiesRemaining()
 
 int enemyAtBottom()
 {
-    return enemyAtBottom;
+    return enemyAtBottomFlag;
 }
 
 int destroyEnemy(Caterpillar *enemy)
@@ -426,7 +426,7 @@ void *animateEnemy(void *enemy)
     }
 
     // Set flag based on if caterpillar made it to the player
-    enemyAtBottom = caterpillar->row >= 16;
+    enemyAtBottomFlag = (caterpillar->row >= 16) ? 1 : 0;
 
     // Clear the entire caterpillar animation
 

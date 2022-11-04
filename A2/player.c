@@ -271,7 +271,6 @@ void *playerController(void *x)
     // required for pselect call to stdin
     fd_set readfds;
     int ret;
-    int errorCode = 0;
     char inputChar;
 
     while (IS_RUNNING)

@@ -162,82 +162,6 @@ int enemyAtBottom()
     return enemyAtBottomFlag;
 }
 
-// WIPWIPIWPIWP
-int isCaterpillarHit(int row, int col)
-{
-    // given the row and col
-    // determine if this hits a caterpillar,
-    // and if it does then split the caterpillar
-    EnemyNode *current = enemyHead;
-    Caterpillar *enemy = NULL;
-
-    int errorCode = 0;
-    int newLength = 0;
-    int newEnemyLength = 0;
-
-    while (current != NULL)
-    {
-        enemy = current->enemy;
-        if (row < enemy->row + ENEMY_HEIGHT)
-        {
-            if (enemy->movingLeft == 1)
-            {
-                if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
-                {
-                    // We have hit an enemy
-                    // Cut down the current caterpillar
-                    newLength = floor((col - (enemy->col + 1)) / 2);
-                    newEnemyLength = enemy->length - newLength;
-                    enemy->length = newLength;
-
-                    // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
-                        return 0;
-
-                    // Launch animate thread for newly spawned enemy
-                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
-                    if (errorCode != 0)
-                    {
-                        print_error(errorCode, "pthread_create()");
-                        return 0;
-                    }
-
-                    return 1;
-                }
-            }
-            else
-            {
-                if (col <= enemy->col && col >= enemy->col - (2 * enemy->length) - 1)
-                {
-                    // We have hit an enemy
-                    // Cut down the current caterpillar
-                    newLength = floor(((enemy->col - 1) - col) / 2);
-                    newEnemyLength = enemy->length - newLength;
-                    enemy->length = newLength;
-
-                    // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
-                        return 0;
-
-                    // Launch animate thread for newly spawned enemy
-                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
-                    if (errorCode != 0)
-                    {
-                        print_error(errorCode, "pthread_create()");
-                        return 0;
-                    }
-
-                    return 1;
-                }
-            }
-        }
-
-        current = current->next;
-    }
-
-    return 0;
-}
-
 int destroyEnemy(Caterpillar *enemy)
 {
     if (enemiesRemaining() == 0)
@@ -522,6 +446,82 @@ void *animateEnemy(void *enemy)
     enemyAtBottomFlag = (caterpillar->row >= 16) ? 1 : 0;
 
     pthread_exit(NULL);
+}
+
+// WIPWIPIWPIWP
+int isCaterpillarHit(int row, int col)
+{
+    // given the row and col
+    // determine if this hits a caterpillar,
+    // and if it does then split the caterpillar
+    EnemyNode *current = enemyHead;
+    Caterpillar *enemy = NULL;
+
+    int errorCode = 0;
+    int newLength = 0;
+    int newEnemyLength = 0;
+
+    while (current != NULL)
+    {
+        enemy = current->enemy;
+        if (row < enemy->row + ENEMY_HEIGHT)
+        {
+            if (enemy->movingLeft == 1)
+            {
+                if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
+                {
+                    // We have hit an enemy
+                    // Cut down the current caterpillar
+                    newLength = floor((col - (enemy->col + 1)) / 2);
+                    newEnemyLength = enemy->length - newLength;
+                    enemy->length = newLength;
+
+                    // Spawn the new caterpillar from where the old one was hit
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                        return 0;
+
+                    // Launch animate thread for newly spawned enemy
+                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                    if (errorCode != 0)
+                    {
+                        print_error(errorCode, "pthread_create()");
+                        return 0;
+                    }
+
+                    return 1;
+                }
+            }
+            else
+            {
+                if (col <= enemy->col && col >= enemy->col - (2 * enemy->length) - 1)
+                {
+                    // We have hit an enemy
+                    // Cut down the current caterpillar
+                    newLength = floor(((enemy->col - 1) - col) / 2);
+                    newEnemyLength = enemy->length - newLength;
+                    enemy->length = newLength;
+
+                    // Spawn the new caterpillar from where the old one was hit
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                        return 0;
+
+                    // Launch animate thread for newly spawned enemy
+                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                    if (errorCode != 0)
+                    {
+                        print_error(errorCode, "pthread_create()");
+                        return 0;
+                    }
+
+                    return 1;
+                }
+            }
+        }
+
+        current = current->next;
+    }
+
+    return 0;
 }
 
 int cleanupEnemies()

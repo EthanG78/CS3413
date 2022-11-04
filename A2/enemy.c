@@ -258,7 +258,9 @@ void *animateEnemy(void *enemy)
     // in that grid system.
 
     // Position in grid of caterpillar head
-    int caterpillarPos = 1;
+    // This will be different based on if the caterpillar
+    // was just spawned, or if it is from a split caterpillar.
+    int caterpillarPos = (GAME_COLS - caterpillar->col) * caterpillar->row;
     // Position in grid of caterpillar body segment
     int segmentPos = 0;
     // Calculated column position of body segment
@@ -449,6 +451,7 @@ void *animateEnemy(void *enemy)
 }
 
 // WIPWIPIWPIWP
+// THIS IS SO UNBELIEVABLY BROKEN
 int isCaterpillarHit(int row, int col)
 {
     // given the row and col

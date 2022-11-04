@@ -77,7 +77,7 @@ EnemyNode *enemyHead = NULL;
 // has made it to the player
 int enemyAtBottomFlag = 0;
 
-int spawnEnemy(int x, int y)
+int spawnEnemy(int x, int y, int length, int isGoingLeft)
 {
     // Initialize a new caterpillar at col = x, row = y.
     // All new caterpillars have length equivalent to the
@@ -87,8 +87,8 @@ int spawnEnemy(int x, int y)
     Caterpillar *newEnemy = (Caterpillar *)malloc(sizeof(Caterpillar));
     newEnemy->col = x;
     newEnemy->row = y;
-    newEnemy->length = ENEMY_DEFAULT_LENGTH;
-    newEnemy->movingLeft = 1;
+    newEnemy->length = length;
+    newEnemy->movingLeft = isGoingLeft;
 
     // Initialize the pthread that this new enemy will
     // execute on. We must allocate this on the stack.
@@ -171,7 +171,9 @@ int isCaterpillarHit(int row, int col)
     EnemyNode *current = enemyHead;
     Caterpillar *enemy = NULL;
 
+    int errorCode = 0;
     int newLength = 0;
+    int newEnemyLength = 0;
 
     while (current != NULL)
     {
@@ -185,7 +187,20 @@ int isCaterpillarHit(int row, int col)
                     // We have hit an enemy
                     // Cut down the current caterpillar
                     newLength = floor((col - (enemy->col + 1)) / 2);
+                    newEnemyLength = enemy->length - newLength;
                     enemy->length = newLength;
+
+                    // Spawn the new caterpillar from where the old one was hit
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                        return 0;
+
+                    // Launch animate thread for newly spawned enemy
+                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                    if (errorCode != 0)
+                    {
+                        print_error(errorCode, "pthread_create()");
+                        return 0;
+                    }
 
                     return 1;
                 }
@@ -197,7 +212,20 @@ int isCaterpillarHit(int row, int col)
                     // We have hit an enemy
                     // Cut down the current caterpillar
                     newLength = floor(((enemy->col - 1) - col) / 2);
+                    newEnemyLength = enemy->length - newLength;
                     enemy->length = newLength;
+
+                    // Spawn the new caterpillar from where the old one was hit
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                        return 0;
+
+                    // Launch animate thread for newly spawned enemy
+                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                    if (errorCode != 0)
+                    {
+                        print_error(errorCode, "pthread_create()");
+                        return 0;
+                    }
 
                     return 1;
                 }
@@ -557,7 +585,7 @@ void *enemySpawner(void *ticksPerEnemy)
 
         // Spawn enemy at start location,
         // storing it at head of linked list.
-        if (!spawnEnemy(GAME_COLS - 1, 2))
+        if (!spawnEnemy(GAME_COLS - 1, 2, ENEMY_DEFAULT_LENGTH, 1))
             pthread_exit(NULL);
 
         // Launch animate thread for newly spawned enemy

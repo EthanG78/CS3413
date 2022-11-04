@@ -262,7 +262,7 @@ void *animateEnemy(void *enemy)
     // Position in grid of caterpillar head
     // This will be different based on if the caterpillar
     // was just spawned, or if it is from a split caterpillar.
-    int caterpillarPos = (GAME_COLS - caterpillar->col) * (caterpillar->row - 2);
+    int caterpillarPos = (GAME_COLS - caterpillar->col) * (caterpillar->row - 1);
     // Position in grid of caterpillar body segment
     int segmentPos = 0;
     // Calculated column position of body segment

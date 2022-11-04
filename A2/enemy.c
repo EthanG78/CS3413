@@ -58,6 +58,7 @@ typedef struct Caterpillar
     int row;
     int length;
     int movingLeft;
+    int sleeptTicks;
 } Caterpillar;
 
 // Define the node struct for our linked list of enemies.
@@ -77,7 +78,7 @@ EnemyNode *enemyHead = NULL;
 // has made it to the player
 int enemyAtBottomFlag = 0;
 
-int spawnEnemy(int x, int y, int length, int isGoingLeft)
+int spawnEnemy(int x, int y, int length, int isGoingLeft, int sleepTicks)
 {
     // Initialize a new caterpillar at col = x, row = y.
     // All new caterpillars have length equivalent to the
@@ -89,6 +90,7 @@ int spawnEnemy(int x, int y, int length, int isGoingLeft)
     newEnemy->row = y;
     newEnemy->length = length;
     newEnemy->movingLeft = isGoingLeft;
+    newEnemy->sleeptTicks = sleepTicks;
 
     // Initialize the pthread that this new enemy will
     // execute on. We must allocate this on the stack.
@@ -416,12 +418,9 @@ void *animateEnemy(void *enemy)
             bulletCounter = nCyclesPerBullet;
         }
 
-        // The length of the caterpillar directly influences
-        // how many ticks it sleeps per animation frame.
-        // The smaller the caterpillar is, the faster it moves.
         // The closer the caterpillar is to the player, the
         // faster it moves.
-        sleepTicks((caterpillar->length - (2 * rowOffset)));
+        sleepTicks((caterpillar->sleeptTicks - rowOffset));
     }
 
     errorCode = pthread_mutex_lock(&M_Console);
@@ -480,7 +479,7 @@ int isCaterpillarHit(int row, int col)
                     enemy->length = newLength;
 
                     // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
                         return 0;
 
                     // Launch animate thread for newly spawned enemy
@@ -490,6 +489,10 @@ int isCaterpillarHit(int row, int col)
                         print_error(errorCode, "pthread_create()");
                         return 0;
                     }
+
+                    // Subtract the number of ticks the enemy
+                    // sleeps in between animations, speeding it up.
+                    enemy->sleeptTicks -= 5;
 
                     return 1;
                 }
@@ -505,7 +508,7 @@ int isCaterpillarHit(int row, int col)
                     enemy->length = newLength;
 
                     // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft))
+                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
                         return 0;
 
                     // Launch animate thread for newly spawned enemy
@@ -515,6 +518,10 @@ int isCaterpillarHit(int row, int col)
                         print_error(errorCode, "pthread_create()");
                         return 0;
                     }
+
+                    // Subtract the number of ticks the enemy
+                    // sleeps in between animations, speeding it up.
+                    enemy->sleeptTicks -= 5;
 
                     return 1;
                 }
@@ -588,7 +595,7 @@ void *enemySpawner(void *ticksPerEnemy)
 
         // Spawn enemy at start location,
         // storing it at head of linked list.
-        if (!spawnEnemy(GAME_COLS - 1, 2, ENEMY_DEFAULT_LENGTH, 1))
+        if (!spawnEnemy(GAME_COLS - 1, 2, ENEMY_DEFAULT_LENGTH, 1, ENEMY_DEFAULT_SPEED))
             pthread_exit(NULL);
 
         // Launch animate thread for newly spawned enemy

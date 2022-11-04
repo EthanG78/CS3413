@@ -478,16 +478,19 @@ int isCaterpillarHit(int row, int col)
                     newEnemyLength = enemy->length - newLength;
                     enemy->length = newLength;
 
-                    // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
-                        return 0;
-
-                    // Launch animate thread for newly spawned enemy
-                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
-                    if (errorCode != 0)
+                    if (newEnemyLength >= ENEMY_MIN_LENGTH)
                     {
-                        print_error(errorCode, "pthread_create()");
-                        return 0;
+                        // Spawn the new caterpillar from where the old one was hit
+                        if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
+                            return 0;
+
+                        // Launch animate thread for newly spawned enemy
+                        errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_create()");
+                            return 0;
+                        }
                     }
 
                     // Subtract the number of ticks the enemy
@@ -507,16 +510,19 @@ int isCaterpillarHit(int row, int col)
                     newEnemyLength = enemy->length - newLength;
                     enemy->length = newLength;
 
-                    // Spawn the new caterpillar from where the old one was hit
-                    if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
-                        return 0;
-
-                    // Launch animate thread for newly spawned enemy
-                    errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
-                    if (errorCode != 0)
+                    if (newEnemyLength >= ENEMY_MIN_LENGTH)
                     {
-                        print_error(errorCode, "pthread_create()");
-                        return 0;
+                        // Spawn the new caterpillar from where the old one was hit
+                        if (!spawnEnemy(col, enemy->row, newEnemyLength, enemy->movingLeft, enemy->sleeptTicks))
+                            return 0;
+
+                        // Launch animate thread for newly spawned enemy
+                        errorCode = pthread_create(enemyHead->enemyThread, NULL, animateEnemy, (void *)enemyHead->enemy);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_create()");
+                            return 0;
+                        }
                     }
 
                     // Subtract the number of ticks the enemy

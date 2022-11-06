@@ -436,6 +436,10 @@ void *maintainGameLoop(void *checkRate)
                 return 0;
             }
 
+            // todo:
+            // Sometimes when the game launches, we segfault
+            // and display the YOU WIN text. I think it has to do with
+            // us freeing caterpillars when they are not yet spawned in....
             putBanner("You win!");
 
             errorCode = pthread_mutex_unlock(&M_Console);

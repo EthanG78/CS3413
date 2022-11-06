@@ -146,7 +146,10 @@ int enemiesRemaining()
 
     for (current = enemyHead; current != NULL; current = current->next)
     {
-        length++;
+        // Count the number of enemies who have length greater than
+        // the minimum, indicating they are still alive.
+        if (current->enemy->length >= ENEMY_MIN_LENGTH)
+            length++;
     }
 
     errorCode = pthread_mutex_unlock(&M_EnemyList);

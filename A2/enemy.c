@@ -492,6 +492,26 @@ int isCaterpillarHit(int row, int col)
                             return 0;
                         }
                     }
+                    else
+                    {
+                        errorCode = pthread_mutex_lock(&M_Console);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_mutex_lock()");
+                            pthread_exit(NULL);
+                        }
+
+                        // If the caterpillar does not meet the length requirement
+                        // then we clear the caterpillar's prev animation frames
+                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength);
+
+                        errorCode = pthread_mutex_unlock(&M_Console);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_mutex_unlock()");
+                            pthread_exit(NULL);
+                        }
+                    }
 
                     // Subtract the number of ticks the enemy
                     // sleeps in between animations, speeding it up.
@@ -522,6 +542,26 @@ int isCaterpillarHit(int row, int col)
                         {
                             print_error(errorCode, "pthread_create()");
                             return 0;
+                        }
+                    }
+                    else
+                    {
+                        errorCode = pthread_mutex_lock(&M_Console);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_mutex_lock()");
+                            pthread_exit(NULL);
+                        }
+
+                        // If the caterpillar does not meet the length requirement
+                        // then we clear the caterpillar's prev animation frames
+                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength);
+
+                        errorCode = pthread_mutex_unlock(&M_Console);
+                        if (errorCode != 0)
+                        {
+                            print_error(errorCode, "pthread_mutex_unlock()");
+                            pthread_exit(NULL);
                         }
                     }
 

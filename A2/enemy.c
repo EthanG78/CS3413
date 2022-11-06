@@ -503,7 +503,7 @@ int isCaterpillarHit(int row, int col)
 
                         // If the caterpillar does not meet the length requirement
                         // then we clear the caterpillar's prev animation frames
-                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength);
+                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength * 2);
 
                         errorCode = pthread_mutex_unlock(&M_Console);
                         if (errorCode != 0)
@@ -555,7 +555,7 @@ int isCaterpillarHit(int row, int col)
 
                         // If the caterpillar does not meet the length requirement
                         // then we clear the caterpillar's prev animation frames
-                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength);
+                        consoleClearImage(enemy->row, col, ENEMY_HEIGHT, newEnemyLength * 2);
 
                         errorCode = pthread_mutex_unlock(&M_Console);
                         if (errorCode != 0)

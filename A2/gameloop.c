@@ -169,6 +169,10 @@ int cleanupGameLoop()
     if (!cleanupBullets())
         return 0;
 
+    // Cleanup all enemies.
+    //if (!cleanupBullets())
+    //    return 0;
+
     // destroy mutexes and stuff
     errorCode = pthread_mutex_destroy(&M_Console);
     if (errorCode != 0)
@@ -565,7 +569,7 @@ void executeGameLoop()
         else
         {
             // When threads are successfully launched, we wait on
-            // the IsRunningCV condition variable to tell us that 
+            // the IsRunningCV condition variable to tell us that
             // the game is done running.
             errorCode = pthread_mutex_lock(&M_IsRunningCV);
             if (errorCode != 0)

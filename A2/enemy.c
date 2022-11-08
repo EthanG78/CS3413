@@ -48,8 +48,9 @@ char *ENEMY_BODY[ENEMY_ANIM_TILES][ENEMY_HEIGHT] =
         {"~~",
          ",\\"}};
 
-// Define a caterpillar struct that tracks the current row,
-// the length of the caterpillar, and its current column.
+// Define a caterpillar struct that tracks the current row, col,
+// length, direction of travel, and the number of ticks its sleeps
+// per animation frame.
 // This is what we will store in linked list of all caterpillars
 // on screen.
 typedef struct Caterpillar
@@ -72,17 +73,20 @@ typedef struct EnemyNode
     struct EnemyNode *next;
 } EnemyNode;
 
+// Define the head of our enemy linked list.
 EnemyNode *enemyHead = NULL;
 
 // This value keeps track if a caterpillar
-// has made it to the player
+// has made it to the player...
 int enemyAtBottomFlag = 0;
 
+// Function that initializes a new caterpillar at col x, row y, with a specific length,
+// direction of travel, and number of idle ticks per animation.
+//
+// Returns 1 indicating success, error otherwise.
 int spawnEnemy(int x, int y, int length, int isGoingLeft, int sleepTicks)
 {
-    // Initialize a new caterpillar at col = x, row = y.
-    // All new caterpillars have length equivalent to the
-    // width of the game board initially. Need to malloc each
+    // Need to malloc each
     // caterpillar so that it exists outside of this scope
     // and can be accessed as the linked list is accessed.
     Caterpillar *newEnemy = (Caterpillar *)malloc(sizeof(Caterpillar));
@@ -129,6 +133,10 @@ int spawnEnemy(int x, int y, int length, int isGoingLeft, int sleepTicks)
     return 1;
 }
 
+// Function that returns the number of enemy caterpillars
+// currently alive in the game screen.
+//
+// Returns 1 indicating success, error otherwise.
 int enemiesRemaining()
 {
     // traverse the linked list, returning
@@ -162,11 +170,20 @@ int enemiesRemaining()
     return length;
 }
 
+// Function that returns the state of the 
+// enemyAtBottom flag. This is useful in 
+// the maintenance thread.
 int enemyAtBottom()
 {
     return enemyAtBottomFlag;
 }
 
+// Function that is responsible for animating the enemy
+// caterpillar(s). This is the function that each caterpillar
+// thread runs. 
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *animateEnemy(void *enemy)
 {
     int errorCode = 0;
@@ -179,7 +196,7 @@ void *animateEnemy(void *enemy)
     int bulletCounter = nCyclesPerBullet;
 
     // To determine where to draw each segment of the caterpillar,
-    // I have come up with a clever way where we don't explicitly need to
+    // I have come up with a way where we don't explicitly need to
     // increment/decrement rows/cols and care about the direction.
     // I number the caterpillar area as a grid as follows:
     //
@@ -188,7 +205,7 @@ void *animateEnemy(void *enemy)
     //  12 11 10 9          EXAMPLE 4x4 caterpillar grid
     //  13 14 15 16
     //
-    // and store the caterpillar's head position (starts at 0)
+    // and store the caterpillar's head position (starts at 1 for new enemy).
     // Since we know the width of the caterpillar's head,  the width
     // of each body segment, and the length of the caterpillar, we
     // can determine the row/col to draw each segment based on the
@@ -387,6 +404,21 @@ void *animateEnemy(void *enemy)
 
 // WIPWIPIWPIWP
 // THIS IS SO UNBELIEVABLY BROKEN
+
+// Function that polls all currently alive
+// caterpillars to determine if a particular caterpillar
+// has been hit with a player bullet. If this is true, then we
+// must split that caterpillar at the position it was hit. 
+// Depending on whether or not the split caterpillar's length
+// is larger than ENEMY_MIN_LENGTH, we create a new thread for the 
+// half of the caterpillar that the original half was split from. 
+//
+// todo: 
+//      There is an issue where if you hit the half of the caterpillar
+//      that has yet to wrap around to the same row as the caterpillar's head
+//      this function breaks down.
+//
+// Returns 1 if a caterpillar was hit, 0 otherwise.
 int isCaterpillarHit(int row, int col)
 {
     // given the row and col
@@ -399,11 +431,20 @@ int isCaterpillarHit(int row, int col)
     int newLength = 0;
     int newEnemyLength = 0;
 
+    
     while (current != NULL)
     {
         enemy = current->enemy;
+
+        // Don't bother checking dead enemies.
+        if (enemy->length < ENEMY_MIN_LENGTH)
+            continue;
+
         if (row < enemy->row + ENEMY_HEIGHT)
         {
+            // We are handling things differently based
+            // on which direciton the caterpllar is moving.
+            // This is kind of annoying, refactor this if possible.
             if (enemy->movingLeft == 1)
             {
                 if (col >= enemy->col && col <= enemy->col + (2 * enemy->length) + 1)
@@ -516,13 +557,13 @@ int isCaterpillarHit(int row, int col)
     return 0;
 }
 
+// Function that is cleans up all enemies
+// currently stored in the linked list. This function
+// frees all memory that was malloc'd earlier.
+//
+// Returns 1 indicating success, error otherwise.
 int cleanupEnemies()
 {
-    // In the event that the game ends
-    // and there are still caterpillars alive,
-    // we need to free their memory and join their
-    // threads.
-
     int errorCode = 0;
 
     EnemyNode *current = enemyHead;
@@ -563,6 +604,13 @@ int cleanupEnemies()
     return 1;
 }
 
+// Function that spawns enemy caterpillars at the top
+// right of the screen at a fixed interval set by ticksPerEnemy.
+// This function will run in its own thread, and create a thread for
+// each enemy caterpillar it spawns until the end of game.
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *enemySpawner(void *ticksPerEnemy)
 {
     // spawn enemies at given spawn rate
@@ -597,6 +645,7 @@ void *enemySpawner(void *ticksPerEnemy)
             sleepTicks(1);
     }
 
+    // todo: should I move this to cleanupGameLoop()
     cleanupEnemies();
 
     pthread_exit(NULL);

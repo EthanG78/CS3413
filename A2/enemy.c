@@ -178,8 +178,8 @@ int enemiesRemaining()
     return length;
 }
 
-// Function that returns the state of the 
-// enemyAtBottom flag. This is useful in 
+// Function that returns the state of the
+// enemyAtBottom flag. This is useful in
 // the maintenance thread.
 int enemyAtBottom()
 {
@@ -188,7 +188,7 @@ int enemyAtBottom()
 
 // Function that is responsible for animating the enemy
 // caterpillar(s). This is the function that each caterpillar
-// thread runs. 
+// thread runs.
 //
 // Runs until IS_RUNNING is false and exits with
 // pthread_exit(NULL).
@@ -416,12 +416,12 @@ void *animateEnemy(void *enemy)
 // Function that polls all currently alive
 // caterpillars to determine if a particular caterpillar
 // has been hit with a player bullet. If this is true, then we
-// must split that caterpillar at the position it was hit. 
+// must split that caterpillar at the position it was hit.
 // Depending on whether or not the split caterpillar's length
-// is larger than ENEMY_MIN_LENGTH, we create a new thread for the 
-// half of the caterpillar that the original half was split from. 
+// is larger than ENEMY_MIN_LENGTH, we create a new thread for the
+// half of the caterpillar that the original half was split from.
 //
-// todo: 
+// todo:
 //      There is an issue where if you hit the half of the caterpillar
 //      that has yet to wrap around to the same row as the caterpillar's head
 //      this function breaks down.
@@ -439,10 +439,11 @@ int isCaterpillarHit(int row, int col)
     int newLength = 0;
     int newEnemyLength = 0;
 
-    
     while (current != NULL)
     {
         enemy = current->enemy;
+
+        current = current->next;
 
         // Don't bother checking dead enemies.
         if (enemy->length < ENEMY_MIN_LENGTH)
@@ -558,8 +559,6 @@ int isCaterpillarHit(int row, int col)
                 }
             }
         }
-
-        current = current->next;
     }
 
     return 0;

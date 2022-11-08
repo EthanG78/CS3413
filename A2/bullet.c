@@ -1,3 +1,11 @@
+/*
+  bullet.c
+  CS3413 Operating Systems 1
+  Assignment 2
+  FALL 2022
+
+  Author: Ethan Garnier
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -254,6 +262,10 @@ void *animateBullet(void *xBullet)
             pthread_exit(NULL);
         }
 
+        // todo:
+        // I think this is causing issues where the flag isn't
+        // properly being flipped and we just immediately destroy bullets
+        // after hitting a caterpillar.
         if (destroyBullets == 1)
         {
             errorCode = pthread_mutex_unlock(&M_DestroyBullets);

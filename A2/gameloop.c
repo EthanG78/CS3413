@@ -1,3 +1,11 @@
+/*
+  gameloop.c
+  CS3413 Operating Systems 1
+  Assignment 2
+  FALL 2022
+
+  Author: Ethan Garnier
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

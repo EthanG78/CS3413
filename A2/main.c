@@ -5,10 +5,15 @@
   FALL 2022
 
   To compile with Makefile run
-  > make
+  > make {release}
+
+  If you wish to compile with debug symbols run
+  > make debug
 
   To run the compiled binary call
   > ./caterpillar
+  or use
+  > make run
 
   Author: Ethan Garnier
 */

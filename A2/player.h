@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-int playerHit();
+//int playerHit();
 
 void *playerController(void *x);
 

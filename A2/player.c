@@ -25,8 +25,13 @@ char *PLAYER_BODY[PLAYER_BODY_ANIM_TILES][PLAYER_HEIGHT] =
          "<X>",
          " V "}};
 
+// Hacky way to keep track of current player animation frame
 char **currentPlayerFrame = PLAYER_BODY[0];
 
+// Function that moves the player deltaX rows and
+// -deltaY cols relative to its current position.
+//
+// Returns 1 indicating success, error otherwise.
 int movePlayer(int deltaX, int deltaY)
 {
     int errorCode = 0;
@@ -113,6 +118,10 @@ int movePlayer(int deltaX, int deltaY)
     return 1;
 }
 
+// Initialize the player, setting some flags, and moving
+// it to its default starting position.
+//
+// Returns 1 indicating success, error otherwise.
 int initPlayer()
 {
     int errorCode = 0;
@@ -150,13 +159,20 @@ int initPlayer()
     }
 
     // Move player to starting position, if this fails
-    // then what do we have to life for but nothing?
+    // then what do we have to live for but nothing?
     if (!movePlayer((int)(GAME_COLS / 2), -19))
         return 0;
 
     return 1;
 }
 
+// Function that is called whenever the player is hit by
+// a caterpillar's bullet. We must decrement the number of
+// lives the player has remaining, we must delete all bullets
+// currently in the game console, we reset the player position
+// to its starting position and freeze the console for 250 ticks.
+//
+// Returns 1 indicating success, error otherwise.
 int playerHit()
 {
     int errorCode = 0;
@@ -219,6 +235,11 @@ int playerHit()
     return 1;
 }
 
+// Function that is called whenever the player quits the game.
+// We must signal the IsRunningCv condition variable to tell the main thread
+// we are done.
+
+// Returns 1 indicating success, error otherwise.
 int playerQuit()
 {
     int errorCode = 0;
@@ -230,7 +251,7 @@ int playerQuit()
         return 0;
     }
 
-    putBanner("You're lame....");
+    putBanner("Couldn't take the heat so you quit?");
 
     errorCode = pthread_mutex_unlock(&M_Console);
     if (errorCode != 0)
@@ -266,6 +287,12 @@ int playerQuit()
     return 1;
 }
 
+// Function that is responsible for handling all user
+// input. This includes moving the player, quitting the game,
+// and firing bullets from the player.
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *playerController(void *x)
 {
     // required for pselect call to stdin
@@ -284,10 +311,6 @@ void *playerController(void *x)
 
         if (ret == -1)
         {
-            // todo:
-            // Since we redefine readfds and
-            // timeout on each loop, I don't think
-            // we need to exit here?
             perror("pselect()");
         }
         else if (IS_RUNNING && ret >= 1)
@@ -317,7 +340,8 @@ void *playerController(void *x)
                 break;
             case SHOOT:
                 // Fire the bullet from the center of the player, 1
-                // tile above them. todo: add a firerate for player
+                // tile above them.
+                // todo: add a firerate for player
                 if (!fireBullet(PLAYER_POS_X + 1, PLAYER_POS_Y - 1, 1))
                     continue;
                 break;
@@ -336,17 +360,18 @@ void *playerController(void *x)
     pthread_exit(NULL);
 }
 
+// Function that is responsible for handling all player
+// animations. Each animation takes idleTicks ticks to run.
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *animatePlayer(void *idleTicks)
 {
     int errorCode = 0;
     int nTicksPerAnimFrame = *(int *)idleTicks;
 
     if (!initPlayer())
-    {
-        // todo:
-        // there was a problem
         pthread_exit(NULL);
-    }
 
     while (IS_RUNNING)
     {

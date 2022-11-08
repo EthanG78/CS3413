@@ -243,7 +243,7 @@ int cleanupGameLoop()
     return 1;
 }
 
-// This is a utility function that signals the M_IsRunningCV
+// This is a utility function that signals the IsRunningCV
 // condition variable to end the gameloop. This is called
 // when a player wins, or loses.
 //
@@ -565,7 +565,7 @@ void executeGameLoop()
         else
         {
             // When threads are successfully launched, we wait on
-            // the M_IsRunningCV condition variable to tell us that 
+            // the IsRunningCV condition variable to tell us that 
             // the game is done running.
             errorCode = pthread_mutex_lock(&M_IsRunningCV);
             if (errorCode != 0)

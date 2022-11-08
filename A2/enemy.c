@@ -645,7 +645,6 @@ void *enemySpawner(void *ticksPerEnemy)
             sleepTicks(1);
     }
 
-    // todo: should I move this to cleanupGameLoop()
     cleanupEnemies();
 
     pthread_exit(NULL);

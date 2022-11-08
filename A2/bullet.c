@@ -11,6 +11,7 @@
 #include "globals.h"
 #include "console.h"
 
+// Flag that tells us to destroy all bullets currently running.
 int destroyBullets = 0;
 
 char *PLAYER_BULLET[BULLET_ANIM_TILES][BULLET_HEIGHT] =
@@ -42,8 +43,16 @@ typedef struct BulletNode
     struct BulletNode *next;
 } BulletNode;
 
+// Define the head of our bullet linked list.
 BulletNode *bulletHead = NULL;
 
+// This function spawns a new bullet at col x, and row y.
+// We malloc this bullet and store it bullet in our linked
+// list of bullets. We must pass isFromPlayer to the bullet
+// struct as this affects the direction it travels and its animation.
+//
+// Returns the BulletNode that was stored on the linked list
+// for this new bullet.  
 BulletNode *spawnBullet(int x, int y, int isFromPlayer)
 {
     // Initialize a new bullet at col = x, row = y.
@@ -89,13 +98,13 @@ BulletNode *spawnBullet(int x, int y, int isFromPlayer)
     return newNode;
 }
 
+// Function that is cleans up all bullets
+// currently stored in the linked list. This function
+// frees all memory that was malloc'd earlier.
+//
+// Returns 1 indicating success, error otherwise.
 int cleanupBullets()
 {
-    // In the event that the game ends
-    // and there are still bullets alive, or
-    // the player gets hit then we need to
-    // free all bullet memory and join bullet
-    // threads.
     int errorCode = 0;
 
     BulletNode *current = bulletHead;
@@ -170,6 +179,12 @@ int cleanupBullets()
     return 1;
 }
 
+// This function performs hit detection for a
+// for a current bullet. Based on if the bullet was
+// fired from a player or caterpillar, it handles things
+// differently. 
+//
+// Returns 1 if a player or enemy was hit, and 0 otherwise.
 int detectHit(Bullet *bullet)
 {
     int errorCode = 0;
@@ -211,6 +226,13 @@ int detectHit(Bullet *bullet)
     return 0;
 }
 
+// Function that is responsible for animating the bullet
+// fired from player or enemy. This is the function that is 
+// running on each bullet thread. 
+//
+// Runs until IS_RUNNING is false, the bullet exits the bounds
+// of the playable area, or the bullet has been signaled to be destroyed,
+// and exits with pthread_exit(NULL).
 void *animateBullet(void *xBullet)
 {
     int errorCode = 0;
@@ -224,7 +246,6 @@ void *animateBullet(void *xBullet)
     // area, and the game is still running.
     while (IS_RUNNING && bullet->row > 3 && bullet->row < GAME_ROWS)
     {
-        // todo: look at using a cond variable???
         // Check if we called cleanupBullets
         errorCode = pthread_mutex_lock(&M_DestroyBullets);
         if (errorCode != 0)
@@ -290,6 +311,10 @@ void *animateBullet(void *xBullet)
             pthread_exit(NULL);
         }
 
+        // Perform hit detection on each animation frame,
+        // if we detect a hit on the player then we flip
+        // IS_PLAYER_HIT, if we detect a hit on a caterpillar
+        // then we increment the player's score.
         if (detectHit(bullet))
         {
             if (!bullet->fromPlayer)
@@ -314,14 +339,15 @@ void *animateBullet(void *xBullet)
             }
             else
             {
-                // Increment player score each time hit a caterpillar
                 errorCode = pthread_mutex_lock(&M_PlayerScore);
                 if (errorCode != 0)
                 {
                     print_error(errorCode, "pthread_mutex_lock()");
                     pthread_exit(NULL);
                 }
+
                 PLAYER_SCORE++;
+
                 errorCode = pthread_mutex_unlock(&M_PlayerScore);
                 if (errorCode != 0)
                 {
@@ -358,6 +384,11 @@ void *animateBullet(void *xBullet)
     pthread_exit(NULL);
 }
 
+// Function that is responsible for 'firing' a bullet.
+// This function will create a bulle twith the spawnBullet() function,
+// and then launch a new thread for this bullet.
+//
+// Returns 1 indiciating success, error otherwise.
 int fireBullet(int x, int y, int isFromPlayer)
 {
     int errorCode = 0;

@@ -40,12 +40,17 @@ char *GAME_BOARD[] = {
     "",
     ""};
 
+// Initialize required data, mutexes, etc for game loop.
+//
+// Return 1 indicating success, error otherwise. In main
+// program, do not call executeGameloop() unless this function
+// returns success.
 int initializeGameLoop()
 {
     // set game state to running
     IS_RUNNING = 1;
 
-    // Set game related info
+    // set game related info
     PLAYER_LIVES_REMAINING = PLAYER_MAX_LIVES;
     PLAYER_SCORE = 0;
 
@@ -56,7 +61,6 @@ int initializeGameLoop()
     pthread_mutexattr_t errAttr;
 
     int errorCode = 0;
-
     errorCode = pthread_mutexattr_init(&errAttr);
     if (errorCode != 0)
     {
@@ -64,6 +68,7 @@ int initializeGameLoop()
         return 0;
     }
 
+    // we want mutexes to check for errors
     errorCode = pthread_mutexattr_settype(&errAttr, PTHREAD_MUTEX_ERRORCHECK);
     if (errorCode != 0)
     {
@@ -141,13 +146,6 @@ int initializeGameLoop()
         return 0;
     }
 
-    /*errorCode = pthread_cond_init(&IsPlayerHitCv, NULL);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_cond_init()");
-        return 0;
-    }*/
-
     errorCode = pthread_mutexattr_destroy(&errAttr);
     if (errorCode != 0)
     {
@@ -158,11 +156,16 @@ int initializeGameLoop()
     return 1;
 }
 
+// Cleanup mutexes that were initialized in initializeGameLoop().
+// This function must be called after executeGameLoop() is called.
+//
+// Return 1 indicating success, error otherwise.
 int cleanupGameLoop()
 {
     int errorCode = 0;
 
-    // Cleanup all bullets
+    // todo: look at doig this on the fly in maintain thread
+    // Cleanup all bullets.
     if (!cleanupBullets())
         return 0;
 
@@ -237,16 +240,14 @@ int cleanupGameLoop()
         return 0;
     }
 
-    /*errorCode = pthread_cond_destroy(&IsPlayerHitCv);
-    if (errorCode != 0)
-    {
-        print_error(errorCode, "pthread_cond_destroy()");
-        return 0;
-    }*/
-
     return 1;
 }
 
+// This is a utility function that signals the M_IsRunningCV
+// condition variable to end the gameloop. This is called
+// when a player wins, or loses.
+//
+// Returns 1 on success, error otherwise.
 int signalGameOver()
 {
     int errorCode = 0;
@@ -277,15 +278,18 @@ int signalGameOver()
     return 1;
 }
 
+// Function that is responsible for refreshing the console
+// each refreshRate ticks. This function will run in its own thread.
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *refreshGameLoop(void *refreshRate)
 {
     int errorCode = 0;
     int nTicksPerRefresh = *(int *)refreshRate;
+
     while (IS_RUNNING)
     {
-        // todo:
-        // is sleepTicks() part of my critical section?
-
         errorCode = pthread_mutex_lock(&M_Console);
         if (errorCode != 0)
         {
@@ -308,6 +312,16 @@ void *refreshGameLoop(void *refreshRate)
     pthread_exit(NULL);
 }
 
+// Function that is responsible for maintaining and checking
+// certain aspects of the game while the game is running. Will check
+// how many player lives are remaining, and will signal the game to quit
+// if player lives reaches zero. Will check how many enemies are left, and
+// will signal the game to quit if enemiesRemaining() returns 0. Will check
+// if an enemy has made it to the bottom of the screen, and will signal the
+// game to quit if enemyAtBottom() returns 1.
+//
+// Runs until IS_RUNNING is false and exits with
+// pthread_exit(NULL).
 void *maintainGameLoop(void *checkRate)
 {
     int errorCode = 0;
@@ -459,6 +473,10 @@ void *maintainGameLoop(void *checkRate)
     pthread_exit(NULL);
 }
 
+// Function that is responsible for launching each thread that
+// the game requires.
+//
+// Returns 1 indicating success, error otherwise.
 int launchThreads()
 {
     int errorCode = 0;
@@ -488,6 +506,9 @@ int launchThreads()
         (void *)&ticksPerEnemy,
         (void *)&playerIdleTicks};
 
+    // call pthread_create for each of the threads in threads[], using each function
+    // from threadFunctions[] with the parameters in threadParams[]. It is crucial
+    // that the indexes of the functions and parameters line up in their arrays.
     for (int i = 0; i < nThreads; i++)
     {
         errorCode = pthread_create(&threads[i], NULL, threadFunctions[i], threadParams[i]);
@@ -498,6 +519,8 @@ int launchThreads()
         }
     }
 
+    // todo:
+    // should I be joining the threads here?
     for (int i = 0; i < nThreads; i++)
     {
         errorCode = pthread_join(threads[i], NULL);
@@ -514,18 +537,36 @@ int launchThreads()
 void executeGameLoop()
 {
     int errorCode = 0;
-    if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD)) // start the game (maybe need to do this elsewhere...)
+
+    // Start the game console
+    if (consoleInit(GAME_ROWS, GAME_COLS, GAME_BOARD))
     {
+        // Launch the required threads for the game to run
         if (!launchThreads())
         {
+            // If we fail to launch the game threads, then we alert
+            // the user and immediately close the gameloop.
             IS_RUNNING = 0;
 
-            // Might have to put mutex around this
+            errorCode = pthread_mutex_lock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_lock()");
+            }
+
             putBanner("Unable to launch game threads. Exiting.");
+
+            errorCode = pthread_mutex_unlock(&M_Console);
+            if (errorCode != 0)
+            {
+                print_error(errorCode, "pthread_mutex_unlock()");
+            }
         }
         else
         {
-            // wait on condition variable to tell us we are done
+            // When threads are successfully launched, we wait on
+            // the M_IsRunningCV condition variable to tell us that 
+            // the game is done running.
             errorCode = pthread_mutex_lock(&M_IsRunningCV);
             if (errorCode != 0)
             {
@@ -548,10 +589,9 @@ void executeGameLoop()
             }
         }
 
-        // disable console from refreshing
+        // When the gameloop is done, we wait for one finalkeypress
+        // before killing curses and game
         disableConsole(1);
-
-        // wait for final key before killing curses and game
         finalKeypress();
     }
 
@@ -568,7 +608,4 @@ void executeGameLoop()
     {
         print_error(errorCode, "pthread_mutex_unlock()");
     }
-
-    if (!cleanupGameLoop())
-        printf("UNABLE TO CLEANUP GAME LOOP");
 }

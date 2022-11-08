@@ -26,7 +26,6 @@ pthread_mutex_t M_IsRunningCV;
 pthread_cond_t IsRunningCv;
 
 pthread_mutex_t M_IsPlayerHit;
-//pthread_cond_t IsPlayerHitCv;
 
 /*
  * Game State Definitions

@@ -220,10 +220,13 @@ void *animateEnemy(void *enemy)
     // numbered grid system and the location of the caterpillars head
     // in that grid system.
 
+    // Required to account for each second row being skipped
+    int rowOffset = 0;
+
     // Position in grid of caterpillar head
     // This will be different based on if the caterpillar
     // was just spawned, or if it is from a split caterpillar.
-    int caterpillarPos = (GAME_COLS - caterpillar->col) * (caterpillar->row - 1);
+    int caterpillarPos = (GAME_COLS - caterpillar->col) * (caterpillar->row - 1 - rowOffset);
     // Position in grid of caterpillar body segment
     int segmentPos = 0;
     // Calculated column position of body segment
@@ -243,9 +246,6 @@ void *animateEnemy(void *enemy)
     //  - based on which direction the caterpillar is moving, we
     //    either use this as the column to draw the segment at, or we
     //    subtract this value from GAME_COLS and draw it at that column
-
-    // Required to account for each second row being skipped
-    int rowOffset = 0;
 
     char **headFrame;
     char **bodyFrame;
@@ -372,7 +372,6 @@ void *animateEnemy(void *enemy)
         {
             if (!fireBullet(caterpillar->col, caterpillar->row + ENEMY_HEIGHT, 0))
             {
-                // todo:
                 // caterpillar couldn't fire bullet
             }
 

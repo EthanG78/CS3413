@@ -221,7 +221,7 @@ void *animateEnemy(void *enemy)
     // in that grid system.
 
     // Required to account for each second row being skipped
-    int rowOffset = 0;
+    int rowOffset = (caterpillar->row / 2) - 1;
 
     // Position in grid of caterpillar head
     // This will be different based on if the caterpillar

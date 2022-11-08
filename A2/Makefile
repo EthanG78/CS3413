@@ -1,7 +1,6 @@
 CC = gcc
 
 BASEFLAGS = -Wall -pthread -std=c99 -D_XOPEN_SOURCE=700
-NODEBUG_FLAGS = -dN DEBUG 
 DEBUG_FLAGS = -g
 
 LDLIBS = -lcurses -pthread -lm
@@ -10,11 +9,11 @@ OBJS = main.o console.o bullet.o player.o enemy.o gameloop.o
 
 EXE = caterpillar
 
+release: CFLAGS = $(BASEFLAGS)
+release: $(EXE)
+
 debug: CFLAGS = $(BASEFLAGS) $(DEBUG_FLAGS)
 debug: $(EXE)
-
-release: CFLAGS = $(BASEFLAGS) $(NODEBUG_FLAGS) 
-release: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(EXE) $(LDLIBS)
@@ -45,6 +44,3 @@ clean:
 
 run:
 	./$(EXE)
-
-run_debug:
-	./$(EXE)_d

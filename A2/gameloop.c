@@ -21,6 +21,10 @@
 #include "enemy.h"
 #include "bullet.h"
 
+// Some constants for threading
+#define NTHREADS 5
+pthread_t gameLoopThreads[NTHREADS];
+
 /**** DIMENSIONS MUST MATCH the ROWS/COLS */
 char *GAME_BOARD[] = {
     "                   Score:          Lives:",
@@ -488,8 +492,6 @@ void *maintainGameLoop(void *checkRate)
 int launchThreads()
 {
     int errorCode = 0;
-    int nThreads = 5;
-    pthread_t threads[nThreads];
 
     // Store functions to be run in their
     // own threads here
@@ -517,31 +519,45 @@ int launchThreads()
     // call pthread_create for each of the threads in threads[], using each function
     // from threadFunctions[] with the parameters in threadParams[]. It is crucial
     // that the indexes of the functions and parameters line up in their arrays.
-    for (int i = 0; i < nThreads; i++)
+    for (int i = 0; i < NTHREADS; i++)
     {
-        errorCode = pthread_create(&threads[i], NULL, threadFunctions[i], threadParams[i]);
+        errorCode = pthread_create(&gameLoopThreads[i], NULL, threadFunctions[i], threadParams[i]);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_create()");
             return 0;
         }
     }
+    return 1;
+}
 
-    // todo:
-    // should I be joining the threads here?
-    for (int i = 0; i < nThreads; i++)
+// Function that is responsible for joining each thread that
+// the game requires and that is launched in launchThreads().
+// This MUST be called when the gameloop has been signaled to end.
+//
+// Returns 1 indicating success, error otherwise.
+int joinThreads()
+{
+    int errorCode = 0;
+
+    for (int i = 0; i < NTHREADS; i++)
     {
-        errorCode = pthread_join(threads[i], NULL);
+        errorCode = pthread_join(gameLoopThreads[i], NULL);
         if (errorCode != 0)
         {
             print_error(errorCode, "pthread_join()");
             return 0;
         }
     }
-
     return 1;
 }
 
+// This function is responsible for initializing the game
+// console and launching all threads required for the game
+// to run. Upon successful initialization of console and launching of
+// game threads, this function will run until signaled by the
+// IsRunningCV to quit and join all threads. The cleanupGameLoop()
+// function must be called once this funciton finishes.
 void executeGameLoop()
 {
     int errorCode = 0;
@@ -594,6 +610,12 @@ void executeGameLoop()
             if (errorCode != 0)
             {
                 print_error(errorCode, "pthread_mutex_unlock()");
+            }
+
+            // Once we are done, we must join threads
+            if (!joinThreads())
+            {
+                printf("Unable to join all game threads...\n");
             }
         }
 

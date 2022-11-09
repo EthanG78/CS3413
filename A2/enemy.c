@@ -227,7 +227,7 @@ void *animateEnemy(void *enemy)
     // This will be different based on if the caterpillar
     // was just spawned, or if it is from a split caterpillar.
     int caterpillarPos = (caterpillar->movingLeft)
-                             ? (GAME_COLS - caterpillar->col) * (caterpillar->row - 2 - rowOffset)
+                             ? (GAME_COLS - caterpillar->col) + ((caterpillar->row - 2 - rowOffset) * GAME_COLS)
                              : caterpillar->col + ((caterpillar->row - 2 - rowOffset) * GAME_COLS);
 
     // Position in grid of caterpillar body segment

@@ -412,9 +412,6 @@ void *animateEnemy(void *enemy)
     pthread_exit(NULL);
 }
 
-// WIPWIPIWPIWP
-// THIS IS SO UNBELIEVABLY BROKEN
-
 // Function that polls all currently alive
 // caterpillars to determine if a particular caterpillar
 // has been hit with a player bullet. If this is true, then we

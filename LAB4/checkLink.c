@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	}
 
     // Append null byte
-    data[result + 1] = '\0'
+    data[result + 1] = '\0';
 
     // Print raw link contents
     printf("link %s has contents:\n%s", argv[1], data);

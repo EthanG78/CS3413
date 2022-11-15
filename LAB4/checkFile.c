@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 	printf("file %s has inode #%d\n", argv[1], (int)data.st_ino);
-	printf("file %s has %d hard links to its inode\n", argv[1], (int)data.st_nlink);
+	printf("file %s has %d hard link(s) to its inode\n", argv[1], (int)data.st_nlink);
+	printf("file %s is using %d block(s) on disk\n", argv[1], (int)data.st_blocks);
 	return(0);
 }

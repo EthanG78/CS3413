@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     data[result + 1] = '\0';
 
     // Print raw link contents
-    printf("link %s has contents:\n%s", argv[1], data);
+    printf("link %s has contents:\n%s\n", argv[1], data);
 
 	return(0);
 }

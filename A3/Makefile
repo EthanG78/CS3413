@@ -1,6 +1,6 @@
 CC = gcc
 
-BASEFLAGS = -Wall -pthread -std=c99
+BASEFLAGS = -Wall -std=c99
 DEBUG_FLAGS = -g
 
 LDLIBS = -lm

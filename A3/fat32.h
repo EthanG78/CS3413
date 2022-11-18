@@ -6,11 +6,12 @@
 /* boot sector constants */
 #define BS_OEMName_LENGTH 8
 #define BS_VolLab_LENGTH 11
-#define BS_FilSysType_LENGTH 8 
+#define BS_FilSysType_LENGTH 8
 
 #pragma pack(push)
 #pragma pack(1)
-struct fat32BS_struct {
+struct fat32BS_struct
+{
 	char BS_jmpBoot[3];
 	char BS_OEMName[BS_OEMName_LENGTH];
 	uint16_t BPB_BytesPerSec;
@@ -47,17 +48,17 @@ struct fat32BS_struct {
 
 typedef struct fat32BS_struct fat32BS;
 
-//TODO: YOU WILL NEED TO MAKE MORE STRUCTS
-//for each struct you make, it's IMPORTANT to surround them
-//with the #pragmas you see above like:
+// TODO: YOU WILL NEED TO MAKE MORE STRUCTS
+// for each struct you make, it's IMPORTANT to surround them
+// with the #pragmas you see above like:
 #pragma pack(push)
 #pragma pack(1)
-struct fat32Head {
-//TODO
+struct fat32Head
+{
+	// TODO
 };
 #pragma pack(pop)
 typedef struct fat32Head fat32Head;
-
 
 fat32Head *createHead(int fd);
 

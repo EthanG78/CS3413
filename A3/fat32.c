@@ -22,7 +22,7 @@ fat32Head* createHead(int fd)
         return NULL;
     }
     
-    printf("%d", bootSector.BPB_BytesPerSec);
+    printf("%d", bootSector.BPB_NumFATs);
 
     return NULL;
 }

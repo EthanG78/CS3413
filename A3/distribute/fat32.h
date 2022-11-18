@@ -61,4 +61,6 @@ typedef struct fat32Head fat32Head;
 
 fat32Head *createHead(int fd);
 
+int cleanupHead(fat32Head *h);
+
 #endif

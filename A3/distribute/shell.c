@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "shell.h"
-#include "fat32.h"
 #include <stdbool.h>
 
 #define BUF_SIZE 256

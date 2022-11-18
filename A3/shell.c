@@ -71,6 +71,33 @@ void shellLoop(int fd)
 
 int printInfo(fat32Head *h)
 {
+	/*
+		Need to print 3 sections:
+		1. Device Info:
+			- OEM Name
+			- Label
+			- File System Type
+			- Media Type
+			- Size
+			- Drive Number
+
+		2. Geometry
+			- Bytes per Sector
+			- Sectors per Cluster
+			- Total Sectors
+			- Geom: Sectors per Track
+			- Geom: Heads
+			- Hidden Sectors
+
+		3. FS Info
+			- Volume ID
+			- Version
+			- Reserved Sectors
+			- Number of FATs
+			- FAT Size
+			- Mirrored FAT
+			- Boot Sector Backup Sector No
+	*/
 	return 0;
 }
 

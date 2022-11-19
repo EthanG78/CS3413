@@ -31,7 +31,8 @@ void shellLoop(int fd)
 		running = false;
 	else  // valid, grab the root cluster
 		; // TODO
-	// curDirClus = h->bs->BPB_RootClus;
+
+	curDirClus = h->bs->BPB_RootClus;
 
 	while (running)
 	{
@@ -68,7 +69,6 @@ void shellLoop(int fd)
 	cleanupHead(h);
 }
 
-
 int printInfo(fat32Head *h)
 {
 	/*
@@ -80,7 +80,21 @@ int printInfo(fat32Head *h)
 			- Media Type
 			- Size
 			- Drive Number
+	*/
+	printf("---- Device Info ----\n");
+	printf(" OEM Name: %s\n", h->bs->BS_OEMName);
+	printf(" Label: %s\n", h->bs->BS_VolLab);
+	printf(" File System Type: %s\n", h->bs->BS_FilSysType);
+	if ((h->bs->BPB_Media & 0xF8) == 0xF8)
+	{
+		printf(" Media Type: 0x%X (fixed)\n", h->bs->BPB_Media);
+	}
+	else
+	{
+		printf(" Media Type: 0x%X (not fixed)\n", h->bs->BPB_Media);
+	}
 
+	/*
 		2. Geometry
 			- Bytes per Sector
 			- Sectors per Cluster

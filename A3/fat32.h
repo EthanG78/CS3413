@@ -56,6 +56,7 @@ typedef struct fat32BS_struct fat32BS;
 struct fat32Head
 {
 	// TODO
+	fat32BS *bs;
 };
 #pragma pack(pop)
 typedef struct fat32Head fat32Head;

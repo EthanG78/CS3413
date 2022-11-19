@@ -1,3 +1,5 @@
+#define _FILE_OFFSET_BITS 64
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +9,9 @@
 
 fat32Head *createHead(int fd)
 {
+    // malloc new fat32head struct
+    fat32Head *head = (fat32Head *)malloc(sizeof(fat32Head));
+
     // malloc new fat32BS struct
     fat32BS *bootSector = (fat32BS *)malloc(sizeof(fat32BS));
 
@@ -18,14 +23,16 @@ fat32Head *createHead(int fd)
         return NULL;
     }
 
-    printf("%d", bootSector->BPB_NumFATs);
+    // set boot sector of fat32Head
+    head->bs = bootSector;
 
-    free(bootSector);
-
-    return NULL;
+    return head;
 }
 
 int cleanupHead(fat32Head *h)
 {
+    free(h->bs);
+    free(h);
+
     return 0;
 }

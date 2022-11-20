@@ -16,6 +16,7 @@
 #define CMD_CD "CD"
 #define CMD_GET "GET"
 #define CMD_PUT "PUT"
+#define CMD_EXIT "EXIT"
 
 void shellLoop(int fd)
 {
@@ -61,6 +62,8 @@ void shellLoop(int fd)
 		else if (strncmp(buffer, CMD_PUT, strlen(CMD_PUT)) == 0)
 			// doUpload(h, curDirClus, buffer, bufferRaw);
 			printf("Bonus marks!\n");
+		else if (strncmp(buffer, CMD_EXIT, strlen(CMD_EXIT)) == 0)
+			running = false;
 		else
 			printf("\nCommand not found\n");
 	}
@@ -95,7 +98,15 @@ int printInfo(fat32Head *h)
 		printf(" Media Type: 0x%X (not fixed)\n", h->bs->BPB_Media);
 	}
 
-	printf(" Size:\n");
+	uint32_t totalSectors = (h->bs->BPB_TotSec16 == 0)
+								? h->bs->BPB_TotSec32
+								: h->bs->BPB_TotSec16;
+
+	int totalBytes = (int)h->bs->BPB_BytesPerSec * (int)totalSectors;
+	double totalMBytes = (double)totalBytes / (10 ^ 6);
+	double totalGBytes = (double)totalBytes / (10 ^ 9);
+
+	printf(" Size: %d (%fMB, %fGB)\n", totalBytes, totalMBytes, totalGBytes);
 
 	printf(" Drive Number: %d ", h->bs->BS_DrvNum);
 
@@ -124,9 +135,6 @@ int printInfo(fat32Head *h)
 	printf("\n---- Geometry ----\n");
 	printf(" Bytes per Sector: %d\n", h->bs->BPB_BytesPerSec);
 	printf(" Sectors per Cluster: %d\n", h->bs->BPB_SecPerClus);
-	uint32_t totalSectors = (h->bs->BPB_TotSec16 == 0)
-								? h->bs->BPB_TotSec32
-								: h->bs->BPB_TotSec16;
 	printf(" Total Sectors: %d\n", totalSectors);
 	printf(" Geom: Sectors per Track: %d\n", h->bs->BPB_SecPerTrk);
 	printf(" Geom: Heads: %d\n", h->bs->BPB_NumHeads);

@@ -85,6 +85,7 @@ int printInfo(fat32Head *h)
 	printf(" OEM Name: %s\n", h->bs->BS_OEMName);
 	printf(" Label: %s\n", h->bs->BS_VolLab);
 	printf(" File System Type: %s\n", h->bs->BS_FilSysType);
+
 	if ((h->bs->BPB_Media & 0xF8) == 0xF8)
 	{
 		printf(" Media Type: 0x%X (fixed)\n", h->bs->BPB_Media);
@@ -92,6 +93,23 @@ int printInfo(fat32Head *h)
 	else
 	{
 		printf(" Media Type: 0x%X (not fixed)\n", h->bs->BPB_Media);
+	}
+
+	printf(" Size:\n");
+
+	printf(" Drive Number: %d ", h->bs->BS_DrvNum);
+
+	if ((h->bs->BS_DrvNum & 0x80) == 0x80)
+	{
+		printf("(hard drive)\n");
+	}
+	else if ((h->bs->BS_DrvNum & 0x00) == 0x00)
+	{
+		printf("(floppy disk)\n");
+	}
+	else
+	{
+		printf("(unknown)\n");
 	}
 
 	/*
@@ -102,7 +120,19 @@ int printInfo(fat32Head *h)
 			- Geom: Sectors per Track
 			- Geom: Heads
 			- Hidden Sectors
+	*/
+	printf("\n---- Geometry ----\n");
+	printf(" Bytes per Sector: %d\n", h->bs->BPB_BytesPerSec);
+	printf(" Sectors per Cluster: %d\n", h->bs->BPB_SecPerClus);
+	uint32_t totalSectors = (h->bs->BPB_TotSec16 == 0)
+								? h->bs->BPB_TotSec32
+								: h->bs->BPB_TotSec16;
+	printf(" Total Sectors: %d\n", totalSectors);
+	printf(" Geom: Sectors per Track: %d\n", h->bs->BPB_SecPerTrk);
+	printf(" Geom: Heads: %d\n", h->bs->BPB_NumHeads);
+	printf(" Hidden Sectors: %d\n", h->bs->BPB_HiddSec);
 
+	/*
 		3. FS Info
 			- Volume ID
 			- Version
@@ -112,6 +142,31 @@ int printInfo(fat32Head *h)
 			- Mirrored FAT
 			- Boot Sector Backup Sector No
 	*/
+	printf("\n---- FS Info ----\n");
+	printf(" Volume ID: \n");
+	printf(" Version: %d.%d\n", h->bs->BPB_FSVerHigh, h->bs->BPB_FSVerLow);
+	printf(" Reserved Sectors: %d\n", h->bs->BPB_RsvdSecCnt);
+	printf(" Number of FATs: %d\n", h->bs->BPB_NumFATs);
+
+	uint32_t fatSize = (h->bs->BPB_FATSz16 == 0)
+						   ? h->bs->BPB_FATSz32
+						   : h->bs->BPB_FATSz16;
+	printf(" FAT Size: %d\n", fatSize);
+
+	uint16_t mirroredFATBit = (h->bs->BPB_ExtFlags & 0x0040) >> 6;
+	if (mirroredFATBit)
+	{
+		printf(" Mirrored FAT: %d (no)\n", mirroredFATBit);
+	}
+	else
+	{
+		printf(" Mirrored FAT: %d (yes)\n", mirroredFATBit);
+	}
+
+	printf(" Boot Sector Backup Sector No: %d\n", h->bs->BPB_BkBootSec);
+
+	printf("\n");
+
 	return 0;
 }
 

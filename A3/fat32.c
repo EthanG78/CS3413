@@ -24,17 +24,30 @@ fat32Head *createHead(int fd)
     }
 
     // check signature bytes
-    if ((bootSector->BS_BootSig & 0x29) != 0x29 
-        || (bootSector->BS_SigA & 0x55) != 0x55 
-        || (bootSector->BS_SigB & 0xAA) != 0xAA)
+    if ((bootSector->BS_BootSig & 0x29) != 0x29 || (bootSector->BS_SigA & 0x55) != 0x55 || (bootSector->BS_SigB & 0xAA) != 0xAA)
         return NULL;
 
     // set boot sector of fat32Head
     head->bs = bootSector;
 
+    // determine the number of sectors in the root directory region
+    // note: on FAT32 this is always 0
+    uint32_t rootDirSectors = ((head->bs->BPB_RootEntCnt * 32) + (head->bs->BPB_BytesPerSec - 1)) / head->bs->BPB_BytesPerSec;
+
     // set first data sector of volume
     uint32_t fatSz = (head->bs->BPB_FATSz16 == 0) ? head->bs->BPB_FATSz32 : (uint32_t)head->bs->BPB_FATSz16;
-    head->firstDataSector = head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz);
+    head->firstDataSector = head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz) + rootDirSectors;
+
+    // determine the number of clusters
+    uint32_t nSectors = (head->bs->BPB_TotSec16) ? head->bs->BPB_TotSec32 : (uint32_t)head->bs->BPB_TotSec16;
+    uint32_t nDataSectors = nSectors - (head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz) + rootDirSectors);
+    head->nClusters = nDataSectors / head->bs->BPB_SecPerClus;
+
+    // ensure that the number of clusters is within the fat32 range
+    // if there are less than 65525 data clusters, than we are reading 
+    // either a FAT12 or FAT16 volume and we should return NULL.
+    if (head->nClusters < 65525)
+        return NULL;
 
     return head;
 }

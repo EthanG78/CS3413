@@ -58,6 +58,7 @@ struct fat32Head
 	// TODO
 	fat32BS *bs;
 	uint32_t firstDataSector;
+	uint32_t nClusters;
 };
 #pragma pack(pop)
 typedef struct fat32Head fat32Head;

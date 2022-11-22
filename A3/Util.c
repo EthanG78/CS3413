@@ -15,6 +15,7 @@ uint32_t FindFirstSectorOfCluster(fat32Head *h, uint32_t N)
     return ((N - 2) * h->bs->BPB_SecPerClus) + h->firstDataSector;
 }
 
+// WIP:
 // ReadFat32Entry reads the contents of the FAT table that are
 // related to data cluster number N of the FAT volume. This
 // function must be passed the fat32Head object of the Fat volume and

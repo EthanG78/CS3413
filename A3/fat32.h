@@ -63,6 +63,21 @@ struct fat32Head
 #pragma pack(pop)
 typedef struct fat32Head fat32Head;
 
+#pragma pack(push)
+#pragma pack(1)
+struct fat32FSInfo_struct
+{
+	uint32_t FSI_LeadSig;
+	char FSI_Reserved1[480];
+	uint32_t FSI_StrucSig;
+	uint32_t FSI_Free_Count;
+	uint32_t FSI_Nxt_Free;
+	char FSI_Reserved2[12];
+	uint32_t FSI_TrailSig;
+};
+#pragma pack(pop)
+typedef struct fat32FSInfo_struct fat32FSInfo;
+
 fat32Head *createHead(int fd);
 
 int cleanupHead(fat32Head *h);

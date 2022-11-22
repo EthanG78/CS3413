@@ -46,23 +46,7 @@ struct fat32BS_struct
 	uint8_t BS_SigB;
 };
 #pragma pack(pop)
-
 typedef struct fat32BS_struct fat32BS;
-
-// TODO: YOU WILL NEED TO MAKE MORE STRUCTS
-// for each struct you make, it's IMPORTANT to surround them
-// with the #pragmas you see above like:
-#pragma pack(push)
-#pragma pack(1)
-struct fat32Head
-{
-	// TODO
-	fat32BS *bs;
-	uint32_t firstDataSector;
-	uint32_t nClusters;
-};
-#pragma pack(pop)
-typedef struct fat32Head fat32Head;
 
 #pragma pack(push)
 #pragma pack(1)
@@ -79,7 +63,25 @@ struct fat32FSInfo_struct
 #pragma pack(pop)
 typedef struct fat32FSInfo_struct fat32FSInfo;
 
+// TODO: YOU WILL NEED TO MAKE MORE STRUCTS
+// for each struct you make, it's IMPORTANT to surround them
+// with the #pragmas you see above like:
+#pragma pack(push)
+#pragma pack(1)
+struct fat32Head
+{
+	// TODO
+	fat32BS *bs;
+	fat32FSInfo *fsInfo;
+	uint32_t firstDataSector;
+	uint32_t nClusters;
+};
+#pragma pack(pop)
+typedef struct fat32Head fat32Head;
+
 fat32Head *createHead(int fd);
+
+fat32FSInfo *readFSInfo(int fd, fat32BS *bs);
 
 int cleanupHead(fat32Head *h);
 

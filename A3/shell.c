@@ -30,10 +30,8 @@ void shellLoop(int fd)
 
 	if (h == NULL)
 		running = false;
-	else  // valid, grab the root cluster
-		; // TODO
-
-	curDirClus = h->bs->BPB_RootClus;
+	else								  // valid, grab the root cluster
+		curDirClus = h->bs->BPB_RootClus; // TODO
 
 	while (running)
 	{

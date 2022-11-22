@@ -7,6 +7,7 @@
 #define BS_OEMName_LENGTH 8
 #define BS_VolLab_LENGTH 11
 #define BS_FilSysType_LENGTH 8
+#define EOC 0x0FFFFFFF
 
 #pragma pack(push)
 #pragma pack(1)

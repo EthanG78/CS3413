@@ -5,7 +5,7 @@ DEBUG_FLAGS = -g
 
 LDLIBS = -lm
 
-OBJS = main.o shell.o fat32.o
+OBJS = main.o util.o shell.o fat32.o
 
 EXE = fat32
 
@@ -21,10 +21,13 @@ $(EXE): $(OBJS)
 main.o: main.c shell.h
 	$(CC) $(CFLAGS) -c main.c
 
+util.o: util.c util.h fat32.h
+	$(CC) $(CFLAGS) -c util.c
+
 shell.o: shell.c shell.h fat32.h
 	$(CC) $(CFLAGS) -c shell.c
 
-fat32.o: fat32.c fat32.h
+fat32.o: fat32.c fat32.h util.h
 	$(CC) $(CFLAGS) -c fat32.c
 
 clean:

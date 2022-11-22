@@ -1,8 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 #include "fat32.h"
-#include "Util.h"
+#include "util.h"
 
 // FindFirstSectorOfCluster determines the first sector number
 // of a given cluster N in the data area of a FAT volume. This
@@ -45,6 +47,11 @@ uint32_t ReadFat32Entry(int fd, fat32Head *h, uint32_t N)
     // read sector into sector byte array
     uint8_t secBuff[h->bs->BPB_BytesPerSec];
     int bytesRead = read(fd, secBuff, h->bs->BPB_BytesPerSec);
+    if (bytesRead == -1)
+    {
+        perror("error reading fat entry");
+        return 0x0FFFFFF8;
+    }
 
     // return the specific entry at calculated offset
     return (*((uint32_t *) &secBuff[fatEntryOffset])) & 0x0FFFFFFF;

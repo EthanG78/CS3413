@@ -72,8 +72,10 @@ fat32Head *createHead(int fd)
     uint32_t fatSig0 = ReadFat32Entry(fd, head, 0);
     uint32_t fatSig1 = ReadFat32Entry(fd, head, 1);
     
-    uint32_t sig1 = 0x0FFFFF00 | (uint32_t)head->bs->BPB_Media;
-    if (fatSig0 != sig1 || fatSig1 != EOC)
+    // fatSig0 should be 0x0FFFFF.. where the lowest byte
+    // corresponds to the Media entry in BPB
+    uint32_t sig0 = 0x0FFFFF00 | (uint32_t)head->bs->BPB_Media;
+    if (fatSig0 != sig0 || fatSig1 != EOC)
     {
         cleanupHead(head);
         return NULL;

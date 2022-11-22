@@ -102,11 +102,11 @@ int printInfo(fat32Head *h)
 								? h->bs->BPB_TotSec32
 								: h->bs->BPB_TotSec16;
 
-	int totalBytes = (int)h->bs->BPB_BytesPerSec * (int)totalSectors;
-	double totalMBytes = (double)totalBytes / (10 ^ 6);
-	double totalGBytes = (double)totalBytes / (10 ^ 9);
+	uint64_t totalBytes = (uint64_t)h->bs->BPB_BytesPerSec * (uint64_t)totalSectors;
+	double totalMBytes = (double)totalBytes / (1000000);
+	double totalGBytes = (double)totalBytes / (1000000000);
 
-	printf(" Size: %d (%fMB, %fGB)\n", totalBytes, totalMBytes, totalGBytes);
+	printf(" Size: %ld (%.3fMB, %.3fGB)\n", totalBytes, totalMBytes, totalGBytes);
 
 	printf(" Drive Number: %d ", h->bs->BS_DrvNum);
 

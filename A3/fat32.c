@@ -23,11 +23,17 @@ fat32Head *createHead(int fd)
         return NULL;
     }
 
+    // check signature bytes
+    if ((bootSector->BS_BootSig & 0x29) != 0x29 
+        || (bootSector->BS_SigA & 0x55) != 0x55 
+        || (bootSector->BS_SigB & 0xAA) != 0xAA)
+        return NULL;
+
     // set boot sector of fat32Head
     head->bs = bootSector;
 
     // set first data sector of volume
-    uint32_t fatSz = (head->bs->BPB_FATSz16 == 0) ? head->bs->BPB_FATSz32 : (uint32_t)head->bs->BPB_FATSz16; 
+    uint32_t fatSz = (head->bs->BPB_FATSz16 == 0) ? head->bs->BPB_FATSz32 : (uint32_t)head->bs->BPB_FATSz16;
     head->firstDataSector = head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz);
 
     return head;

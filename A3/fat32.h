@@ -57,6 +57,7 @@ struct fat32Head
 {
 	// TODO
 	fat32BS *bs;
+	uint32_t firstDataSector;
 };
 #pragma pack(pop)
 typedef struct fat32Head fat32Head;

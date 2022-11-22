@@ -26,6 +26,10 @@ fat32Head *createHead(int fd)
     // set boot sector of fat32Head
     head->bs = bootSector;
 
+    // set first data sector of volume
+    uint32_t fatSz = (head->bs->BPB_FATSz16 == 0) ? head->bs->BPB_FATSz32 : (uint32_t)head->bs->BPB_FATSz16; 
+    head->firstDataSector = head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz);
+
     return head;
 }
 

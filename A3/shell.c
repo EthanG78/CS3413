@@ -85,9 +85,18 @@ int printInfo(fat32Head *h)
 			- Drive Number
 	*/
 	printf("---- Device Info ----\n");
-	printf(" OEM Name: %s\n", h->bs->BS_OEMName);
-	printf(" Label: %s\n", h->bs->BS_VolLab);
-	printf(" File System Type: %s\n", h->bs->BS_FilSysType);
+
+	char oemname[BS_OEMName_LENGTH + 1];
+	snprintf(oemname, BS_OEMName_LENGTH + 1, "%s", h->bs->BS_OEMName);
+	printf(" OEM Name: %s\n", oemname);
+
+	char vollab[BS_VolLab_LENGTH + 1];
+	snprintf(vollab, BS_VolLab_LENGTH + 1, "%s", h->bs->BS_VolLab);
+	printf(" Label: %s\n", vollab);
+
+	char filsystype[BS_FilSysType_LENGTH + 1];
+	snprintf(filsystype, BS_FilSysType_LENGTH + 1, "%s", h->bs->BS_FilSysType);
+	printf(" File System Type: %s\n", filsystype);
 
 	if ((h->bs->BPB_Media & 0xF8) == 0xF8)
 	{

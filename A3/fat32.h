@@ -63,6 +63,26 @@ struct fat32FSInfo_struct
 #pragma pack(pop)
 typedef struct fat32FSInfo_struct fat32FSInfo;
 
+#pragma pack(push)
+#pragma pack(1)
+struct fat32Dir_struct
+{
+	char DIR_Name[11];
+	char DIR_Attr;
+	char DIR_NTRes;
+	char DIR_CrtTimeTenth;
+	char DIR_CrtTime[2];
+	char DIR_CrtDate[2];
+	char DIR_LstAccDate[2];
+	char DIR_FstClusHI[2];
+	char DIR_WrtTime[2];
+	char DIR_WrtDate[2];
+	char DIR_FstClusLO[2];
+	uint32_t DIR_FileSize;
+};
+#pragma pack(pop)
+typedef struct fat32Dir_struct fat32Dir;
+
 // TODO: YOU WILL NEED TO MAKE MORE STRUCTS
 // for each struct you make, it's IMPORTANT to surround them
 // with the #pragmas you see above like:

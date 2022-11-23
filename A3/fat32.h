@@ -91,6 +91,7 @@ typedef struct fat32Dir_struct fat32Dir;
 struct fat32Head
 {
 	// TODO
+	int fd;
 	fat32BS *bs;
 	fat32FSInfo *fsInfo;
 	uint32_t firstDataSector;

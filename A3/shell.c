@@ -9,6 +9,7 @@
 #include <stdbool.h>
 
 #include "shell.h"
+#include "util.h"
 
 #define BUF_SIZE 256
 #define CMD_INFO "INFO"
@@ -158,7 +159,7 @@ int printInfo(fat32Head *h)
 			- Boot Sector Backup Sector No
 	*/
 	printf("\n---- FS Info ----\n");
-	printf(" Volume ID: \n");
+	printf(" Volume ID: TODO!!!!\n");
 	printf(" Version: %d.%d\n", h->bs->BPB_FSVerHigh, h->bs->BPB_FSVerLow);
 	printf(" Reserved Sectors: %d\n", h->bs->BPB_RsvdSecCnt);
 	printf(" Number of FATs: %d\n", h->bs->BPB_NumFATs);
@@ -185,9 +186,46 @@ int printInfo(fat32Head *h)
 	return 0;
 }
 
+// todo
 int doDir(fat32Head *h, uint32_t curDirClus)
 {
-	return 0;
+	printf("\nDIRECTORY LISTING\n");
+	printf("VOL_ID: TODO!!!\n");
+
+	int success;
+	fat32Dir *dir = NULL;
+
+	uint32_t sizeOfCluster = (uint32_t)h->bs->BPB_BytesPerSec * (uint32_t)h->bs->BPB_SecPerClus;
+	uint8_t clusterBuff[sizeOfCluster];
+
+	// Keep reading directory entries until we read an EOC in
+	// the FAT, the dir becomes NULL for some reason, or we reach
+	// the last free directory entry, indicated by DIR_Name[0] = 0x00
+	do
+	{
+		success = ReadCluster(h, curDirClus, clusterBuff, sizeOfCluster);
+		if (!success)
+		{
+			printf("There was an issue reading cluster %d\n", curDirClus);
+			return 0;
+		}
+
+		// cast the cluster we just read to our dir structure
+		dir = (fat32Dir *)(&clusterBuff[0]);
+
+		// only handle dir contents if it is not a free entry
+		if (dir->DIR_Name[0] != 0xE5 && dir->DIR_Name[0] != 0x00)
+		{
+			printf("%s\n", dir->DIR_Name);
+			printf("0x%X%X\n", (uint16_t)dir->DIR_FstClusHI, (uint16_t)dir->DIR_FstClusLO);
+		}
+
+		// read the FAT entry for the current cluster,
+		// and store its contents in curDirClus to read next
+		curDirClus = ReadFat32Entry(h, curDirClus);
+	} while (curDirClus != EOC && dir != NULL && dir->DIR_Name[0] != 0x00);
+
+	return 1;
 }
 
 int doCD(fat32Head *h, uint32_t curDirClus, char *buffer)

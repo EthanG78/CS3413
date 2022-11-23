@@ -40,7 +40,8 @@ fat32Head *createHead(int fd)
     // malloc new fat32head struct
     fat32Head *head = (fat32Head *)malloc(sizeof(fat32Head));
 
-    // set boot sector and fsInfo of fat32Head
+    // set FAT file descriptor, boot sector, and fsInfo of fat32Head
+    head->fd = fd;
     head->bs = bootSector;
     head->fsInfo = fsInfo;
 
@@ -68,8 +69,8 @@ fat32Head *createHead(int fd)
 
     // read the first two FAT entries (signatures)
     // and ensure their signatures are correct
-    uint32_t fatSig0 = ReadFat32Entry(fd, head, 0);
-    uint32_t fatSig1 = ReadFat32Entry(fd, head, 1);
+    uint32_t fatSig0 = ReadFat32Entry(head, 0);
+    uint32_t fatSig1 = ReadFat32Entry(head, 1);
 
     // fatSig0 should be 0x0FFFFF.. where the lowest byte
     // corresponds to the Media entry in BPB

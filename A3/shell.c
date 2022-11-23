@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "shell.h"
 #include "util.h"
@@ -195,6 +196,9 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	int success;
 	fat32Dir *dir = NULL;
 
+	char name[9];
+	char ext[4];
+
 	uint32_t sizeOfCluster = (uint32_t)h->bs->BPB_BytesPerSec * (uint32_t)h->bs->BPB_SecPerClus;
 	uint8_t clusterBuff[sizeOfCluster];
 
@@ -221,9 +225,21 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 			// it and we may skip it
 			if (dir->DIR_Name[0] != 0xE5)
 			{
-				printf("%s\n", dir->DIR_Name);
+				if ((dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+				{
+					// print directory
+					printf("This is a directory: %s\n", dir->DIR_Name);
+				}
+				else
+				{
+					strncpy(name, dir->DIR_Name, 8);
+					name[7] = '\0';
+					strncpy(ext, &dir->DIR_Name[8], 3);
+					ext[3] = '\0';
+					printf("File: %s.%s\n", name, ext);
+				}
 			}
-			
+
 			dir++;
 		}
 

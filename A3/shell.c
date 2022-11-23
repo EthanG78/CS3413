@@ -199,8 +199,8 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	uint8_t clusterBuff[sizeOfCluster];
 
 	// Keep reading directory entries until we read an EOC in
-	// the FAT, the dir becomes NULL for some reason, or we reach
-	// the last free directory entry, indicated by DIR_Name[0] = 0x00
+	// the FAT, this indicates we have reached the last cluster
+	// of this particular directory.
 	do
 	{
 		success = ReadCluster(h, curDirClus, clusterBuff, sizeOfCluster);
@@ -213,17 +213,24 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 		// cast the cluster we just read to our dir structure
 		dir = (fat32Dir *)(&clusterBuff[0]);
 
-		// only handle dir contents if it is not a free entry
-		if (dir->DIR_Name[0] != 0xE5 && dir->DIR_Name[0] != 0x00)
+		// keep incrementing dir until we reach the last entry
+		while (dir->DIR_Name[0] != 0x00)
 		{
-			printf("%s\n", dir->DIR_Name);
-			printf("0x%X%X\n", (uint16_t)dir->DIR_FstClusHI, (uint16_t)dir->DIR_FstClusLO);
+			// if dir->DIR_Name[0] == 0xE5
+			// then there is nothing stored in
+			// it and we may skip it
+			if (dir->DIR_Name[0] != 0xE5)
+			{
+				printf("%s\n", dir->DIR_Name);
+			}
+			
+			dir++;
 		}
 
 		// read the FAT entry for the current cluster,
 		// and store its contents in curDirClus to read next
 		curDirClus = ReadFat32Entry(h, curDirClus);
-	} while (curDirClus != EOC && dir != NULL && dir->DIR_Name[0] != 0x00);
+	} while (curDirClus != EOC && dir != NULL);
 
 	return 1;
 }

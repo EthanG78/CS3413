@@ -191,7 +191,7 @@ int printInfo(fat32Head *h)
 int doDir(fat32Head *h, uint32_t curDirClus)
 {
 	printf("\nDIRECTORY LISTING\n");
-	printf("VOL_ID: TODO!!!\n");
+	printf("VOL_ID: TODO!!!\n\n");
 
 	int success;
 	fat32Dir *dir = NULL;
@@ -232,11 +232,14 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 				}
 				else
 				{
-					strncpy(name, dir->DIR_Name, 8);
-					name[7] = '\0';
-					strncpy(ext, &dir->DIR_Name[8], 3);
-					ext[3] = '\0';
-					printf("File: %s.%s\n", name, ext);
+					if ((dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN)
+					{
+						strncpy(name, dir->DIR_Name, 8);
+						name[8] = '\0';
+						strncpy(ext, &dir->DIR_Name[8], 3);
+						ext[3] = '\0';
+						printf("File: %s.%s\n", name, ext);
+					}
 				}
 			}
 
@@ -247,6 +250,20 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 		// and store its contents in curDirClus to read next
 		curDirClus = ReadFat32Entry(h, curDirClus);
 	} while (curDirClus != EOC && dir != NULL);
+
+	uint64_t freeBytes;
+	uint32_t freeClus = h->fsInfo->FSI_Free_Count;
+	if (freeClus != 0xFFFFFFFF && freeClus <= (h->bs->BPB_TotSec32 * (uint32_t)h->bs->BPB_SecPerClus))
+	{
+		freeBytes = (uint64_t)freeClus * (uint64_t)h->bs->BPB_SecPerClus * (uint64_t)h->bs->BPB_BytesPerSec;
+		printf("---Bytes Free: %ld\n", freeBytes);
+	}
+	else
+	{
+		printf("---Bytes Free: unknown\n");
+	}
+
+	printf("---DONE\n");
 
 	return 1;
 }

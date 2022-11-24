@@ -160,7 +160,7 @@ int printInfo(fat32Head *h)
 			- Boot Sector Backup Sector No
 	*/
 	printf("\n---- FS Info ----\n");
-	printf(" Volume ID: TODO!!!!\n");
+	printf(" Volume ID: %s\n", h->volumeID);
 	printf(" Version: %d.%d\n", h->bs->BPB_FSVerHigh, h->bs->BPB_FSVerLow);
 	printf(" Reserved Sectors: %d\n", h->bs->BPB_RsvdSecCnt);
 	printf(" Number of FATs: %d\n", h->bs->BPB_NumFATs);
@@ -190,7 +190,7 @@ int printInfo(fat32Head *h)
 int doDir(fat32Head *h, uint32_t curDirClus)
 {
 	printf("\nDIRECTORY LISTING\n");
-	printf("VOL_ID: TODO!!!\n\n");
+	printf("VOL_ID: %s\n\n", h->volumeID);
 
 	int success;
 	fat32Dir *dir = NULL;
@@ -236,14 +236,15 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 					return 0;
 				}
 
-				if ((dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+				if (HasAttributes(dir->DIR_Attr, ATTR_DIRECTORY))
 				{
 					// print directory
-					printf("<%s%s>\n", name, ext);
+					printf("<%s%s>", name, ext);
+					printf("\t\t%d\n", dir->DIR_FileSize);
 				}
 				else
 				{
-					if ((dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN)
+					if (!HasAttributes(dir->DIR_Attr, ATTR_HIDDEN) && !HasAttributes(dir->DIR_Attr, ATTR_VOLUME_ID))
 					{
 						// print file name with file size
 						printf("%s.%s", name, ext);
@@ -258,11 +259,11 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 		// read the FAT entry for the current cluster,
 		// and store its contents in curDirClus to read next
 		curDirClus = ReadFat32Entry(h, curDirClus);
-	} while (curDirClus != EOC && dir != NULL);
+	} while (curDirClus != EOC && curDirClus < 0x0FFFFFF8 && dir != NULL);
 
 	uint64_t freeBytes;
 	uint32_t freeClus = h->fsInfo->FSI_Free_Count;
-	if (freeClus != 0xFFFFFFFF && freeClus <= (h->bs->BPB_TotSec32 * (uint32_t)h->bs->BPB_SecPerClus))
+	if (freeClus != 0xFFFFFFFF && freeClus <= h->nClusters)
 	{
 		freeBytes = (uint64_t)freeClus * (uint64_t)h->bs->BPB_SecPerClus * (uint64_t)h->bs->BPB_BytesPerSec;
 		printf("---Bytes Free: %ld\n", freeBytes);
@@ -320,7 +321,7 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 				}
 
 				// check if this entry is a directory
-				if ((dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+				if (HasAttributes(dir->DIR_Attr, ATTR_DIRECTORY))
 				{
 					// check if this directory is the one we are looking for
 					if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(dirname)) == 0)
@@ -352,7 +353,7 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 		// and store its contents in nextEntry to read next
 		printf("Error: folder not found\n");
 		nextEntry = ReadFat32Entry(h, nextEntry);
-	} while (nextEntry != EOC && dir != NULL);
+	} while (nextEntry != EOC && nextEntry < 0x0FFFFFF8 && dir != NULL);
 
 	// if we fail to find the directory the user want
 	// then just return the cluster of the directory

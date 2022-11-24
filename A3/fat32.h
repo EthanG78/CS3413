@@ -7,6 +7,7 @@
 #define BS_OEMName_LENGTH 8
 #define BS_VolLab_LENGTH 11
 #define BS_FilSysType_LENGTH 8
+#define DIR_Name_LENGTH 11
 #define EOC 0x0FFFFFFF
 
 #pragma pack(push)
@@ -70,13 +71,13 @@ typedef struct fat32FSInfo_struct fat32FSInfo;
 #define ATTR_VOLUME_ID 0x08
 #define ATTR_DIRECTORY 0x10
 #define ATTR_ARCHIVE 0x20
-#define ATTR_LONG_NAME
+#define ATTR_LONG_NAME ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID
 
 #pragma pack(push)
 #pragma pack(1)
 struct fat32Dir_struct
 {
-	char DIR_Name[11];
+	char DIR_Name[DIR_Name_LENGTH];
 	char DIR_Attr;
 	char DIR_NTRes;
 	char DIR_CrtTimeTenth;
@@ -101,6 +102,7 @@ struct fat32Head
 {
 	// TODO
 	int fd;
+	char *volumeID;
 	fat32BS *bs;
 	fat32FSInfo *fsInfo;
 	uint32_t firstDataSector;

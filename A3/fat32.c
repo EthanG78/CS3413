@@ -58,6 +58,22 @@ fat32Head *createHead(int fd)
     uint32_t nDataSectors = nSectors - (head->bs->BPB_RsvdSecCnt + (head->bs->BPB_NumFATs * fatSz) + rootDirSectors);
     head->nClusters = nDataSectors / head->bs->BPB_SecPerClus;
 
+    // determine the volume ID of FAT volume
+    uint32_t rootDirClus = head->bs->BPB_RootClus;
+    uint32_t sizeOfCluster = (uint32_t)head->bs->BPB_BytesPerSec * (uint32_t)head->bs->BPB_SecPerClus;
+    uint8_t clusterBuff[sizeOfCluster];
+    if (!ReadCluster(head, rootDirClus, clusterBuff, sizeOfCluster))
+    {
+        head->volumeID = (char *)malloc(sizeof(char));
+        strcpy(head->volumeID, "\0");
+    }
+    else
+    {
+        fat32Dir *rootDir = (fat32Dir *)(&clusterBuff[0]);
+        head->volumeID = (char *)malloc(strlen(rootDir->DIR_Name) + 1);
+        strcpy(head->volumeID, rootDir->DIR_Name);
+    }
+
     // ensure that the number of clusters is within the fat32 range
     // if there are less than 65525 data clusters, than we are reading
     // either a FAT12 or FAT16 volume and we should return NULL.
@@ -121,6 +137,7 @@ int cleanupHead(fat32Head *h)
 {
     if (h != NULL)
     {
+        free(h->volumeID);
         free(h->bs);
         free(h->fsInfo);
         free(h);

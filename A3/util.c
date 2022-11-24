@@ -97,3 +97,12 @@ int RemoveTrailingWhiteSpace(char* str, char *newStr, int size)
     newStr[size] = '\0';
     return 1;
 }
+
+// HasAttribures checks to see if the 32 bit fileAttr field
+// contains the attributes outlines by the 8 bit attr field.
+//
+// Returns 1 indicating that attr is found within fileAttr, 0 otherwise.
+int HasAttributes(uint8_t fileAttr, uint8_t attr)
+{
+    return ((fileAttr & attr) == attr);
+}

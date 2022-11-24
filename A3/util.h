@@ -9,4 +9,6 @@ int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t
 
 int RemoveTrailingWhiteSpace(char* str, char *newStr, int size);
 
+int HasAttributes(uint8_t fileAttr, uint8_t attr);
+
 #endif

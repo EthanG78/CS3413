@@ -187,7 +187,6 @@ int printInfo(fat32Head *h)
 	return 0;
 }
 
-// todo
 int doDir(fat32Head *h, uint32_t curDirClus)
 {
 	printf("\nDIRECTORY LISTING\n");
@@ -278,9 +277,87 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	return 1;
 }
 
-int doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
+uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 {
-	return 0;
+	int success;
+	fat32Dir *dir = NULL;
+
+	uint32_t newDirClus = 0;
+	uint32_t nextEntry = curDirClus;
+
+	char dirname[12];
+
+	uint32_t sizeOfCluster = (uint32_t)h->bs->BPB_BytesPerSec * (uint32_t)h->bs->BPB_SecPerClus;
+	uint8_t clusterBuff[sizeOfCluster];
+
+	// Keep reading directory entries until we read an EOC in
+	// the FAT, this indicates we have reached the last cluster
+	// of this particular directory.
+	do
+	{
+		success = ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster);
+		if (!success)
+		{
+			printf("There was an issue reading cluster %d\n", nextEntry);
+			return 0;
+		}
+
+		// cast the cluster we just read to our dir structure
+		dir = (fat32Dir *)(&clusterBuff[0]);
+
+		// keep incrementing dir until we reach the last entry
+		while (dir->DIR_Name[0] != 0x00)
+		{
+			// if dir->DIR_Name[0] == 0xE5
+			// then there is nothing stored in
+			// it and we may skip it
+			if (dir->DIR_Name[0] != 0xE5)
+			{
+				if (!RemoveTrailingWhiteSpace(dir->DIR_Name, dirname, 11))
+				{
+					printf("There was an issue parsing directory name: %s\n", dir->DIR_Name);
+					return 0;
+				}
+
+				// check if this entry is a directory
+				if ((dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+				{
+					// check if this directory is the one we are looking for
+					if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(dirname)) == 0)
+					{
+						// we found the directory we want to cd into
+						// lets return the first cluster
+
+						uint16_t high16 = ((uint16_t)(uint8_t)dir->DIR_FstClusHI[0]) << 8;
+						high16 = high16 | ((uint16_t)(uint8_t)dir->DIR_FstClusHI[1]);
+						printf("0x%04X\n", high16);
+						uint16_t low16 = ((uint16_t)(uint8_t)dir->DIR_FstClusLO[0]) << 8;
+						low16 = low16 | ((uint16_t)(uint8_t)dir->DIR_FstClusLO[1]);
+						printf("0x%04X\n", low16);
+
+						newDirClus = ((uint32_t)high16) << 16;
+						newDirClus = newDirClus | ((uint32_t)low16);
+						printf("0x%08X\n", newDirClus);
+						printf("%d\n", newDirClus);
+
+						return newDirClus;
+					}
+				}
+			}
+
+			dir++;
+		}
+
+		// read the FAT entry for the current cluster,
+		// and store its contents in nextEntry to read next
+		printf("Error: folder not found\n");
+		nextEntry = ReadFat32Entry(h, nextEntry);
+	} while (nextEntry != EOC && dir != NULL);
+
+	// if we fail to find the directory the user want
+	// then just return the cluster of the directory
+	// that the user is currently in
+	return curDirClus;
 }
 
 int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)

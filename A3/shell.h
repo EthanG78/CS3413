@@ -9,7 +9,7 @@ int printInfo(fat32Head *h);
 
 int doDir(fat32Head *h, uint32_t curDirClus);
 
-int doCD(fat32Head *h, uint32_t curDirClus, char *buffer);
+uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer);
 
 int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer);
 

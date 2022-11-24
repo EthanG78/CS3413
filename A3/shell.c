@@ -225,27 +225,30 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 			// it and we may skip it
 			if (dir->DIR_Name[0] != 0xE5)
 			{
+				if (!RemoveTrailingWhiteSpace(dir->DIR_Name, name, 8))
+				{
+					printf("There was an issue parsing file name: %s\n", dir->DIR_Name);
+					return 0;
+				}
+
+				if (!RemoveTrailingWhiteSpace(&dir->DIR_Name[8], ext, 3))
+				{
+					printf("There was an issue parsing file extension: %s\n", dir->DIR_Name);
+					return 0;
+				}
+
 				if ((dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY)
 				{
 					// print directory
-					printf("This is a directory: %s\n", dir->DIR_Name);
+					printf("<%s%s>\n", name, ext);
 				}
 				else
 				{
 					if ((dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN)
 					{
-						if (!RemoveTrailingWhiteSpace(dir->DIR_Name, name, 8))
-						{
-							printf("There was an issue parsing file name: %s\n", dir->DIR_Name);
-							return 0;
-						}
-
-						if (!RemoveTrailingWhiteSpace(&dir->DIR_Name[8], ext, 3))
-						{
-							printf("There was an issue parsing file extension: %s\n", dir->DIR_Name);
-							return 0;
-						}
-						printf("File: %s.%s\n", name, ext);
+						// print file name with file size
+						printf("%s.%s", name, ext);
+						printf("\t\t%d\n", dir->DIR_FileSize);
 					}
 				}
 			}

@@ -234,10 +234,17 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 				{
 					if ((dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN)
 					{
-						strncpy(name, dir->DIR_Name, 8);
-						name[8] = '\0';
-						strncpy(ext, &dir->DIR_Name[8], 3);
-						ext[3] = '\0';
+						if (!RemoveTrailingWhiteSpace(dir->DIR_Name, name, 8))
+						{
+							printf("There was an issue parsing file name: %s\n", dir->DIR_Name);
+							return 0;
+						}
+
+						if (!RemoveTrailingWhiteSpace(&dir->DIR_Name[8], ext, 3))
+						{
+							printf("There was an issue parsing file extension: %s\n", dir->DIR_Name);
+							return 0;
+						}
 						printf("File: %s.%s\n", name, ext);
 					}
 				}

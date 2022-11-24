@@ -79,3 +79,21 @@ int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t
 
     return 1;
 }
+
+// RemoveTrailingWhiteSpace replaces all trailing
+// white space in str of size size with the null-terminating
+// byte. New string is stored in newStr of size size + 1.
+// The null terminated byte is appended at the end of newStr
+//
+// Returns 1 indicating success
+int RemoveTrailingWhiteSpace(char* str, char *newStr, int size)
+{
+    int i;
+    for (i = 0; i < size; i++)
+    {
+        newStr[i] = (str[i] == ' ') ? '\0' : str[i];
+    }
+
+    newStr[size] = '\0';
+    return 1;
+}

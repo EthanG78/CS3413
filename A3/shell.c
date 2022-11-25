@@ -329,7 +329,7 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 						// we found the directory we want to cd into
 						// lets return the first cluster
 
-						uint16_t high16 = ((uint16_t)(uint8_t)dir->DIR_FstClusHI[0]) << 8;
+						/*uint16_t high16 = ((uint16_t)(uint8_t)dir->DIR_FstClusHI[0]) << 8;
 						high16 = high16 | ((uint16_t)(uint8_t)dir->DIR_FstClusHI[1]);
 						printf("0x%04X\n", high16);
 						uint16_t low16 = ((uint16_t)(uint8_t)dir->DIR_FstClusLO[0]) << 8;
@@ -339,7 +339,9 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 						newDirClus = ((uint32_t)high16) << 16;
 						newDirClus = newDirClus | ((uint32_t)low16);
 						printf("0x%08X\n", newDirClus);
-						printf("%d\n", newDirClus);
+						printf("%d\n", newDirClus);*/
+
+						newDirClus = (((uint32_t)dir->DIR_FstClusHI[0]) << 24) | (((uint32_t)dir->DIR_FstClusHI[1]) << 16) | (((uint32_t)dir->DIR_FstClusLO[0]) << 8) | (uint32_t)dir->DIR_FstClusLO[1];
 
 						return newDirClus;
 					}

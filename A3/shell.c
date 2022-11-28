@@ -334,18 +334,16 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 						// we found the directory we want to cd into
 						// lets return the first cluster
 
-						printf("%s\n", dirname);
-
-						printf("HI 0 0x%02X\n", dir->DIR_FstClusHI[0]);
-						printf("HI 1 0x%02X\n", dir->DIR_FstClusHI[1]);
-						printf("LO 0 0x%02X\n", dir->DIR_FstClusLO[0]);
-						printf("LO 1 0x%02X\n", dir->DIR_FstClusLO[1]);
-
 						newDirClus = ((((uint32_t)dir->DIR_FstClusHI[1]) << 24) | (((uint32_t)dir->DIR_FstClusHI[0]) << 16) | (((uint32_t)dir->DIR_FstClusLO[1]) << 8) | (uint32_t)dir->DIR_FstClusLO[0]) & 0x0FFFFFFF;
 
-						printf("newDirClus: 0x%08X\n", newDirClus);
+						// note taken from whitepages
+						// The dotdot entry points to the starting cluster
+						// of the parent of this directory (which is 0 if
+						// this directories parent is the root directory.
+						// Therefore lets check if newDirClus == 0, if so
+						// return the cluster of root directory
 
-						return newDirClus;
+						return (newDirClus == 0) ? h->bs->BPB_RootClus : newDirClus;
 					}
 				}
 			}

@@ -192,7 +192,6 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	printf("\nDIRECTORY LISTING\n");
 	printf("VOL_ID: %s\n\n", h->volumeID);
 
-	int success;
 	fat32Dir *dir = NULL;
 
 	char name[9];
@@ -206,8 +205,7 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	// of this particular directory.
 	do
 	{
-		success = ReadCluster(h, curDirClus, clusterBuff, sizeOfCluster);
-		if (!success)
+		if (!ReadCluster(h, curDirClus, clusterBuff, sizeOfCluster))
 		{
 			printf("There was an issue reading cluster %d\n", curDirClus);
 			return 0;
@@ -280,7 +278,6 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 
 uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 {
-	int success;
 	fat32Dir *dir = NULL;
 
 	uint32_t newDirClus = 0;
@@ -296,8 +293,7 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 	// of this particular directory.
 	do
 	{
-		success = ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster);
-		if (!success)
+		if (!ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster))
 		{
 			printf("There was an issue reading cluster %d\n", nextEntry);
 			return 0;
@@ -314,19 +310,15 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 			// it and we may skip it
 			if (dir->DIR_Name[0] != 0xE5)
 			{
-				if (!RemoveTrailingWhiteSpace(dir->DIR_Name, dirname, 11))
-				{
-					printf("There was an issue parsing directory name: %s\n", dir->DIR_Name);
-					return 0;
-				}
-
-				// todo:
-				// WE CAN'T CD INTO .. BECAUSE IT IS RECOGNIZING IT AS .
-				// AND JUST KEEPING YOU IN THE CURRENT DIRECTORY...
-
 				// check if this entry is a directory
 				if (HasAttributes(dir->DIR_Attr, ATTR_DIRECTORY))
 				{
+					if (!RemoveTrailingWhiteSpace(dir->DIR_Name, dirname, 11))
+					{
+						printf("There was an issue parsing directory name: %s\n", dir->DIR_Name);
+						return 0;
+					}
+
 					// check if this directory is the one we are looking for
 					// if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(dirname)) == 0)
 					if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(&buffer[strlen(CMD_CD) + 1])) == 0)
@@ -353,9 +345,10 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 
 		// read the FAT entry for the current cluster,
 		// and store its contents in nextEntry to read next
-		printf("Error: folder not found\n");
 		nextEntry = ReadFat32Entry(h, nextEntry);
 	} while (nextEntry != EOC && nextEntry < 0x0FFFFFF8 && dir != NULL);
+
+	printf("Error: folder not found\n");
 
 	// if we fail to find the directory the user want
 	// then just return the cluster of the directory
@@ -365,5 +358,81 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 
 int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 {
+	fat32Dir *dir = NULL;
+
+	uint32_t nextEntry = curDirClus;
+
+	char name[9];
+	char ext[4];
+
+	uint32_t sizeOfCluster = (uint32_t)h->bs->BPB_BytesPerSec * (uint32_t)h->bs->BPB_SecPerClus;
+	uint8_t clusterBuff[sizeOfCluster];
+
+	// Keep reading directory entries until we read an EOC in
+	// the FAT, this indicates we have reached the last cluster
+	// of this particular directory.
+	do
+	{
+		if (!ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster))
+		{
+			printf("There was an issue reading cluster %d\n", nextEntry);
+			return 0;
+		}
+
+		// cast the cluster we just read to our dir structure
+		dir = (fat32Dir *)(&clusterBuff[0]);
+
+		// keep incrementing dir until we reach the last entry
+		while (dir->DIR_Name[0] != 0x00)
+		{
+			// if dir->DIR_Name[0] == 0xE5
+			// then there is nothing stored in
+			// it and we may skip it
+			if (dir->DIR_Name[0] != 0xE5)
+			{
+				// we do not want to download a directory
+				if (!HasAttributes(dir->DIR_Attr, ATTR_DIRECTORY))
+				{
+					if (!RemoveTrailingWhiteSpace(dir->DIR_Name, name, 8))
+					{
+						printf("There was an issue parsing file name: %s\n", dir->DIR_Name);
+						return 0;
+					}
+
+					if (!RemoveTrailingWhiteSpace(&dir->DIR_Name[8], ext, 3))
+					{
+						printf("There was an issue parsing file extension: %s\n", dir->DIR_Name);
+						return 0;
+					}
+
+					// concatenate file name and file extension
+					// THIS IS BROKEN RIGHT NOW!!!!!
+					char *fullname = (char *)malloc(strlen(name) + strlen(ext) + 1);
+					strcpy(fullname, name);
+					strcpy(fullname, ext);
+
+					printf("%s\n", fullname);
+
+					// check if this file is the one we are looking for
+					if (strncmp(&buffer[strlen(CMD_GET) + 1], fullname, strlen(&buffer[strlen(CMD_GET) + 1])) == 0)
+					{
+						// we found the file we want to download.
+						printf("You want to get %s?\n", fullname);
+						free(fullname);
+						return 1;
+					}
+
+					free(fullname);
+				}
+			}
+
+			dir++;
+		}
+
+		// read the FAT entry for the current cluster,
+		// and store its contents in nextEntry to read next
+		nextEntry = ReadFat32Entry(h, nextEntry);
+	} while (nextEntry != EOC && nextEntry < 0x0FFFFFF8 && dir != NULL);
+
 	return 0;
 }

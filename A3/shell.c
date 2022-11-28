@@ -406,23 +406,16 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 					}
 
 					// concatenate file name and file extension
-					// THIS IS BROKEN RIGHT NOW!!!!!
-					char *fullname = (char *)malloc(strlen(name) + strlen(ext) + 1);
-					strcpy(fullname, name);
-					strcpy(fullname, ext);
-
-					printf("%s\n", fullname);
+					char fullname[DIR_Name_LENGTH + 3];
+					snprintf(fullname, sizeof(fullname), "%s.%s", name, ext);
 
 					// check if this file is the one we are looking for
 					if (strncmp(&buffer[strlen(CMD_GET) + 1], fullname, strlen(&buffer[strlen(CMD_GET) + 1])) == 0)
 					{
 						// we found the file we want to download.
 						printf("You want to get %s?\n", fullname);
-						free(fullname);
 						return 1;
 					}
-
-					free(fullname);
 				}
 			}
 

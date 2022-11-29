@@ -416,7 +416,7 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						printf("You want to get %s?\n", fullname);
 
 						// lets create a local file where we will store data of downloaded file
-						int fd = open(fullname, O_CREAT | O_RDWR);
+						int fd = open(fullname, O_CREAT | O_RDWR, 0700);
 						if (fd == -1)
 						{
 							perror("error creating new file");

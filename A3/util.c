@@ -58,6 +58,8 @@ uint32_t ReadFat32Entry(fat32Head *h, uint32_t N)
 
 // ReadCluster reads the byte contents of a given cluster and stores these contents
 // in the clusterBuffer of size clusterSize. This function only performs a single read.
+// This function can read multiple contiguous clusters at once, given clusterSize spans
+// multiple clusters.
 //
 // ReadCluster returns 1 indicating success, and 0 indicating error.
 int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t clusterSize)

@@ -414,6 +414,43 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 					{
 						// we found the file we want to download.
 						printf("You want to get %s?\n", fullname);
+
+						// lets create a local file where we will store data of downloaded file
+						int fd = open(fullname, O_CREAT | O_RDWR);
+						if (fd == -1)
+						{
+							perror("error creating new file");
+							return 0;
+						}
+
+						// follow FAT table starting from first cluster of file
+						uint32_t fileClus = ((((uint32_t)dir->DIR_FstClusHI[1]) << 24) | (((uint32_t)dir->DIR_FstClusHI[0]) << 16) | (((uint32_t)dir->DIR_FstClusLO[1]) << 8) | (uint32_t)dir->DIR_FstClusLO[0]) & 0x0FFFFFFF;
+
+						uint8_t dataBuff[sizeOfCluster];
+
+						// todo: implement bulk read
+						while (fileClus != EOC && fileClus < 0x0FFFFFF8)
+						{
+							// read the bytes at the cluster
+							if (!ReadCluster(h, fileClus, dataBuff, sizeOfCluster))
+							{
+								printf("There was an issue reading cluster %d\n", fileClus);
+								return 0;
+							}
+
+							// write the bytes from that cluster to file
+							if (write(fd, dataBuff, sizeOfCluster) == -1)
+							{
+								perror("error writing to file");
+								close(fd);
+								return 0;
+							}
+
+							fileClus = ReadFat32Entry(h, fileClus);
+						}
+
+						close(fd);
+
 						return 1;
 					}
 				}

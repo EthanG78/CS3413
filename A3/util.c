@@ -56,15 +56,15 @@ uint32_t ReadFat32Entry(fat32Head *h, uint32_t N)
     return (*((uint32_t *)&secBuff[fatEntryOffset])) & 0x0FFFFFFF;
 }
 
-// ReadCluster reads the byte contents of a given cluster and stores these contents
-// in the clusterBuffer of size clusterSize. This function only performs a single read.
-// This function can read multiple contiguous clusters at once, given clusterSize spans
-// multiple clusters.
+// ReadFromCluster reads dataSize amount of bytes starting from cluster startCluster into the
+// dataBuff byte buffer that must be of size dataSize. This function only calls the read() function
+// once. This function can read multiple contiguous clusters at once, given clusterSize spans multiple
+// clusters.
 //
-// ReadCluster returns 1 indicating success, and 0 indicating error.
-int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t clusterSize)
+// ReadFromCluster returns 1 indicating success, and 0 indicating error.
+int ReadFromCluster(fat32Head *h, uint32_t startCluster, uint8_t *dataBuff, uint32_t dataSize)
 {
-    uint32_t firstSectorofCluster = FindFirstSectorOfCluster(h, cluster);
+    uint32_t firstSectorofCluster = FindFirstSectorOfCluster(h, startCluster);
     off_t offset = lseek(h->fd, firstSectorofCluster * (uint32_t)h->bs->BPB_BytesPerSec, SEEK_SET);
     if (offset == -1)
     {
@@ -72,7 +72,7 @@ int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t
         return 0;
     }
 
-    int bytesRead = read(h->fd, clusterBuffer, clusterSize);
+    int bytesRead = read(h->fd, dataBuff, dataSize);
     if (bytesRead == -1)
     {
         perror("error reading cluster bytes");
@@ -88,7 +88,7 @@ int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t
 // The null terminated byte is appended at the end of newStr
 //
 // Returns 1 indicating success
-int RemoveTrailingWhiteSpace(char* str, char *newStr, int size)
+int RemoveTrailingWhiteSpace(char *str, char *newStr, int size)
 {
     int i;
     for (i = 0; i < size; i++)

@@ -5,7 +5,7 @@ uint32_t FindFirstSectorOfCluster(fat32Head *h, uint32_t N);
 
 uint32_t ReadFat32Entry(fat32Head *h, uint32_t N);
 
-int ReadCluster(fat32Head *h, uint32_t cluster, uint8_t *clusterBuffer, uint32_t clusterSize);
+int ReadFromCluster(fat32Head *h, uint32_t startCluster, uint8_t *dataBuff, uint32_t dataSize);
 
 int RemoveTrailingWhiteSpace(char* str, char *newStr, int size);
 

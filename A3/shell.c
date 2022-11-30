@@ -205,7 +205,7 @@ int doDir(fat32Head *h, uint32_t curDirClus)
 	// of this particular directory.
 	do
 	{
-		if (!ReadCluster(h, curDirClus, clusterBuff, sizeOfCluster))
+		if (!ReadFromCluster(h, curDirClus, clusterBuff, sizeOfCluster))
 		{
 			printf("There was an issue reading cluster %d\n", curDirClus);
 			return 0;
@@ -293,7 +293,7 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 	// of this particular directory.
 	do
 	{
-		if (!ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster))
+		if (!ReadFromCluster(h, nextEntry, clusterBuff, sizeOfCluster))
 		{
 			printf("There was an issue reading cluster %d\n", nextEntry);
 			return 0;
@@ -373,7 +373,7 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 	// of this particular directory.
 	do
 	{
-		if (!ReadCluster(h, nextEntry, clusterBuff, sizeOfCluster))
+		if (!ReadFromCluster(h, nextEntry, clusterBuff, sizeOfCluster))
 		{
 			printf("There was an issue reading cluster %d\n", nextEntry);
 			return 0;
@@ -429,10 +429,11 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						uint8_t dataBuff[sizeOfCluster];
 
 						// todo: implement bulk read
+						// todo: how do we know when the file ends in cluster??
 						while (fileClus != EOC && fileClus < 0x0FFFFFF8)
 						{
 							// read the bytes at the cluster
-							if (!ReadCluster(h, fileClus, dataBuff, sizeOfCluster))
+							if (!ReadFromCluster(h, fileClus, dataBuff, sizeOfCluster))
 							{
 								printf("There was an issue reading cluster %d\n", fileClus);
 								return 0;

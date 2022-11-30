@@ -62,7 +62,7 @@ fat32Head *createHead(int fd)
     uint32_t rootDirClus = head->bs->BPB_RootClus;
     uint32_t sizeOfCluster = (uint32_t)head->bs->BPB_BytesPerSec * (uint32_t)head->bs->BPB_SecPerClus;
     uint8_t clusterBuff[sizeOfCluster];
-    if (!ReadCluster(head, rootDirClus, clusterBuff, sizeOfCluster))
+    if (!ReadFromCluster(head, rootDirClus, clusterBuff, sizeOfCluster))
     {
         head->volumeID = (char *)malloc(sizeof(char));
         strcpy(head->volumeID, "\0");

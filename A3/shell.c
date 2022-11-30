@@ -48,24 +48,36 @@ void shellLoop(int fd)
 			buffer[i] = toupper(bufferRaw[i]);
 
 		if (strncmp(buffer, CMD_INFO, strlen(CMD_INFO)) == 0)
+		{
 			printInfo(h);
-
+		}
 		else if (strncmp(buffer, CMD_DIR, strlen(CMD_DIR)) == 0)
-			doDir(h, curDirClus);
-
+		{
+			if (doDir(h, curDirClus) == 0)
+				printf("\nError: unable to run dir command\n");
+		}
 		else if (strncmp(buffer, CMD_CD, strlen(CMD_CD)) == 0)
+		{
 			curDirClus = doCD(h, curDirClus, buffer);
-
+		}
 		else if (strncmp(buffer, CMD_GET, strlen(CMD_GET)) == 0)
-			doDownload(h, curDirClus, buffer);
-
+		{
+			if (doDownload(h, curDirClus, buffer) == 0)
+				printf("\nError: file not found\n");
+		}
 		else if (strncmp(buffer, CMD_PUT, strlen(CMD_PUT)) == 0)
+		{
 			// doUpload(h, curDirClus, buffer, bufferRaw);
 			printf("Bonus marks!\n");
+		}
 		else if (strncmp(buffer, CMD_EXIT, strlen(CMD_EXIT)) == 0)
+		{
 			running = false;
+		}
 		else
+		{
 			printf("\nCommand not found\n");
+		}
 	}
 	printf("\nExited...\n");
 

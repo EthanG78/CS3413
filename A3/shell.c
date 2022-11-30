@@ -413,7 +413,6 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 					if (strncmp(&buffer[strlen(CMD_GET) + 1], fullname, strlen(&buffer[strlen(CMD_GET) + 1])) == 0)
 					{
 						// we found the file we want to download.
-						printf("You want to get %s?\n", fullname);
 
 						// lets create a local file where we will store data of downloaded file
 						int fd = open(fullname, O_CREAT | O_RDWR, 0700);
@@ -424,30 +423,46 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						}
 
 						// follow FAT table starting from first cluster of file
-						uint32_t fileClus = ((((uint32_t)dir->DIR_FstClusHI[1]) << 24) | (((uint32_t)dir->DIR_FstClusHI[0]) << 16) | (((uint32_t)dir->DIR_FstClusLO[1]) << 8) | (uint32_t)dir->DIR_FstClusLO[0]) & 0x0FFFFFFF;
+						uint32_t fileCluster = ((((uint32_t)dir->DIR_FstClusHI[1]) << 24) | (((uint32_t)dir->DIR_FstClusHI[0]) << 16) | (((uint32_t)dir->DIR_FstClusLO[1]) << 8) | (uint32_t)dir->DIR_FstClusLO[0]) & 0x0FFFFFFF;
 
-						uint8_t dataBuff[sizeOfCluster];
-
-						// todo: implement bulk read
-						// todo: how do we know when the file ends in cluster??
-						while (fileClus != EOC && fileClus < 0x0FFFFFF8)
+						// first pass at bulk read
+						// todo: how do we know when file bytes end?
+						int contiguousClusters = 0;
+						uint32_t testCluster;
+						uint32_t dataSize = 0;
+						while (fileCluster != EOC && fileCluster < 0x0FFFFFF8)
 						{
-							// read the bytes at the cluster
-							if (!ReadFromCluster(h, fileClus, dataBuff, sizeOfCluster))
+							do
 							{
-								printf("There was an issue reading cluster %d\n", fileClus);
+								testCluster = ReadFat32Entry(h, fileCluster + contiguousClusters);
+								contiguousClusters++;
+							} while (testCluster == fileCluster + contiguousClusters && testCluster != EOC && testCluster < 0x0FFFFFF8);
+
+							dataSize = sizeOfCluster * contiguousClusters;
+
+							printf("Number fo contiguous clusters: %d\n", contiguousClusters);
+
+							contiguousClusters = 0;
+
+							// we know how many contiguous clusters we need to read
+							uint8_t dataBuff[dataSize];
+
+							// read the bytes at the cluster
+							if (!ReadFromCluster(h, fileCluster, dataBuff, dataSize))
+							{
+								printf("There was an issue reading cluster %d\n", fileCluster);
 								return 0;
 							}
 
 							// write the bytes from that cluster to file
-							if (write(fd, dataBuff, sizeOfCluster) == -1)
+							if (write(fd, dataBuff, dataSize) == -1)
 							{
 								perror("error writing to file");
 								close(fd);
 								return 0;
 							}
 
-							fileClus = ReadFat32Entry(h, fileClus);
+							fileCluster = testCluster;
 						}
 
 						close(fd);

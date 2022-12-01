@@ -437,29 +437,43 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						// follow FAT table starting from first cluster of file
 						uint32_t fileCluster = ((((uint32_t)dir->DIR_FstClusHI[1]) << 24) | (((uint32_t)dir->DIR_FstClusHI[0]) << 16) | (((uint32_t)dir->DIR_FstClusLO[1]) << 8) | (uint32_t)dir->DIR_FstClusLO[0]) & 0x0FFFFFFF;
 
+						// count the number of contiguous clusters we want to read
+						int contiguousClusters = 0;
+
+						// keep track of intermit cluster numbers
+						uint32_t testCluster;
+
+						// the size of the data chunk we want to read, note that
+						// this may change on each while loop iteration
+						uint32_t dataSize = 0;
+
 						// first pass at bulk read
 						// todo: how do we know when file bytes end?
-						int contiguousClusters = 0;
-						uint32_t testCluster;
-						uint32_t dataSize = 0;
 						while (fileCluster != EOC && fileCluster < 0x0FFFFFF8)
 						{
+							// calculate the value of contiguousClusters...
+							// this is accomplished by following the cluster chain
+							// until the next cluster DOES NOT equal the first cluster
+							// plus contiguousClusters
+							// note that we MUST KEEP TRACK of the first cluster in
+							// this cluster chain as that is where we read from, here
+							// this is fileCluster
 							do
 							{
 								testCluster = ReadFat32Entry(h, fileCluster + contiguousClusters);
 								contiguousClusters++;
 							} while (testCluster == fileCluster + contiguousClusters && testCluster != EOC && testCluster < 0x0FFFFFF8);
 
+							// set the number of bytes we want to read starting
+							// at cluster fileCluster
 							dataSize = sizeOfCluster * contiguousClusters;
+
+							// define the buffer to hold data bytes
+							uint8_t dataBuff[dataSize];
 
 							printf("Number fo contiguous clusters: %d\n", contiguousClusters);
 
-							contiguousClusters = 0;
-
-							// we know how many contiguous clusters we need to read
-							uint8_t dataBuff[dataSize];
-
-							// read the bytes at the cluster
+							// read the dataSize bytes from cluster fileCluster into dataBuff 
 							if (!ReadFromCluster(h, fileCluster, dataBuff, dataSize))
 							{
 								printf("There was an issue reading cluster %d\n", fileCluster);
@@ -474,9 +488,13 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 								return 0;
 							}
 
+							// reset the contiguousClusters counter
+							contiguousClusters = 0;
+
 							fileCluster = testCluster;
 						}
 
+						// make sure to close the file descriptor
 						close(fd);
 
 						return 1;

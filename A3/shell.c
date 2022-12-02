@@ -471,8 +471,6 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 							// define the buffer to hold data bytes
 							uint8_t dataBuff[dataSize];
 
-							printf("Number fo contiguous clusters: %d\n", contiguousClusters);
-
 							// read the dataSize bytes from cluster fileCluster into dataBuff 
 							if (!ReadFromCluster(h, fileCluster, dataBuff, dataSize))
 							{

@@ -120,6 +120,11 @@ fat32FSInfo *readFSInfo(int fd, fat32BS *bs);
 int cleanupHead(fat32Head *h);
 
 #endif
+/*
+* shell.h
+* CS3413 Assignment 3
+* Author: Ethan Garnier
+*/
 #ifndef SHELL_H
 #define SHELL_H
 

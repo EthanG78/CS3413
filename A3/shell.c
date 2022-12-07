@@ -464,14 +464,11 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 							{
 								testCluster = ReadFat32Entry(h, fileCluster + contiguousClusters);
 								contiguousClusters++;
-							} while (testCluster == fileCluster + contiguousClusters && testCluster != EOC && testCluster < 0x0FFFFFF8);
+							} while (contiguousClusters <= 10 && testCluster == fileCluster + contiguousClusters && testCluster != EOC && testCluster < 0x0FFFFFF8);
 
 							// set the number of bytes we want to read starting
 							// at cluster fileCluster
 							dataSize = sizeOfCluster * contiguousClusters;
-
-							printf("dataSize: %d\n", dataSize);
-							printf("bytesLeftToDownload: %d\n", bytesLeftToDownload);
 
 							// we don't want to read more bytes than we need,
 							// so if dataSize is greater than bytesLeftToDownload, 

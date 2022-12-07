@@ -447,6 +447,8 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						// this may change on each while loop iteration
 						uint32_t dataSize = 0;
 
+						uint32_t bytesLeftToDownload = dir->DIR_FileSize;
+
 						// first pass at bulk read
 						// todo: how do we know when file bytes end?
 						while (fileCluster != EOC && fileCluster < 0x0FFFFFF8)
@@ -467,6 +469,14 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 							// set the number of bytes we want to read starting
 							// at cluster fileCluster
 							dataSize = sizeOfCluster * contiguousClusters;
+
+							printf("dataSize: %d\n", dataSize);
+							printf("bytesLeftToDownload: %d\n", bytesLeftToDownload);
+
+							// we don't want to read more bytes than we need,
+							// so if dataSize is greater than bytesLeftToDownload, 
+							// we will truncate it to bytesLeftToDownload.
+							dataSize = (dataSize > bytesLeftToDownload) ? bytesLeftToDownload : dataSize;
 
 							// define the buffer to hold data bytes
 							uint8_t dataBuff[dataSize];
@@ -490,6 +500,9 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 							contiguousClusters = 0;
 
 							fileCluster = testCluster;
+
+							// subtract the number of btyes we wrote to file
+							bytesLeftToDownload -= dataSize;
 						}
 
 						// make sure to close the file descriptor

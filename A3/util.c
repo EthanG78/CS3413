@@ -73,6 +73,7 @@ int ReadFromCluster(fat32Head *h, uint32_t startCluster, uint8_t *dataBuff, uint
     }
 
     int bytesRead = read(h->fd, dataBuff, dataSize);
+    printf("bytesRead: %d\n", dataSize);
     if (bytesRead == -1)
     {
         perror("error reading cluster bytes");

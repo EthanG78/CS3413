@@ -1,3 +1,8 @@
+/*
+* shell.h
+* CS3413 Assignment 3
+* Author: Ethan Garnier
+*/
 #ifndef SHELL_H
 #define SHELL_H
 

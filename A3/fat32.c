@@ -1,3 +1,9 @@
+/*
+* fat32.c
+* CS3413 Assignment 3
+* Supplied for assignment with 
+* modifications made by Ethan Garnier
+*/
 #define _FILE_OFFSET_BITS 64
 
 #include <unistd.h>

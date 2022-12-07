@@ -1,3 +1,8 @@
+/*
+* shell.c
+* CS3413 Assignment 3
+* Author: Ethan Garnier
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,6 +72,8 @@ void shellLoop(int fd)
 		}
 		else if (strncmp(buffer, CMD_PUT, strlen(CMD_PUT)) == 0)
 		{
+
+			// i am sorry... i wanted to do this but ran out of time...
 			// doUpload(h, curDirClus, buffer, bufferRaw);
 			printf("Bonus marks!\n");
 		}
@@ -332,7 +339,6 @@ uint32_t doCD(fat32Head *h, uint32_t curDirClus, char *buffer)
 					}
 
 					// check if this directory is the one we are looking for
-					// if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(dirname)) == 0)
 					if (strncmp(&buffer[strlen(CMD_CD) + 1], dirname, strlen(&buffer[strlen(CMD_CD) + 1])) == 0)
 					{
 						// we found the directory we want to cd into
@@ -447,10 +453,12 @@ int doDownload(fat32Head *h, uint32_t curDirClus, char *buffer)
 						// this may change on each while loop iteration
 						uint32_t dataSize = 0;
 
+						// keep track of how many bytes we have left to download,
+						// and ensure we don't write the slack space at the end
+						// of the final cluster to file.
 						uint32_t bytesLeftToDownload = dir->DIR_FileSize;
 
-						// first pass at bulk read
-						// todo: how do we know when file bytes end?
+						// bulk reading for file download
 						while (fileCluster != EOC && fileCluster < 0x0FFFFFF8)
 						{
 							// calculate the value of contiguousClusters...

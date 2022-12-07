@@ -1,3 +1,8 @@
+/*
+* util.h
+* CS3413 Assignment 3
+* Author: Ethan Garnier
+*/
 #ifndef UTIL_H
 #define UTIL_H
 

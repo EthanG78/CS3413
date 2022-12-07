@@ -1,3 +1,8 @@
+/*
+* main.c
+* CS3413 Assignment 3
+* Author: Ethan Garnier
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>

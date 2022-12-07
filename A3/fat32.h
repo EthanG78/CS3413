@@ -1,3 +1,9 @@
+/*
+* fat32.h
+* CS3413 Assignment 3
+* Supplied for assignment with 
+* modifications made by Ethan Garnier
+*/
 #ifndef FAT32_H
 #define FAT32_H
 
@@ -93,14 +99,10 @@ struct fat32Dir_struct
 #pragma pack(pop)
 typedef struct fat32Dir_struct fat32Dir;
 
-// TODO: YOU WILL NEED TO MAKE MORE STRUCTS
-// for each struct you make, it's IMPORTANT to surround them
-// with the #pragmas you see above like:
 #pragma pack(push)
 #pragma pack(1)
 struct fat32Head
 {
-	// TODO
 	int fd;
 	char *volumeID;
 	fat32BS *bs;
